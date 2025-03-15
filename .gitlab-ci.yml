@@ -1,0 +1,90 @@
+variables:
+  DESARROLLO_DESTINO_IP: 10.10.19.77
+  DESARROLLO_DESTINO_RUTA_APP: /home/sicopol-desa/web
+  DESARROLLO_APP_URL: 'https://sicopol-desa.psa.gob.ar'
+  DESARROLLO_DEPLOY: 2
+
+  TESTING_DESTINO_IP: 10.10.19.78
+  TESTING_DESTINO_RUTA_APP: /home/sicopol-test/web
+  TESTING_URL_APP: 'https://sicopol-test.psa.gob.ar'
+  TESTING_DEPLOY: 1
+
+  PRODUCCION_DESTINO_IP:
+  PRODUCCION_DESTINO_RUTA_APP: /var/www/sicopol
+  PRODUCCION_URL_APP: 'https://sicopol.psa.gob.ar'
+  PRODUCCION_DEPLOY: 1
+
+stages:
+  - deploy
+desa-deploy-php82:
+  stage: deploy
+  script:
+    - |
+      if [ "$DESARROLLO_DEPLOY" = "1" ]; then
+        # PRIMER DEPLOY PARA SUBIR TODO EL CODIGO FUENTE (8.2)
+        ssh $DESARROLLO_DESTINO_IP "cd $DESARROLLO_DESTINO_RUTA_APP; rm -Rf *"
+        ssh $DESARROLLO_DESTINO_IP "cd $DESARROLLO_DESTINO_RUTA_APP; mkdir tmp"
+        scp -r * $DESARROLLO_DESTINO_IP:$DESARROLLO_DESTINO_RUTA_APP
+        ssh $DESARROLLO_DESTINO_IP "mv $DESARROLLO_DESTINO_RUTA_APP/env-desa.txt $DESARROLLO_DESTINO_RUTA_APP/.env"
+        ssh $DESARROLLO_DESTINO_IP "chmod -R g+s $DESARROLLO_DESTINO_RUTA_APP/*"
+        ssh $DESARROLLO_DESTINO_IP "chmod -R g+w $DESARROLLO_DESTINO_RUTA_APP/bootstrap $DESARROLLO_DESTINO_RUTA_APP/storage $DESARROLLO_DESTINO_RUTA_APP/config $DESARROLLO_DESTINO_RUTA_APP/public $DESARROLLO_DESTINO_RUTA_APP/tmp"
+      else
+        # SEGUNDO DEPLOY (DESPUES DEL PRIMER DEPLOY Y PLANCHADO DE PERMISOS)
+        ssh $DESARROLLO_DESTINO_IP "cd $DESARROLLO_DESTINO_RUTA_APP; rsync -qarc --delete --exclude vendor --exclude database --exclude bootstrap ."
+        rsync -varcO --chmod=g+s --no-perms --no-group * $DESARROLLO_DESTINO_IP:$DESARROLLO_DESTINO_RUTA_APP
+        ssh $DESARROLLO_DESTINO_IP "mv $DESARROLLO_DESTINO_RUTA_APP/env-desa.txt $DESARROLLO_DESTINO_RUTA_APP/.env"
+        # ssh $DESARROLLO_DESTINO_IP "rm -rf $DESARROLLO_DESTINO_RUTA_APP/public"
+        ssh $DESARROLLO_DESTINO_IP "rm -rf $DESARROLLO_DESTINO_RUTA_APP/bootstrap/cache/*"
+        ssh $DESARROLLO_DESTINO_IP "rm -rf $DESARROLLO_DESTINO_RUTA_APP/storage/framework/sessions/*"
+      fi
+  environment:
+    name: Desarrollo
+    url: $DESARROLLO_APP_URL
+  only:
+    - desarrollo
+testing-deploy-php82:
+  stage: deploy
+  script:
+    - |
+      if [ "$TESTING_DEPLOY" = "1" ]; then
+        # PRIMER DEPLOY PARA SUBIR TODO EL CODIGO FUENTE (8.2)
+        ssh $TESTING_DESTINO_IP "cd $TESTING_DESTINO_RUTA_APP; rm -Rf *"
+        ssh $TESTING_DESTINO_IP "cd $TESTING_DESTINO_RUTA_APP; mkdir tmp"
+        scp -r * $TESTING_DESTINO_IP:$TESTING_DESTINO_RUTA_APP
+        ssh $TESTING_DESTINO_IP "mv $TESTING_DESTINO_RUTA_APP/env-test.txt $TESTING_DESTINO_RUTA_APP/.env"
+        ssh $TESTING_DESTINO_IP "chmod -R g+s $TESTING_DESTINO_RUTA_APP/*"
+        ssh $TESTING_DESTINO_IP "chmod -R g+w $TESTING_DESTINO_RUTA_APP/bootstrap $TESTING_DESTINO_RUTA_APP/storage $TESTING_DESTINO_RUTA_APP/config $TESTING_DESTINO_RUTA_APP/public $TESTING_DESTINO_RUTA_APP/tmp"
+      else
+        # SEGUNDO DEPLOY (DESPUES DEL PRIMER DEPLOY Y PLANCHADO DE PERMISOS)
+        ssh $TESTING_DESTINO_IP "cd $TESTING_DESTINO_RUTA_APP; rsync -qarc --delete --exclude vendor --exclude database --exclude bootstrap --exclude storage ."
+        rsync -varcO --chmod=g+s --no-perms --no-group * $TESTING_DESTINO_IP:$TESTING_DESTINO_RUTA_APP
+        ssh $TESTING_DESTINO_IP "mv $TESTING_DESTINO_RUTA_APP/env-test.txt $TESTING_DESTINO_RUTA_APP/.env"
+      fi
+  environment:
+    name: Testing
+    url: $TESTING_APP_URL
+  only:
+    - testing
+produccion-deploy-php82:
+  stage: deploy
+  script:
+    - |
+      if [ "$PRODUCCION_DEPLOY" = "1" ]; then
+        # PRIMER DEPLOY PARA SUBIR TODO EL CODIGO FUENTE (8.2)
+        ssh $PRODUCCION_DESTINO_IP "cd $PRODUCCION_DESTINO_RUTA_APP; rm -Rf *"
+        ssh $PRODUCCION_DESTINO_IP "cd $PRODUCCION_DESTINO_RUTA_APP; mkdir tmp"
+        scp -r * $PRODUCCION_DESTINO_IP:$PRODUCCION_DESTINO_RUTA_APP
+        ssh $PRODUCCION_DESTINO_IP "mv $PRODUCCION_DESTINO_RUTA_APP/env-prod.txt $PRODUCCION_DESTINO_RUTA_APP/.env"
+        ssh $PRODUCCION_DESTINO_IP "chmod -R g+s $PRODUCCION_DESTINO_RUTA_APP/*"
+        ssh $PRODUCCION_DESTINO_IP "chmod -R g+w $PRODUCCION_DESTINO_RUTA_APP/bootstrap $PRODUCCION_DESTINO_RUTA_APP/storage $PRODUCCION_DESTINO_RUTA_APP/config $PRODUCCION_DESTINO_RUTA_APP/public $PRODUCCION_DESTINO_RUTA_APP/tmp"
+      else
+        # SEGUNDO DEPLOY (DESPUES DEL PRIMER DEPLOY Y PLANCHADO DE PERMISOS)
+        ssh $PRODUCCION_DESTINO_IP "cd $PRODUCCION_DESTINO_RUTA_APP; rsync -qarc --delete --exclude vendor --exclude database --exclude bootstrap --exclude storage ."
+        rsync -varcO --chmod=g+s --no-perms --no-group * $PRODUCCION_DESTINO_IP:$PRODUCCION_DESTINO_RUTA_APP
+        ssh $PRODUCCION_DESTINO_IP "mv $PRODUCCION_DESTINO_RUTA_APP/env-prod.txt $PRODUCCION_DESTINO_RUTA_APP/.env"
+      fi
+  environment:
+    name: Produccion
+    url: $PRODUCCION_APP_URL
+  only:
+    - '/^v([0-9]+)\.([0-9]+)\.([0-9]+)(\_(\w+))?$/'
