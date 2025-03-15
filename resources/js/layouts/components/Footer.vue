@@ -1,42 +1,51 @@
 <script setup>
-import logoMinSeg from '@images/logos/min_seg_logo.jpg'
+import logo from '@images/logos/logo.png'
 </script>
 <template>
 <div>
-  <div class="h-100 d-flex align-center justify-space-between">            
+  <div class="h-100 d-flex align-center justify-space-between  border-t-sm	pt-4">            
       <!-- 👉 Footer: left content -->
-      <span class="d-flex align-center">
-        &copy;
-        {{ new Date().getFullYear() }}
-        SiCoPol v2.0.0|
-        <!--
-        <VIcon
-          icon="ri-heart-line"
-          color="error"
-          size="1.25rem"
-          class="mx-1"
-        />-->
-        <a
-          href="https://www.argentina.gob.ar/psa"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="text-primary ms-1"
-        >Policía de Seguridad Aeroportuaria</a>
-      </span>
-      <!-- 👉 Footer: right content -->      
-      <v-img  class="gap-x-4 text-primary ml-auto"
-                    max-height="200px" 
-                    max-width="200px"
-                    :src="logoMinSeg"
-                    
-                    ></v-img>
+       <VRow no-gutters class="">
+        <VCol
+            cols="12"
+            sm="10"> 
+            
+          <span class="d-flex align-center">
+                  &copy;
+                  {{ new Date().getFullYear() }}
+                  IAMPOS v2.0.0| 
+                </span>
+          </VCol>
+          <VCol
+            cols="12"
+            sm="2"><VRow no-gutters class=" ">
+          <VCol
+            cols="12"
+            sm="8"> 
+            <h3 class=" text-end">IA</h3>
+
+          </VCol>
+          <VCol
+            cols="12"
+            sm="2"> <VImg  
+                   max-height="55px" 
+                   max-width="55px"
+                   :src="logo"
+                   
+                   ></VImg></VCol>
+          <VCol
+            cols="12"
+            sm="1">                  
+            <h3 class=" ">POS</h3>
+</VCol>
+        </VRow></VCol>
+       </VRow>
+       
       
       
       
     </div>
-    <div >
-    
-    </div>
+     
   </div>
   
   

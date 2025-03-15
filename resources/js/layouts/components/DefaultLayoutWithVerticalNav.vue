@@ -1,11 +1,10 @@
 <script setup>
 import NavItems from '@/layouts/components/NavItems.vue'
-import logo from '@images/logo.svg?raw'
 import VerticalNavLayout from '@layouts/components/VerticalNavLayout.vue'
 import Footer from '@/layouts/components/Footer.vue'
 import NavbarThemeSwitcher from '@/layouts/components/NavbarThemeSwitcher.vue'
 import UserProfile from '@/layouts/components/UserProfile.vue'
-import logoPsa from '@images/logos/logoPsaGrande.jpg'
+import logo from '@images/logos/logo.png'
 </script>
 
 <template>
@@ -62,15 +61,31 @@ import logoPsa from '@images/logos/logoPsaGrande.jpg'
 
     <template #vertical-nav-header="{ toggleIsOverlayNavActive }">
       <div
-          class="d-flex"
+          class="d-flex border-b-md	"
           
         />
-       <VImg  
+        <VRow no-gutters class="border-b-md	pb-4">
+          <VCol
+            cols="12"
+            sm="4"> 
+            <h1 class=" text-end">IA</h1>
+
+          </VCol>
+          <VCol
+            cols="12"
+            sm="2"> <VImg  
                    max-height="45px" 
                    max-width="45px"
-                   :src="logoPsa"
+                   :src="logo"
                    
-                   ></VImg>
+                   ></VImg></VCol>
+          <VCol
+            cols="12"
+            sm="4">                  
+            <h1 class=" ">POS</h1>
+</VCol>
+        </VRow>
+       
       <RouterLink
         to="/"
         class="app-logo app-title-wrapper"
@@ -81,9 +96,9 @@ import logoPsa from '@images/logos/logoPsaGrande.jpg'
           v-html="logo"
         />-->
 
-        <h1 class="font-weight-medium leading-normal text-xl text-uppercase">
-        &nbsp;&nbsp;Sicopol
-        </h1>
+        <!--<h1 class="font-weight-medium leading-normal text-xl text-uppercase">
+        &nbsp;&nbsp;IAMPOS
+        </h1>-->
       </RouterLink>
 
       <IconBtn

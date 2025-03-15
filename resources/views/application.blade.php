@@ -5,11 +5,11 @@
   <meta charset="UTF-8" />
   <link rel="icon" href="{{ asset('favicon.ico') }}" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PSA - Sistema de Control Policial</title>
+  <title>{{config("APP_NAME")}}</title>
   <link rel="stylesheet" type="text/css" href="{{ asset('loader.css') }}" />
   @vite(['resources/js/main.js'])
-  
-  
+
+
 </head>
 
 <body>
@@ -40,7 +40,7 @@
       </div>
     </div>
   </div>
-  
+
   <script>
     const loaderColor = localStorage.getItem('materio-initial-loader-bg') || '#FFFFFF'
     const primaryColor = localStorage.getItem('materio-initial-loader-color') || '#9155FD'
