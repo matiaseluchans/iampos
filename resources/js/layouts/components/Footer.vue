@@ -3,7 +3,7 @@ import logo from '@images/logos/logo.png'
 </script>
 <template>
 <div>
-  <div class="h-100 d-flex align-center justify-space-between  border-t-sm	pt-4">            
+  <div class="h-100 d-flex align-center justify-space-between  border-t-sm	pt-3">            
       <!-- 👉 Footer: left content -->
        <VRow no-gutters class="">
         <VCol
@@ -18,27 +18,14 @@ import logo from '@images/logos/logo.png'
           </VCol>
           <VCol
             cols="12"
-            sm="2"><VRow no-gutters class=" ">
-          <VCol
-            cols="12"
-            sm="8"> 
-            <h3 class=" text-end">IA</h3>
-
-          </VCol>
-          <VCol
-            cols="12"
-            sm="2"> <VImg  
-                   max-height="55px" 
-                   max-width="55px"
+            sm="2"> 
+          
+           <VImg  
+                   max-height="35px"  
                    :src="logo"
                    
-                   ></VImg></VCol>
-          <VCol
-            cols="12"
-            sm="1">                  
-            <h3 class=" ">POS</h3>
-</VCol>
-        </VRow></VCol>
+                   ></VImg> 
+                  </VCol>
        </VRow>
        
       

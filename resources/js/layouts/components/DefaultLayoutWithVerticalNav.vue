@@ -65,25 +65,16 @@ import logo from '@images/logos/logo.png'
           
         />
         <VRow no-gutters class="border-b-md	pb-4">
+          
           <VCol
             cols="12"
-            sm="4"> 
-            <h1 class=" text-end">IA</h1>
-
-          </VCol>
-          <VCol
-            cols="12"
-            sm="2"> <VImg  
-                   max-height="45px" 
-                   max-width="45px"
+            xs="12"> <VImg  
+                   max-height="145px"  
                    :src="logo"
                    
                    ></VImg></VCol>
-          <VCol
-            cols="12"
-            sm="4">                  
-            <h1 class=" ">POS</h1>
-</VCol>
+          
+ 
         </VRow>
        
       <RouterLink
