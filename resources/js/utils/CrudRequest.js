@@ -1,4 +1,4 @@
-import axios from "axios";
+ 
 
 
 export default {
@@ -10,7 +10,7 @@ export default {
             Swal.alertGetInfo("Obteniendo información");
             let arrayRoutes = Vue.config.globalProperties.$routes;
             //console.log(arrayRoutes);
-            axios.
+            this.$axios.
                 get(arrayRoutes[vm.route])
                 .then((r) => {
                   Swal.close();
@@ -49,7 +49,7 @@ export default {
                 callback: (confirm) => {
                     let respuesta = item.activo == 1 ? 4 : 5;
                     if (confirm) {
-                        axios
+                        this.$axios
                             //.put(url)
                             .put(vm.route+'_enable', id, form)
                             .then((r) => {
@@ -88,8 +88,8 @@ export default {
                         let arrayRoutes = Vue.config.globalProperties.$routes;
                         let url = arrayRoutes[vm.route] + "/" + id;
                         formData.append("_method", "DELETE");
-                        axios.post(url, {_method: "DELETE", data: id,})
-                         /*axios
+                        this.$axios.post(url, {_method: "DELETE", data: id,})
+                         /*this.$axios
                             .delete(vm.route, id)*/
                             .then((r) => {
                                 vm.$respuesta(vm, r, 0);
@@ -134,8 +134,8 @@ export default {
                   let formData = new FormData();
                   let url = arrayRoutes[vm.route] + "/" + vm.editedIndex;
                   formData.append("_method", "PUT");
-                  await axios.post(url, {_method: "PUT", data: vm.editedItem,})
-                  //await axios.put(arrayRoutes[vm.route], vm.editedIndex, vm.editedItem)
+                  await this.$axios.post(url, {_method: "PUT", data: vm.editedItem,})
+                  //await this.$axios.put(arrayRoutes[vm.route], vm.editedIndex, vm.editedItem)
                     .then((r) => {
                         vm.$respuesta(vm, r, 2);
                     }).catch((e) => {
@@ -150,7 +150,7 @@ export default {
                     console.log(vm.editedItem);
                     console.log(arrayRoutes[vm.route]);
                   */
-                  await axios.post(arrayRoutes[vm.route], vm.editedItem)
+                  await this.$axios.post(arrayRoutes[vm.route], vm.editedItem)
                     .then((r) => {
                         vm.$respuesta(vm, r, 1);
                     }).catch((e) => {
@@ -171,7 +171,7 @@ export default {
               if (vm.editedIndex > -1) {
                 Swal.alertGetInfo("Actualizando información");
 
-                await vm.$axiosApi.putExternal(arrayRoutes[vm.route], vm.editedIndex, vm.editedItem)
+                await vm.$this.$axiosApi.putExternal(arrayRoutes[vm.route], vm.editedIndex, vm.editedItem)
                   .then((r) => {
                       vm.$respuesta(vm, r, 2);
 
@@ -183,7 +183,7 @@ export default {
               } else {
                 Swal.alertGetInfo("Registrando información");
 
-                await vm.$axiosApi.postExternal(vm.route, vm.editedItem)
+                await vm.$this.$axiosApi.postExternal(vm.route, vm.editedItem)
                   .then((r) => {
                       vm.$respuesta(vm, r, 1);
                   }).catch((e) => {
@@ -205,7 +205,7 @@ export default {
             vm.color = "primary";
             */
            const url = arrayRoutes[vm.route]+"/"+id;
-            await axios
+            await this.$axios
             .get(url)
                 .then((r) => {
                   
@@ -295,7 +295,7 @@ export default {
         Vue.config.globalProperties.$getQuery = async function(url) {
             let vm = this;
 
-            let records =  await axios
+            let records =  await this.$axios
                 .get(url)
                 .then((r) => {
 
@@ -337,7 +337,7 @@ export default {
             
           const url = arrayRoutes[vm.route]+"/"+id;
           let record;
-          await axios.get(url).then((r) => {                  
+          await this.$axios.get(url).then((r) => {                  
             Swal.close();
             record = r.data;
           }).catch(function (error) {
@@ -577,7 +577,7 @@ export default {
                     let query = "IdentifierTypeId=" + Number(arrayDocs[i].tipo);
                     query = query + "&Identifier=" + arrayDocs[i].documento;
 
-                    const resp = await vm.$axiosApi
+                    const resp = await vm.$this.$axiosApi
                       .getByQuery(vm.routePersons, query)
                       .then((r) => {
                         console.log(r);
@@ -660,7 +660,7 @@ export default {
                     },
                   });
                   let id = resp[0].id;
-                  vm.$axiosApi
+                  vm.$this.$axiosApi
                     .getById(vm.route, id)
                     .then((r) => {
                       //console.log(r.data.data);
@@ -852,7 +852,7 @@ export default {
         //Swal.alertGetInfo("Obteniendo información <br><b></b>");
         let arrayRoutes = Vue.config.globalProperties.$routes;
           //console.log($route);              
-           axios.get(arrayRoutes[$route]).then((response) => {
+           this.$axios.get(arrayRoutes[$route]).then((response) => {
             let options = response.data.data;
             //console.log(options);
             if(typeof options[0] !== 'undefined'){
@@ -1126,7 +1126,7 @@ export default {
 
           Vue.config.globalProperties.$pdfExport= async function (id) {
             let vm = this;
-            vm.$axiosApi.pdfExport(vm.route+"_pdf",id);
+            vm.$this.$axiosApi.pdfExport(vm.route+"_pdf",id);
 
           }
 

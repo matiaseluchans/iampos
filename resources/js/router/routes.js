@@ -1,12 +1,14 @@
 export const routes = [
-  { path: '/', redirect: '/dashboard' },
-  {
+  //{ path: '/', redirect: '/dashboard' },
+   
+   {
     path: '/',
     component: () => import('@/layouts/default.vue'),
     children: [
       {
         path: 'dashboard',
         component: () => import('@/pages/dashboard.vue'),
+        meta: { requiresAuth: true }
       },
       {
         path: 'account-settings',
@@ -47,14 +49,17 @@ export const routes = [
       {
         path: 'clasificaciones',
         component: () => import('@/pages/clasificaciones.vue'),
+        meta: { requiresAuth: true }
       },
       {
         path: 'estados',
         component: () => import('@/pages/estados.vue'),
+        meta: { requiresAuth: true }
       },
       {
         path: 'funciones',
         component: () => import('@/pages/funciones.vue'),
+        meta: { requiresAuth: true }
       },
       {
         path: 'partes',
@@ -74,6 +79,7 @@ export const routes = [
       {
         path: 'login',
         component: () => import('@/pages/login.vue'),
+        meta: { guestOnly: true }
       },
       {
         path: 'register',
@@ -84,5 +90,5 @@ export const routes = [
         component: () => import('@/pages/[...error].vue'),
       },
     ],
-  },
+  }, 
 ]

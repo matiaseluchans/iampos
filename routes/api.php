@@ -3,6 +3,10 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
+
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -14,7 +18,52 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+/*
+Route::post('/login', function (Request $request) {
+    $credentials = $request->only('email', 'password');
+
+    if (!Auth::attempt($credentials)) {
+        return response()->json(['message' => 'Unauthorized'], 401);
+    }
+
+    return $request->user();
+});
+
+Route::post('/logout', function (Request $request) {
+    Auth::guard('web')->logout();
+    $request->session()->invalidate();
+    $request->session()->regenerateToken();
+    return response()->json(['message' => 'Logged out']);
+});
+*/
+
+Route::post('/login', function (Request $request) {
+    $credentials = $request->only('email', 'password');
+
+    if (!Auth::attempt($credentials)) {
+        return response()->json(['message' => 'Unauthorized'], 401);
+    }
+
+    $user = Auth::user();
+    $token = $user->createToken('auth_token')->plainTextToken;
+
+    return response()->json([
+        'access_token' => $token,
+        'token_type' => 'Bearer',
+        'user' => $user,
+    ]);
+});
+
+Route::middleware('auth:sanctum')->post('/logout', function (Request $request) {
+    // Revoca el token usado en la petición actual
+    $request->user()->currentAccessToken()->delete();
+
+    return response()->json(['message' => 'Successfully logged out']);
+});
+
+
+
+Route::middleware('auth:sanctum')->get('/api/user', function (Request $request) {
     return $request->user();
 });
 

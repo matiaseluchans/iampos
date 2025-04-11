@@ -1,5 +1,26 @@
 <script setup>
 import avatar1 from '@images/avatars/avatar-1.png'
+import { logout } from '@/api/auth'
+
+
+
+const router = useRouter()
+
+async function handleLogout() {
+  try {
+    await logout()
+
+    Swal.fire({
+      icon: 'success',
+      title: 'Sesión cerrada',
+      timer: 1500,
+      showConfirmButton: false,
+    })
+    router.push('/login')
+  } catch (e) {
+    console.error('Error al cerrar sesión:', e)
+  }
+}
 </script>
 
 <template>
@@ -26,7 +47,7 @@ import avatar1 from '@images/avatars/avatar-1.png'
         offset="14px"
       >
         <VList>
-          <!-- 👉 User Avatar & Name -->
+          <!--
           <VListItem>
             <template #prepend>
               <VListItemAction start>
@@ -54,7 +75,7 @@ import avatar1 from '@images/avatars/avatar-1.png'
           </VListItem>
           <VDivider class="my-2" />
 
-          <!-- 👉 Profile -->
+     
           <VListItem link>
             <template #prepend>
               <VIcon
@@ -67,7 +88,7 @@ import avatar1 from '@images/avatars/avatar-1.png'
             <VListItemTitle>Profile</VListItemTitle>
           </VListItem>
 
-          <!-- 👉 Settings -->
+ 
           <VListItem link>
             <template #prepend>
               <VIcon
@@ -80,7 +101,7 @@ import avatar1 from '@images/avatars/avatar-1.png'
             <VListItemTitle>Settings</VListItemTitle>
           </VListItem>
 
-          <!-- 👉 Pricing -->
+   
           <VListItem link>
             <template #prepend>
               <VIcon
@@ -93,7 +114,7 @@ import avatar1 from '@images/avatars/avatar-1.png'
             <VListItemTitle>Pricing</VListItemTitle>
           </VListItem>
 
-          <!-- 👉 FAQ -->
+      
           <VListItem link>
             <template #prepend>
               <VIcon
@@ -106,11 +127,11 @@ import avatar1 from '@images/avatars/avatar-1.png'
             <VListItemTitle>FAQ</VListItemTitle>
           </VListItem>
 
-          <!-- Divider -->
+ 
           <VDivider class="my-2" />
 
-          <!-- 👉 Logout -->
-          <VListItem to="/login">
+           -->
+          <VListItem @click="handleLogout">
             <template #prepend>
               <VIcon
                 class="me-2"

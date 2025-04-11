@@ -1,6 +1,7 @@
 import { createApp } from 'vue'
 import App from '@/App.vue'
 import { registerPlugins } from '@core/utils/plugins'
+import router from './router'
 
 // Styles
 import '@core-scss/template/index.scss'
@@ -15,6 +16,9 @@ import Rules from './utils/Rules.js';
 import CrudRequest from './utils/CrudRequest.js';
 import { VueMaskDirective } from 'v-mask';
 import moment from 'moment';
+
+
+import axios from './axios/axios'
 
 const vMaskV2 = VueMaskDirective;
 const vMaskV3 = {
@@ -33,8 +37,9 @@ app.use(Rules);
 app.use(CrudRequest);
 app.config.globalProperties.moment = moment;
 app.component('filter-component', './components/Filter.vue');
-//app.config.globalProperties.$axiosApi = new AxiosApi(app.config.globalProperties.$token);
+app.config.globalProperties.$axios = axios  
 
+app.use(router)
 // Register plugins
 registerPlugins(app)
 
