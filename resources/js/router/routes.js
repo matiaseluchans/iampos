@@ -1,5 +1,5 @@
 export const routes = [
-  //{ path: '/', redirect: '/dashboard' },
+  { path: '/', redirect: '/dashboard' },
    
    {
     path: '/',

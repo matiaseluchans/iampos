@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const instance = axios.create({
-  baseURL: 'http://iampos.local', // tu backend Laravel
+  baseURL: 'http://iampos.com', // tu backend Laravel
 })
 
 const token = localStorage.getItem('token')

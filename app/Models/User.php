@@ -21,6 +21,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'tenant_id',
     ];
 
     /**
@@ -42,4 +43,23 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class)->withTimestamps();
+    }
+
+    public function hasRole($role)
+    {
+        return $this->roles->pluck('name')->contains($role);
+    }
+
+    public function hasPermission($permission)
+    {
+        foreach ($this->roles as $role) {
+            if ($role->permissions->pluck('name')->contains($permission)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
