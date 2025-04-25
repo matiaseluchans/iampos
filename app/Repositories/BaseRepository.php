@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Http\Controllers\ApiController;
+use Illuminate\Support\Facades\DB;
 
 class BaseRepository extends ApiController
 {
@@ -18,14 +19,15 @@ class BaseRepository extends ApiController
 
     public function all()
     {
-        try{
+        try {
             $query = $this->model;
-            
+
             if (!empty($this->relations)) {
                 $query = $query->with($this->relations);
             }
 
-            return $this->successResponse($this->cacheAll($query));
+            //return $this->successResponse($this->cacheAll($query));
+            return $this->successResponse($query::all());
         } catch (\Exception $e) {
             report($e);
             return $this->errorResponse($e);
@@ -34,7 +36,7 @@ class BaseRepository extends ApiController
 
     public function get($id)
     {
-        try {            
+        try {
             return $this->successResponse($this->model::findOrFail($id));
         } catch (\Exception $e) {
             report($e);
@@ -43,19 +45,19 @@ class BaseRepository extends ApiController
     }
 
     public function save($request)
-    {        
+    {
         try {
-                $jsonData = $request->getContent(); // Obtener datos del cuerpo de la solicitud
-                $modelData = json_decode($jsonData, true); // Deserializar JSON a array
+            $jsonData = $request->getContent(); // Obtener datos del cuerpo de la solicitud
+            $modelData = json_decode($jsonData, true); // Deserializar JSON a array
 
-                // Crear un nuevo modelo a partir de los datos recibidos            
-                $this->model->fill($modelData);
-                $this->model->save();            
-              
-                $this->cacheForget();
-                return $this->successResponseCreate($this->model);
+            // Crear un nuevo modelo a partir de los datos recibidos            
+            $this->model->fill($modelData);
+            $this->model->save();
+
+            //$this->cacheForget();
+            return $this->successResponseCreate($this->model);
         } catch (\Exception $e) {
-            dd($e);
+
             report($e);
             DB::rollBack();
             return $this->errorResponse($e);
@@ -63,13 +65,13 @@ class BaseRepository extends ApiController
     }
 
     public function update($request, $id)
-    {                
-        try {        
+    {
+        try {
             $form = $request->all();
             $model = $this->model::findOrFail($id);
 
-            $model->update($form['data']);            
-            $this->cacheForget();
+            $model->update($form['data']);
+            //$this->cacheForget();
 
             return $this->successResponse($model);
         } catch (\Exception $e) {
@@ -80,12 +82,12 @@ class BaseRepository extends ApiController
     }
 
     public function delete($id)
-    {                
+    {
         try {
             $model = $this->model::findOrFail($id);
 
-            $model->delete();            
-            $this->cacheForget();
+            $model->delete();
+            //$this->cacheForget();
 
             return $this->successResponse($model);
         } catch (\Exception $e) {
@@ -96,17 +98,17 @@ class BaseRepository extends ApiController
     }
 
     public function changestatus($request, $id)
-    {                
+    {
         try {
             $model = $this->model::findOrFail($id);
             $model->activo = $model->activo == 1 ? 0 : 1;
             $model->save();
-            
-            $this->cacheForget();
+
+            //$this->cacheForget();
             return $this->successResponse($model);
         } catch (\Exception $e) {
             report($e);
-            
+
             return $this->errorResponse($e);
         }
     }

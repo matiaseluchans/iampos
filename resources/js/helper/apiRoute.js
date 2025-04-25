@@ -6,4 +6,5 @@ export const apiRoute = Object.freeze({
     funciones:"api/funciones",
     personalPsa:"api/personalPsa",
     partes: "api/partes",
+    clientes: "api/clientes",
   });

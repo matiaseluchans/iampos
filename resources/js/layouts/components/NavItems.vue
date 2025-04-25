@@ -14,6 +14,55 @@ import VerticalNavLink from '@layouts/components/VerticalNavLink.vue'
        to: '/dashboard',
     }"
   />  
+
+
+  <VerticalNavSectionTitle
+    :item="{
+      heading: 'Administracion General',
+    }"
+  />
+  <VerticalNavGroup
+    :item="{
+      title: 'Administración',
+      icon: 'ri-tools-line',      
+    }"
+  >
+  <!--
+  <VerticalNavLink
+      :item="{
+        title: 'Companias',
+        to: '/companies',        
+      }"
+    />
+    -->
+    <VerticalNavLink
+      :item="{
+        title: 'Clientes',
+        to: '/clientes',        
+      }"
+    />
+    <VerticalNavLink
+      :item="{
+        title: 'Clasificaciones',
+        to: '/clasificaciones',        
+      }"
+    />
+    <VerticalNavLink
+      :item="{
+        title: 'Estados',
+        to: '/estados',        
+      }"
+    />
+    <VerticalNavLink
+      :item="{
+        title: 'Funciones',
+        to: '/funciones',        
+      }"
+    /> 
+  </VerticalNavGroup>
+
+
+
   <!-- 👉 Front Pages -->  
   <VerticalNavSectionTitle
     :item="{
@@ -77,45 +126,7 @@ import VerticalNavLink from '@layouts/components/VerticalNavLink.vue'
     />    
   </VerticalNavGroup>
 
-  <VerticalNavSectionTitle
-    :item="{
-      heading: 'Administracion General',
-    }"
-  />
-  <VerticalNavGroup
-    :item="{
-      title: 'Administración',
-      icon: 'ri-tools-line',      
-    }"
-  >
-  <!--
-  <VerticalNavLink
-      :item="{
-        title: 'Companias',
-        to: '/companies',        
-      }"
-    />
-    -->
-    <VerticalNavLink
-      :item="{
-        title: 'Clasificaciones',
-        to: '/clasificaciones',        
-      }"
-    />
-    <VerticalNavLink
-      :item="{
-        title: 'Estados',
-        to: '/estados',        
-      }"
-    />
-    <VerticalNavLink
-      :item="{
-        title: 'Funciones',
-        to: '/funciones',        
-      }"
-    /> 
-  </VerticalNavGroup>
-
+  
   <!-- 👉 Apps & Pages -->
   <VerticalNavSectionTitle
     :item="{

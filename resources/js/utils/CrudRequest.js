@@ -316,17 +316,17 @@ export default {
           if (status == 1)
             return {
               color: 'success',
-              text: 'Habilitado',
+              text: 'Activo',
             }
           else if (status == 0)
             return {
               color: 'error',
-              text: 'Deshabilitado',
+              text: 'Inactivo',
             }          
           else
             return {
               color: 'success',
-              text: 'Habilitado',
+              text: 'Activo',
             }
         },
         Vue.config.globalProperties.$getRecord = async function(id){
@@ -1158,6 +1158,43 @@ export default {
             });
 
            }
+
+           Vue.config.globalProperties.$toggleActivo = async function(item)  {
+              Swal.alertGetInfo("Actualizando información");
+              const originalState = item.activo; // Guarda el estado original
+
+              try {
+                let arrayRoutes = Vue.config.globalProperties.$routes;
+
+                let url = arrayRoutes[this.route];
+                const response = await this.$axios.put(url+'/'+item.id, {
+                  data: {
+                    activo: item.activo === 1 ? 0 : 1
+                  }
+                });
+
+                if (response.data.code == 200) {
+                  this.snackbar = true;
+                  this.text = "Se modificó el estado con exito.";
+                  this.color = "success";
+                } else {
+                  item.activo = originalState;
+                  this.snackbar = true;
+                  this.text = "Error al cambiar el estado";
+                  this.color = "error";
+                }
+                this.$initialize();
+              } catch (error) {
+                item.activo = originalState;
+                console.error("Error al cambiar el estado:", error);
+                this.snackbar = true;
+                this.text = "Error al cambiar el estado:" + error;
+                this.color = "error";
+                this.$initialize();
+              } finally {
+                Swal.close();
+              }
+            }
 
     }
 

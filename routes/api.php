@@ -67,6 +67,12 @@ Route::middleware('auth:sanctum')->get('/api/user', function (Request $request) 
     return $request->user();
 });
 
+
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::apiResource('clientes', App\Http\Controllers\ClienteController::class);
+});
+
+
 Route::resource('companies', App\Http\Controllers\CompanyController::class);
 Route::resource('estados', App\Http\Controllers\EstadoController::class);
 Route::resource('clasificaciones', App\Http\Controllers\ClasificacionController::class);

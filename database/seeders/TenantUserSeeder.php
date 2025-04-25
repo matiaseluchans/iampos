@@ -53,12 +53,12 @@ class TenantUserSeeder extends Seeder
         // === Crear Tenants y sus administradores/usuarios ===
         $tenants = [
             [
-                "slug" => "distribuidora_bebidas",
-                "nombre" => "Distribuidora de Bebidas"
+                "slug" => "bedidas",
+                "nombre" => "Bebidas"
             ],
             [
-                "slug" => "petshop_droopy",
-                "nombre" => "pet shop droopy"
+                "slug" => "petshop",
+                "nombre" => "pet shop"
             ]
 
         ];
@@ -88,9 +88,9 @@ class TenantUserSeeder extends Seeder
 
             // Crear admin del tenant
             $admin = User::firstOrCreate([
-                'email' => "admin_" . $v["slug"] . "@example.com",
+                'email' => $v["slug"] . "_admin@example.com",
             ], [
-                'name' => "Admin " . $v["nombre"],
+                'name' => $v["nombre"] . " Admin ",
                 'password' => Hash::make('1q2w3e4r'),
                 'tenant_id' => $tenant->id,
             ]);
@@ -100,9 +100,9 @@ class TenantUserSeeder extends Seeder
             // Crear usuarios básicos
             foreach (range(1, 2) as $u) {
                 $user = User::firstOrCreate([
-                    'email' => "user_" . $v["slug"] . "_" . $u . "@example.com",
+                    'email' =>  $v["slug"] . "_user_" . $u . "@example.com",
                 ], [
-                    'name' => "User " . $u . " - " . $v["nombre"],
+                    'name' => $v["nombre"] . " User " . $u,
                     'password' => Hash::make('1q2w3e4r'),
                     'tenant_id' => $tenant->id,
                 ]);
