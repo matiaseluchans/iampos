@@ -17,17 +17,22 @@ class BaseRepository extends ApiController
         $this->relations = $relations;
     }
 
+    public function with(array $relations)
+    {
+        $this->relations = $relations;
+        return $this;
+    }
+
     public function all()
     {
         try {
-            $query = $this->model;
+            $query = $this->model->query();
 
             if (!empty($this->relations)) {
                 $query = $query->with($this->relations);
             }
 
-            //return $this->successResponse($this->cacheAll($query));
-            return $this->successResponse($query::all());
+            return $this->successResponse($query->get());
         } catch (\Exception $e) {
             report($e);
             return $this->errorResponse($e);
@@ -37,7 +42,13 @@ class BaseRepository extends ApiController
     public function get($id)
     {
         try {
-            return $this->successResponse($this->model::findOrFail($id));
+            $query = $this->model->query();
+
+            if (!empty($this->relations)) {
+                $query = $query->with($this->relations);
+            }
+
+            return $this->successResponse($query->findOrFail($id));
         } catch (\Exception $e) {
             report($e);
             return $this->errorResponse($e);

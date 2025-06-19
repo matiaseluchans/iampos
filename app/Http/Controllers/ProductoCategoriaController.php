@@ -2,27 +2,26 @@
 
 namespace App\Http\Controllers;
 
-
 use Illuminate\Http\Request;
-use App\Repositories\PersonalPsaRepository;
+use App\Repositories\ProductoCategoriaRepository;
 
-class PersonalPsaController extends Controller
+class ProductoCategoriaController extends Controller
 {
     private $repository;
 
-    public function __construct(PersonalPsaRepository $repository)
+    public function __construct(ProductoCategoriaRepository $repository)
     {
         $this->repository = $repository;
     }
 
     public function index(Request $request)
     {
-        return $this->repository->all();
+        return $this->repository->with(['categoriaPadre', 'subcategorias'])->all();
     }
 
     public function show($id)
     {
-        return $this->repository->get($id);
+        return $this->repository->with(['categoriaPadre', 'subcategorias'])->get($id);
     }
 
     public function store(Request $request)

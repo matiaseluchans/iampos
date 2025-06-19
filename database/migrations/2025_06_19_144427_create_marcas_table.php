@@ -11,12 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('companies', function (Blueprint $table) {
+        Schema::create('marcas', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('email');
-            $table->string('address')->nullable();
-            $table->string('website')->nullable();
+            $table->string('nombre');
+            $table->boolean('activo')->nullable()->default(1);
+            $table->string('created_by', 1000)->nullable();
+            $table->string('last_modified_by', 1000)->nullable();
+            $table->string('deleted_by', 1000)->nullable();
+
+            $table->unsignedBigInteger('tenant_id');
+
             $table->timestamps();
             $table->softDeletes();
         });
@@ -27,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('companies');
+        Schema::dropIfExists('marcas');
     }
 };

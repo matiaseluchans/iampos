@@ -1,10 +1,30 @@
 <script setup>
-import NavItems from '@/layouts/components/NavItems.vue'
-import VerticalNavLayout from '@layouts/components/VerticalNavLayout.vue'
-import Footer from '@/layouts/components/Footer.vue'
-import NavbarThemeSwitcher from '@/layouts/components/NavbarThemeSwitcher.vue'
-import UserProfile from '@/layouts/components/UserProfile.vue'
-import logo from '@images/logos/logo.png'
+import { ref, onMounted } from 'vue' // Importa ref
+
+import NavItems from "@/layouts/components/NavItems.vue";
+import VerticalNavLayout from "@layouts/components/VerticalNavLayout.vue";
+import Footer from "@/layouts/components/Footer.vue";
+import NavbarThemeSwitcher from "@/layouts/components/NavbarThemeSwitcher.vue";
+import UserProfile from "@/layouts/components/UserProfile.vue";
+import logo from "@images/logos/logo.png";
+
+import { getUser } from "../../api/auth";
+
+const userInfo = ref(null);
+
+onMounted(async () => {
+  try {
+    
+    const response = await getUser();
+    userInfo.value = response; // Asigna usando .value
+    console.log("Datos del usuario:", response);
+
+  } catch (error) {
+    console.error('Error al obtener información del usuario:', error);
+  }
+});
+
+
 </script>
 
 <template>
@@ -13,10 +33,8 @@ import logo from '@images/logos/logo.png'
     <template #navbar="{ toggleVerticalOverlayNavActive }">
       <div class="d-flex h-100 align-center">
         <!-- 👉 Vertical nav toggle in overlay mode -->
-        <IconBtn
-          class="ms-n3 d-lg-none"
-          @click="toggleVerticalOverlayNavActive(true)"
-        >
+        
+        <IconBtn class="ms-n3 d-lg-none" @click="toggleVerticalOverlayNavActive(true)">
           <VIcon icon="ri-menu-line" />
         </IconBtn>
 
@@ -48,40 +66,29 @@ import logo from '@images/logos/logo.png'
           <VIcon icon="ri-github-fill" />
         </IconBtn>
         -->
-
+        
+        <div v-if="userInfo" class="user-info text-end pr-4">
+          {{ userInfo.name }} <br>
+          <span class="text-caption">{{ userInfo.email }}</span>
+        </div>
         <IconBtn class="me-2">
           <VIcon icon="ri-notification-line" />
         </IconBtn>
 
         <NavbarThemeSwitcher class="me-2" />
-
+       
         <UserProfile />
       </div>
     </template>
 
     <template #vertical-nav-header="{ toggleIsOverlayNavActive }">
-      <div
-          class="d-flex border-b-md	"
-          
-        />
-        <VRow no-gutters class="border-b-md	pb-4">
-          
-          <VCol
-            cols="12"
-            xs="12"> <VImg  
-                   max-height="145px"  
-                   :src="logo"
-                   
-                   ></VImg></VCol>
-          
- 
-        </VRow>
-       
-      <RouterLink
-        to="/"
-        class="app-logo app-title-wrapper"
-      >
-      <!--
+      <div class="d-flex border-b-md" />
+      <VRow no-gutters class="border-b-md pb-4">
+        <VCol cols="12" xs="12"> <VImg max-height="145px" :src="logo"></VImg></VCol>
+      </VRow>
+
+      <RouterLink to="/" class="app-logo app-title-wrapper">
+        <!--
         <div
           class="d-flex"
           v-html="logo"
@@ -92,10 +99,7 @@ import logo from '@images/logos/logo.png'
         </h1>-->
       </RouterLink>
 
-      <IconBtn
-        class="d-block d-lg-none"
-        @click="toggleIsOverlayNavActive(false)"
-      >
+      <IconBtn class="d-block d-lg-none" @click="toggleIsOverlayNavActive(false)">
         <VIcon icon="ri-close-line" />
       </IconBtn>
     </template>
@@ -113,7 +117,7 @@ import logo from '@images/logos/logo.png'
     </template>
   </VerticalNavLayout>
 </template>
-
+ 
 <style lang="scss" scoped>
 .meta-key {
   border: thin solid rgba(var(--v-border-color), var(--v-border-opacity));

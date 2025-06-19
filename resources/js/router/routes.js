@@ -16,6 +16,21 @@ export const routes = [
         component: () => import('@/pages/clientes.vue'),
         meta: { requiresAuth: true }
       }, 
+      {
+        path: 'productos',
+        component: () => import('@/pages/productos.vue'),
+        meta: { requiresAuth: true }
+      }, 
+      {
+        path: 'productos_categoria',
+        component: () => import('@/pages/productosCategoria.vue'),
+        meta: { requiresAuth: true }
+      }, 
+      {
+        path: 'marcas',
+        component: () => import('@/pages/marcas.vue'),
+        meta: { requiresAuth: true }
+      }, 
 
       
 

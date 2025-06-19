@@ -15,10 +15,33 @@ export async function login(email, password) {
 }
 
 export async function getUser() {
-  const response = await axios.get('/api/user') // o '/api/user' si usás prefijo
-  return response.data
-}
+  try {
+    // Verifica si hay token en localStorage
+    const token = localStorage.getItem('token')
+    
+    if (!token) {
+      throw new Error('No authentication token found')
+    }
+    
+    // Configura el header para esta petición específica
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`
+      },
+      withCredentials: true // Solo necesario si usas cookies junto con tokens
+    }
+    
+    const response = await axios.get('/api/user', config)
 
+    console.log("response");
+    console.log(response);
+    
+    return response.data
+  } catch (error) {
+    console.error('Error fetching user data:', error)
+    throw error
+  }
+}
 export async function logout() {
   await axios.post('/api/logout')
   localStorage.removeItem('token')

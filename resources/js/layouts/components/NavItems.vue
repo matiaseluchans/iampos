@@ -15,12 +15,12 @@ import VerticalNavLink from '@layouts/components/VerticalNavLink.vue'
     }"
   />  
 
-
+<!--
   <VerticalNavSectionTitle
     :item="{
       heading: 'Administracion General',
     }"
-  />
+  />-->
   <VerticalNavGroup
     :item="{
       title: 'Administración',
@@ -41,37 +41,43 @@ import VerticalNavLink from '@layouts/components/VerticalNavLink.vue'
         to: '/clientes',        
       }"
     />
+    <VerticalNavSectionTitle
+    :item="{
+      heading: 'Productos',
+    }"
+  />
     <VerticalNavLink
       :item="{
-        title: 'Clasificaciones',
-        to: '/clasificaciones',        
+        title: 'Productos',
+        to: '/productos',        
       }"
     />
     <VerticalNavLink
       :item="{
-        title: 'Estados',
-        to: '/estados',        
+        title: 'Categorias',
+        to: '/productos_categoria',        
       }"
     />
     <VerticalNavLink
       :item="{
-        title: 'Funciones',
-        to: '/funciones',        
+        title: 'Marcas',
+        to: '/marcas',        
       }"
-    /> 
+    />
+    
   </VerticalNavGroup>
 
 
 
   <!-- 👉 Front Pages -->  
-  <VerticalNavSectionTitle
+  <!--<VerticalNavSectionTitle
     :item="{
-      heading: 'Partes',
+      heading: 'Psa Partes',
     }"
   />
   <VerticalNavGroup
     :item="{
-      title: 'Partes',
+      title: 'PSA - Partes',
       icon: 'ri-file-copy-line'      
     }"
   >
@@ -105,6 +111,27 @@ import VerticalNavLink from '@layouts/components/VerticalNavLink.vue'
         href: '',        
       }"
     />
+
+
+    <VerticalNavLink
+      :item="{
+        title: 'Clasificaciones',
+        to: '/clasificaciones',        
+      }"
+    />
+    <VerticalNavLink
+      :item="{
+        title: 'Estados',
+        to: '/estados',        
+      }"
+    />
+    <VerticalNavLink
+      :item="{
+        title: 'Funciones',
+        to: '/funciones',        
+      }"
+    /> 
+    <!--
   </VerticalNavGroup>
 
   <VerticalNavSectionTitle
@@ -126,7 +153,7 @@ import VerticalNavLink from '@layouts/components/VerticalNavLink.vue'
     />    
   </VerticalNavGroup>
 
-  
+-->
   <!-- 👉 Apps & Pages -->
   <VerticalNavSectionTitle
     :item="{

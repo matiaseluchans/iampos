@@ -1,53 +1,53 @@
 <script setup>
-import avatar1 from '@images/avatars/avatar-1.png'
-import { logout } from '@/api/auth'
+import { ref, onMounted } from 'vue' // Importa ref
+import avatar1 from "@images/avatars/avatar-1.png";
+import { logout } from "@/api/auth";
+import { getUser } from "@/api/auth";
 
-
-
-const router = useRouter()
+const router = useRouter();
 
 async function handleLogout() {
   try {
-    await logout()
+    await logout();
 
     Swal.fire({
-      icon: 'success',
-      title: 'Sesión cerrada',
+      icon: "success",
+      title: "Sesión cerrada",
       timer: 1500,
       showConfirmButton: false,
-    })
-    router.push('/login')
+    });
+    router.push("/login");
   } catch (e) {
-    console.error('Error al cerrar sesión:', e)
+    console.error("Error al cerrar sesión:", e);
   }
 }
+
+const userInfo1 = ref(null);
+
+onMounted(async () => {
+  try {
+    
+    const response = await getUser();
+    userInfo1.value = response;  
+    console.log("Datos del usuario:", response);
+
+  } catch (error) {
+    console.error('Error al obtener información del usuario:', error);
+  }
+});
 </script>
 
 <template>
-  <VBadge
-    dot
-    location="bottom right"
-    offset-x="3"
-    offset-y="3"
-    color="success"
-    bordered
-  >
-    <VAvatar
-      class="cursor-pointer"
-      color="primary"
-      variant="tonal"
-    >
+  <VBadge dot location="bottom right" offset-x="3" offset-y="3" color="success" bordered>
+    <VAvatar class="cursor-pointer" color="primary" variant="tonal">
       <VImg :src="avatar1" />
 
       <!-- SECTION Menu -->
-      <VMenu
-        activator="parent"
-        width="230"
-        location="bottom end"
-        offset="14px"
-      >
+      <VMenu activator="parent" width="230" location="bottom end" offset="14px">
         <VList>
-          <!--
+
+          
+         
           <VListItem>
             <template #prepend>
               <VListItemAction start>
@@ -68,13 +68,15 @@ async function handleLogout() {
               </VListItemAction>
             </template>
 
-            <VListItemTitle class="font-weight-semibold">
-              John Doe
+            <VListItemTitle v-if="userInfo1" class="font-weight-semibold">
+              {{ userInfo1.name }} 
             </VListItemTitle>
-            <VListItemSubtitle>Admin</VListItemSubtitle>
+            <VListItemSubtitle>{{ userInfo1.email }}</VListItemSubtitle>
           </VListItem>
-          <VDivider class="my-2" />
 
+         
+          <VDivider class="my-2" />
+<!--
      
           <VListItem link>
             <template #prepend>
@@ -133,13 +135,9 @@ async function handleLogout() {
            -->
           <VListItem @click="handleLogout">
             <template #prepend>
-              <VIcon
-                class="me-2"
-                icon="ri-logout-box-r-line"
-                size="22"
-              />
+              <VIcon class="me-2" icon="ri-logout-box-r-line" size="22" />
             </template>
-
+           
             <VListItemTitle>Logout</VListItemTitle>
           </VListItem>
         </VList>

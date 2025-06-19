@@ -61,15 +61,16 @@ Route::middleware('auth:sanctum')->post('/logout', function (Request $request) {
     return response()->json(['message' => 'Successfully logged out']);
 });
 
-
-
-Route::middleware('auth:sanctum')->get('/api/user', function (Request $request) {
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::apiResource('clientes', App\Http\Controllers\ClienteController::class);
+    Route::apiResource('productos_categorias', App\Http\Controllers\ProductoCategoriaController::class);
+    Route::apiResource('productos', App\Http\Controllers\ProductoController::class);
+    Route::apiResource('marcas', App\Http\Controllers\MarcaController::class);
 });
 
 
@@ -77,5 +78,3 @@ Route::resource('companies', App\Http\Controllers\CompanyController::class);
 Route::resource('estados', App\Http\Controllers\EstadoController::class);
 Route::resource('clasificaciones', App\Http\Controllers\ClasificacionController::class);
 Route::resource('funciones', App\Http\Controllers\FuncionController::class);
-Route::resource('personalPsa', App\Http\Controllers\PersonalPsaController::class);
-Route::resource('partes', App\Http\Controllers\ParteController::class);

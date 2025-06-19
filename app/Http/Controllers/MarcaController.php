@@ -3,13 +3,13 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Repositories\ParteRepository;
+use App\Repositories\MarcaRepository;
 
-class ParteController extends Controller
+class MarcaController extends Controller
 {
     private $repository;
 
-    public function __construct(ParteRepository $repository)
+    public function __construct(MarcaRepository $repository)
     {
         $this->repository = $repository;
     }
@@ -25,7 +25,7 @@ class ParteController extends Controller
     }
 
     public function store(Request $request)
-    {        
+    {
         return $this->repository->save($request);
     }
 

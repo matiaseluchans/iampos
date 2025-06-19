@@ -25,7 +25,7 @@ const authThemeMask = computed(() => {
       <VImg
         :src="misc404"
         alt="Coming Soon"
-        :max-width="800"
+        :max-height="300"
         class="mx-auto"
       />
       <VBtn
