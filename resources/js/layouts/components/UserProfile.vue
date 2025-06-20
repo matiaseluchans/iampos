@@ -1,10 +1,19 @@
 <script setup>
-import { ref, onMounted } from 'vue' // Importa ref
+import {computed } from 'vue'  
 import avatar1 from "@images/avatars/avatar-1.png";
-import { logout } from "@/api/auth";
-import { getUser } from "@/api/auth";
+import { logout } from "@/api/auth"; 
+ 
+import { useStore } from 'vuex'
 
 const router = useRouter();
+
+const store = useStore()
+
+// Acceder a los getters
+const isAuthenticated = computed(() => store.getters.isAuthenticated)
+const currentUser = computed(() => store.getters.currentUser)
+const userPermissions = computed(() => store.getters.userPermissions)
+
 
 async function handleLogout() {
   try {
@@ -21,20 +30,6 @@ async function handleLogout() {
     console.error("Error al cerrar sesión:", e);
   }
 }
-
-const userInfo1 = ref(null);
-
-onMounted(async () => {
-  try {
-    
-    const response = await getUser();
-    userInfo1.value = response;  
-    console.log("Datos del usuario:", response);
-
-  } catch (error) {
-    console.error('Error al obtener información del usuario:', error);
-  }
-});
 </script>
 
 <template>
@@ -68,10 +63,11 @@ onMounted(async () => {
               </VListItemAction>
             </template>
 
-            <VListItemTitle v-if="userInfo1" class="font-weight-semibold">
-              {{ userInfo1.name }} 
+            <VListItemTitle v-if="currentUser" class="font-weight-semibold">
+            {{ currentUser.data.name }}  
             </VListItemTitle>
-            <VListItemSubtitle>{{ userInfo1.email }}</VListItemSubtitle>
+            <VListItemSubtitle>{{ currentUser.data.tenant.nombre }}</VListItemSubtitle>
+            <VListItemSubtitle>{{ currentUser.data.roles[0] }}</VListItemSubtitle>
           </VListItem>
 
          

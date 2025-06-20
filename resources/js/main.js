@@ -1,6 +1,7 @@
 import { createApp } from 'vue'
 import App from '@/App.vue'
 import { registerPlugins } from '@core/utils/plugins'
+import store from './store/modules' 
 import router from './router'
 
 // Styles
@@ -31,6 +32,7 @@ const vMaskV3 = {
 // Create vue app
 const app = createApp(App)
 app.directive('mask', vMaskV3);
+app.use(store)
 app.use(ClientVar);
 app.use(Can);
 app.use(Rules);

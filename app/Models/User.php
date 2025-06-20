@@ -62,4 +62,8 @@ class User extends Authenticatable
         }
         return false;
     }
+    public function tenant()
+    {
+        return $this->belongsTo(Tenant::class);
+    }
 }

@@ -39,6 +39,7 @@ import VerticalNavLink from '@layouts/components/VerticalNavLink.vue'
       :item="{
         title: 'Clientes',
         to: '/clientes',        
+        icon: 'ri-shopping-bag-2-fill', 
       }"
     />
     <VerticalNavSectionTitle

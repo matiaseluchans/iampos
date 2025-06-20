@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue' // Importa ref
+import { computed } from 'vue' // Importa ref
 
 import NavItems from "@/layouts/components/NavItems.vue";
 import VerticalNavLayout from "@layouts/components/VerticalNavLayout.vue";
@@ -8,22 +8,14 @@ import NavbarThemeSwitcher from "@/layouts/components/NavbarThemeSwitcher.vue";
 import UserProfile from "@/layouts/components/UserProfile.vue";
 import logo from "@images/logos/logo.png";
 
-import { getUser } from "../../api/auth";
+//import { getUser } from "../../api/auth";
+import { useStore } from 'vuex'
+const store = useStore()
 
-const userInfo = ref(null);
-
-onMounted(async () => {
-  try {
-    
-    const response = await getUser();
-    userInfo.value = response; // Asigna usando .value
-    console.log("Datos del usuario:", response);
-
-  } catch (error) {
-    console.error('Error al obtener información del usuario:', error);
-  }
-});
-
+// Acceder a los getters
+const isAuthenticated = computed(() => store.getters.isAuthenticated)
+const currentUser = computed(() => store.getters.currentUser)
+const userPermissions = computed(() => store.getters.userPermissions)
 
 </script>
 
@@ -67,9 +59,9 @@ onMounted(async () => {
         </IconBtn>
         -->
         
-        <div v-if="userInfo" class="user-info text-end pr-4">
-          {{ userInfo.name }} <br>
-          <span class="text-caption">{{ userInfo.email }}</span>
+        <div v-if="currentUser" class="user-info text-end pr-4">
+          {{ currentUser.data.email }} <br>
+          <span class="text-caption">{{ currentUser.data.tenant.nombre }} | {{ currentUser.data.roles[0] }}</span>
         </div>
         <IconBtn class="me-2">
           <VIcon icon="ri-notification-line" />

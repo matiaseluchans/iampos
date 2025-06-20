@@ -60,11 +60,12 @@ Route::middleware('auth:sanctum')->post('/logout', function (Request $request) {
 
     return response()->json(['message' => 'Successfully logged out']);
 });
-
+/*
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
-
+*/
+Route::middleware('auth:sanctum')->get('/user', [App\Http\Controllers\AuthController::class, 'getUser']);
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::apiResource('clientes', App\Http\Controllers\ClienteController::class);
