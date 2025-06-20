@@ -17,9 +17,8 @@
                       v-model="search"
                       append-icon="ri-search-line"
                       :label="'Busqueda de ' + title"
-                    ></VTextField>
+                    />
                   </VCol>
-                  <VCol sm="3"></VCol>
                   <VCol sm="4" class="pt-20 py-2">
                     <VAutocomplete
                       v-model="selectedHeaders"
@@ -32,14 +31,14 @@
                         <VChip v-if="index < 2">
                           <span>{{ item.title }}</span>
                         </VChip>
-                        <span v-if="index === 2" class="grey--text caption"
-                          >(otras {{ selectedHeaders.length - 2 }}+)</span
-                        >
+                        <span v-if="index === 2" class="grey--text caption">
+                          (otras {{ selectedHeaders.length - 2 }}+)
+                        </span>
                       </template>
                     </VAutocomplete>
                   </VCol>
                   <VCol sm="1" class="pt-20 py-2">
-                    <v-dialog v-model="dialog" max-width="50%">
+                    <v-dialog v-model="dialog" max-width="50%" >
                       <template v-slot:activator="{ props: activatorProps }">
                         <VBtn
                           v-bind="activatorProps"
@@ -52,41 +51,45 @@
                       </template>
                       <VCard>
                         <v-toolbar :color="$cv('principal')">
-                          <v-btn
-                            icon="ri-close-line"
-                            color="white"
-                            @click="dialog = false"
-                          ></v-btn>
-
+                          <v-btn icon="ri-close-line" color="white" @click="dialog = false" />
                           <v-toolbar-title>{{ formTitle }}</v-toolbar-title>
-
-                          <v-spacer></v-spacer>
-
-                          <v-toolbar-items> </v-toolbar-items>
+                          <v-spacer />
                         </v-toolbar>
 
-                        <v-form ref="form" v-model="valid" lazy-validation>
-                          <VCard-text>
-                            <v-container>
-                              <VRow>
+                        <v-form ref="form" v-model="valid" >
+                          <VCard-text >
+                            <v-container class="py-0">
+                              <VRow class="py-0">
                                 <VCol cols="12" sm="6">
-                                  <VTextField
-                                    v-model="editedItem.nombre"
-                                    label="Nombre"
-                                    required
+                                  <VTextField v-model="editedItem.nombre" label="Nombre" required />
+                                </VCol>
+                                <VCol cols="12" sm="6">
+                                  <VTextField v-model="editedItem.codigo" label="Código" />
+                                </VCol>
+                                <VCol cols="12" sm="6">
+                                  <VAutocomplete
+                                    v-model="editedItem.productos_categorias_id"
+                                    :items="categorias"
+                                    item-title="nombre"
+                                    item-value="id"
+                                    label="Categoría"
+                                    clearable 
                                   />
                                 </VCol>
                                 <VCol cols="12" sm="6">
-                                  <VTextField
-                                    v-model="editedItem.codigo"
-                                    label="Código"
+                                  <VAutocomplete
+                                    v-model="editedItem.marca_id"
+                                    :items="marcas"
+                                    item-title="nombre"
+                                    item-value="id"
+                                    label="Marca"
+                                    clearable
                                   />
                                 </VCol>
                                 <VCol cols="12" sm="6">
                                   <VTextField
                                     v-model="editedItem.precio_compra"
                                     label="Precio de Compra"
-                                    clear-icon=""
                                     prefix="$"
                                   />
                                 </VCol>
@@ -97,7 +100,9 @@
                                     prefix="$"
                                   />
                                 </VCol>
-                                <VCol cols="12">
+                              </VRow>
+                              <VRow class="pr-3">
+                                <VCol cols="12" sm="11" class="pr-0">
                                   <VFileInput
                                     v-model="editedItem.imageFiles"
                                     label="Imagen del Producto"
@@ -107,76 +112,49 @@
                                     :clearable="true"
                                     :show-size="true"
                                     :truncate-length="15"
-                                    :placeholder="
-                                      editedItem.image
-                                        ? editedItem.image.split('/').pop()
-                                        : ''
-                                    "
+                                    :model-value="getImageInputValue()"
                                   >
                                     <template v-slot:selection="{ file }">
                                       <span v-if="file">{{ file.name }}</span>
-                                      <span v-else-if="editedItem.image">{{
-                                        editedItem.image.split("/").pop()
-                                      }}</span>
+                                      <span v-else-if="editedItem.image">
+                                        {{ getImageName() }}
+                                      </span>
                                     </template>
                                   </VFileInput>
-
+                                </VCol>
+                                <VCol cols="12" sm="1" class="pl-1">
                                   <VBtn
-                                    v-if="
-                                      editedItem.image &&
-                                      typeof editedItem.image === 'string'
-                                    "
+                                    v-if="editedItem.image && typeof editedItem.image === 'string'"
                                     color="error"
-                                    small
+                                    size="x-large"
                                     @click="clearImage"
-                                    class="mt-2"
+                                    class="mt-0"
                                   >
                                     <VIcon icon="ri-delete-bin-line" class="mr-1" />
-                                    Eliminar Imagen
                                   </VBtn>
+                                </VCol>
 
+                                <VCol cols="12" sm="12">
                                   <VImg
                                     v-if="imagePreview"
                                     :src="imagePreview"
+                                    max-height="150"
+                                    contain
+                                    class="mt-2"
+                                  />
+                                  <VImg 
+                                    v-if="editedItem.image"
+                                    :src="'storage/productos/' + editedItem.image"
                                     max-height="150"
                                     contain
                                     class="mt-2"
                                   />
                                 </VCol>
-                                <!--
-                                <VCol cols="12">
-                                  <VFileInput
-                                    v-model="editedItem.image"
-                                    label="Imagen del Producto"
-                                    prepend-icon="ri-image-line"
-                                    accept="image/*"
-                                    @change="handleImageUpload"
-                                    :clearable="true"
-                                    :show-size="true"
-                                    :truncate-length="15"
-                                    :placeholder="editedItem.image ? editedItem.image.split('/').pop() : ''"
-                                  >
-                                    <template v-slot:selection="{ file }">
-                                      <span v-if="file">{{ file.name }}</span>
-                                      <span v-else-if="editedItem.image">{{ editedItem.image.split('/').pop() }}</span>
-                                    </template>
-                                  </VFileInput>
-                                  <VImg
-                                    v-if="imagePreview"
-                                    :src="imagePreview"
-                                    max-height="150"
-                                    contain
-                                    class="mt-2"
-                                  />
-                                </VCol>-->
-                                <!--<VCol cols="12">
-                                  <VSwitch v-model="editedItem.activo" label="Activo" />
-                                </VCol>-->
                               </VRow>
                             </v-container>
                           </VCard-text>
                         </v-form>
-                        <VCardActions>
+                        <VCardActions  >
                           <VSpacer />
                           <VBtn text @click="dialog = false">Cancelar</VBtn>
                           <VBtn color="primary" @click="$saveWithFile()">Guardar</VBtn>
@@ -189,11 +167,10 @@
             </VCard>
           </template>
 
-          <!-- Imagen del producto -->
           <template #item.image="{ item }">
             <VImg
               v-if="item.image"
-              :src="'/storage/' + item.image"
+              :src="'/storage/productos/' + item.image"
               max-height="50"
               max-width="50"
               contain
@@ -201,7 +178,6 @@
             <span v-else>Sin imagen</span>
           </template>
 
-          <!-- Precios -->
           <template #item.precio_compra="{ item }">
             {{ formatCurrency(item.precio_compra) }}
           </template>
@@ -210,17 +186,12 @@
             {{ formatCurrency(item.precio_venta) }}
           </template>
 
-          <!-- status -->
           <template #item.activo="{ item }">
-            <VChip
-              :color="$resolveStatusVariant(item.activo).color"
-              density="comfortable"
-            >
+            <VChip :color="$resolveStatusVariant(item.activo).color" density="comfortable">
               {{ $resolveStatusVariant(item.activo).text }}
             </VChip>
           </template>
 
-          <!-- Actions -->
           <template #item.actions="{ item }">
             <div class="d-flex gap-1">
               <VSwitch
@@ -231,25 +202,13 @@
                 color="primary"
                 hide-details
                 class="pt-2 mt-0"
-                title="Activar o Inactivar"
+                title="Activo o Inactivo"
               >
               </VSwitch>
-              <IconBtn
-                size="small"
-                @click="
-                  vista = false;
-                  $editItem(item.id);
-                "
-              >
+              <IconBtn size="small" @click="vista = false; $editItem(item.id)">
                 <VIcon icon="ri-pencil-line" />
               </IconBtn>
-              <IconBtn
-                size="small"
-                @click="
-                  vista = false;
-                  $deleteItem(item.id, item.nombre);
-                "
-              >
+              <IconBtn size="small" @click="vista = false; $deleteItem(item.id, item.nombre)">
                 <VIcon icon="ri-delete-bin-line" />
               </IconBtn>
             </div>
@@ -258,9 +217,8 @@
 
         <v-snackbar v-model="snackbar" :bottom="true" :color="color" :timeout="timeout">
           <div v-html="text"></div>
-
           <template v-slot:action="{ attrs }">
-            <v-btn dark text v-bind="attrs" @click="snackbar = false"> Cerrar </v-btn>
+            <v-btn dark text v-bind="attrs" @click="snackbar = false">Cerrar</v-btn>
           </template>
         </v-snackbar>
       </v-container>
@@ -269,51 +227,42 @@
 </template>
 
 <script>
-function title() {
-  return "Productos";
-}
-
 export default {
-  data: (vm) => ({
-    dessertName: "",
-    valid: true,
-    title: title(),
+  data: () => ({
+    title: "Productos",
     route: "productos",
     dialog: false,
     snackbar: false,
-    visible: true,
     text: "Registro Insertado",
     color: "success",
     timeout: 4000,
     search: "",
-    vista: false,
     imagePreview: "",
+    valid: true,
     headers: [
-      {
-        title: "ID",
-        align: "start",
-        sortable: false,
-        key: "id",
-      },
+      { title: "ID", align: "start", sortable: false, key: "id" },
       { title: "Nombre", filterable: true, key: "nombre" },
       { title: "Código", filterable: true, key: "codigo" },
       { title: "Imagen", key: "image", sortable: false },
       { title: "Precio Compra", key: "precio_compra" },
       { title: "Precio Venta", key: "precio_venta" },
       { title: "Estado", key: "activo" },
-      { title: "Acciones", key: "actions", value: "actions", sortable: false },
+      { title: "Acciones", key: "actions", sortable: false },
     ],
     desserts: [],
     editedIndex: -1,
+    categorias: [],
+    marcas: [],
     editedItem: {
       id: "",
       nombre: "",
       codigo: "",
       productos_categorias_id: null,
+      marca_id: null,
       precio_compra: "",
       precio_venta: "",
-      image: "", // URL de la imagen (string)
-      imageFiles: [], // Array de archivos (aunque solo usemos 1)
+      image: "",
+      imageFiles: [],
       activo: 1,
     },
     defaultItem: {
@@ -321,69 +270,80 @@ export default {
       nombre: "",
       codigo: "",
       productos_categorias_id: null,
+      marca_id: null,
       precio_compra: "",
       precio_venta: "",
-      image: "", // URL de la imagen (string)
-      imageFiles: [], // Array de archivos (aunque solo usemos 1)
+      image: "",
+      imageFiles: [],
       activo: 1,
     },
-    filters: {
-      id: "",
-      nombre: "",
-      codigo: "",
-      precio_compra: "",
-      precio_venta: "",
-      created_at: "",
-      updated_at: "",
-    },
-    filterKey: [],
-    selectedHeaders: [],
+    selectedHeaders: [], 
   }),
 
   computed: {
     formTitle() {
-      return this.editedIndex === -1 ? "Registrar " + this.title : "Editar " + this.title;
-    },
-
-    filteredData() {
-      return this.$filteredData().data !== undefined
-        ? this.$filteredData().data
-        : this.$filteredData();
+      return this.editedIndex === -1 ? "Registrar Producto" : "Editar Producto";
     },
     showHeaders() {
       return this.headers.filter((s) => this.selectedHeaders.includes(s));
     },
     filteredDesserts() {
-      let conditions = [];
-
-      if (this.dessertName) {
-        conditions.push(this.filterDessertName);
-      }
-
-      if (conditions.length > 0) {
-        return this.desserts.filter((dessert) => {
-          return conditions.every((condition) => {
-            return condition(dessert);
-          });
-        });
-      }
-
-      return this.desserts;
-    },
-  },
-
-  watch: {
-    dialog(val) {
-      val || this.$close();
+      if (!this.search) return this.desserts;
+      const searchTerm = this.search.toLowerCase();
+      return this.desserts.filter(item => 
+        item.nombre.toLowerCase().includes(searchTerm) ||
+        item.codigo?.toLowerCase().includes(searchTerm)
+      );
     },
   },
 
   created() {
     this.$initialize();
     this.selectedHeaders = this.headers;
+    this.loadCategorias();
+    this.loadMarcas();
   },
 
   methods: {
+
+    getImageInputValue() {
+      // Verificar si imageFiles existe y tiene elementos
+      if (this.editedItem.imageFiles && this.editedItem.imageFiles.length > 0) {
+        return this.editedItem.imageFiles;
+      }
+      if (this.editedItem.image) {
+        // Crear un objeto File ficticio para mostrar en el input
+        return [new File([], this.getImageName(), { type: 'image/*' })];
+      }
+      return [];
+    },
+
+    getImageName() {
+      if (!this.editedItem.image) return '';
+      // Extraer solo el nombre del archivo de la URL
+      const parts = this.editedItem.image.split('/');
+      return parts.length > 0 ? parts.pop() : '';
+    },
+    
+         
+    async loadCategorias() { 
+      try {
+        const response = await this.$axios.get(this.$routes["productosCategoria"]);
+        this.categorias = response.data.data;
+      } catch (error) {
+        console.error("Error cargando categorías:", error);
+      } finally {
+        
+      }
+    },
+    async loadMarcas() {
+      try {
+        const response = await this.$axios.get(this.$routes["marcas"]);
+        this.marcas = response.data.data;
+      } catch (error) {
+        console.error("Error cargando marcas:", error);
+      }
+    },
     formatCurrency(value) {
       if (!value) return "$0.00";
       return new Intl.NumberFormat("es-AR", {
@@ -391,18 +351,9 @@ export default {
         currency: "ARS",
       }).format(value);
     },
-
     handleImageUpload(event) {
-      const file = event.target.files?.[0]; // Si es un evento nativo
-      // O bien (dependiendo de Vuetify):
-      //const file = event; // Si Vuetify pasa el File directamente
-
-      console.log(file instanceof File);
-      if (file) {
-        this.imagePreview = URL.createObjectURL(file);
-      } else {
-        this.imagePreview = ""; // Limpiar si no hay archivo
-      }
+      const file = event.target.files?.[0];
+      this.imagePreview = file ? URL.createObjectURL(file) : "";
     },
     clearImage() {
       this.editedItem.image = "";
@@ -418,11 +369,7 @@ export default {
     },
     filterByActivo(item) {
       return this.$filterBy(item, "activo");
-    },
-  },
-
-  mounted() {
-    console.log("Componente " + this.title + " creado");
+    }
   },
 };
 </script>

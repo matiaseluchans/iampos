@@ -79,6 +79,7 @@ class BaseRepository extends ApiController
     {
         try {
             $form = $request->all();
+
             $model = $this->model::findOrFail($id);
 
             $model->update($form['data']);

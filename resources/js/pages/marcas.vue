@@ -263,7 +263,7 @@ export default {
       return this.$filterBy(item, "nombre");
     },
     filterByActivo(item) {
-      return this.$filterBy(item, "alightctivo");
+      return this.$filterBy(item, "activo");
     }
   },
 };

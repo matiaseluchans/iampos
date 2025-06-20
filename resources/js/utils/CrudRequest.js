@@ -124,37 +124,37 @@ export default {
 
 
     Vue.config.globalProperties.$save = async function() {
-        let vm = this;
-        
-        if (vm.$refs.form.validate()) {
-          let arrayRoutes = Vue.config.globalProperties.$routes;
-            if (vm.editedIndex != -1) {
-              Swal.alertGetInfo("Actualizando información");
-              let formData = new FormData();
-              let url = arrayRoutes[vm.route] + "/" + vm.editedIndex;
-              formData.append("_method", "PUT");
-              await this.$axios.post(url, {_method: "PUT", data: vm.editedItem,})
-              //await this.$axios.put(arrayRoutes[vm.route], vm.editedIndex, vm.editedItem)
-                .then((r) => {
-                    vm.$respuesta(vm, r, 2);
-                }).catch((e) => {
-                    vm.$respuesta(vm, e, 2, true);
+      let vm = this;
+      
+      if (vm.$refs.form.validate()) {
+        let arrayRoutes = Vue.config.globalProperties.$routes;
+        if (vm.editedIndex != -1) {
+          Swal.alertGetInfo("Actualizando información");
+          let formData = new FormData();
+          let url = arrayRoutes[vm.route] + "/" + vm.editedIndex;
+          formData.append("_method", "PUT");
+          await this.$axios.post(url, {_method: "PUT", data: vm.editedItem,})
+            //await this.$axios.put(arrayRoutes[vm.route], vm.editedIndex, vm.editedItem)
+            .then((r) => {
+              vm.$respuesta(vm, r, 2);
+            }).catch((e) => {
+              vm.$respuesta(vm, e, 2, true);
 
-                });
+            });
 
-            } else {
-              Swal.alertGetInfo("Registrando información");
-              
-              await this.$axios.post(arrayRoutes[vm.route], vm.editedItem)
-                .then((r) => {
-                    vm.$respuesta(vm, r, 1);
-                }).catch((e) => {
-                    vm.$respuesta(vm, e, 1, true);
-                    Swal.close();
-                });
-            }
-            Swal.close();
-            vm.$close();
+        } else {
+          Swal.alertGetInfo("Registrando información");
+          
+          await this.$axios.post(arrayRoutes[vm.route], vm.editedItem)
+            .then((r) => {
+              vm.$respuesta(vm, r, 1);
+            }).catch((e) => {
+              vm.$respuesta(vm, e, 1, true);
+              Swal.close();
+            });
+        }
+        Swal.close();
+        vm.$close();
         }
     }
 
@@ -166,13 +166,19 @@ export default {
         let formData = new FormData();
         
         // Agregar todos los campos al FormData
-        Object.keys(vm.editedItem).forEach(key => {
-          // No incluir la imagen si no ha cambiado (es un string)
-          if (key === 'image' && typeof vm.editedItem[key] === 'string') {
-            return;
+        // Agregar todos los campos del formulario
+        Object.keys(this.editedItem).forEach(key => {
+          if (key !== 'imageFiles') {
+            formData.append(key, this.editedItem[key]);
           }
-          formData.append(key, vm.editedItem[key]);
         });
+        
+        // Agregar la imagen si existe
+        if (this.editedItem.imageFiles?.length > 0) {
+          formData.append('image', this.editedItem.imageFiles[0]);
+          // Guardar el nombre original del archivo
+          formData.append('original_filename', this.editedItem.imageFiles[0].name); 
+        }
         
         try {
           Swal.alertGetInfo(vm.editedIndex != -1 ? "Actualizando información" : "Registrando información");
@@ -363,7 +369,7 @@ export default {
     },
 
     Vue.config.globalProperties.$resolveStatusVariant = function(status) {
-      console.log(status);
+ 
       if (status == 1)
         return {
           color: 'success',
@@ -1220,6 +1226,8 @@ export default {
         Swal.alertGetInfo("Actualizando información");
         const originalState = item.activo; // Guarda el estado original
 
+        console.log("item.activo");
+        console.log(item.activo);
         try {
           let arrayRoutes = Vue.config.globalProperties.$routes;
 

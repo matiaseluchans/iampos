@@ -17,6 +17,7 @@ return new class extends Migration
 
             $table->string('nombre');
             $table->unsignedBigInteger('productos_categorias_id')->nullable();
+            $table->unsignedBigInteger('marca_id')->nullable();
             //$table->integer('proveedor_id');
             $table->string('codigo')->nullable();
             //$table->string('deposito')->nullable();
@@ -40,6 +41,16 @@ return new class extends Migration
             $table->softDeletes();
 
             $table->foreign('tenant_id')->references('id')->on('tenants')->onDelete('cascade');
+
+            $table->foreign('productos_categorias_id')
+                ->references('id')
+                ->on('productos_categorias')
+                ->onDelete('set null'); // Cambiado a set null para mantener el producto
+
+            $table->foreign('marca_id')
+                ->references('id')
+                ->on('marcas')
+                ->onDelete('set null');
         });
     }
 
