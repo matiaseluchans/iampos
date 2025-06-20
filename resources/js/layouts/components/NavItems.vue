@@ -68,10 +68,8 @@ import VerticalNavLink from '@layouts/components/VerticalNavLink.vue'
     
   </VerticalNavGroup>
 
-
-
-  <!-- 👉 Front Pages -->  
-  <!--<VerticalNavSectionTitle
+ <!--
+   <VerticalNavSectionTitle
     :item="{
       heading: 'Psa Partes',
     }"
@@ -132,7 +130,7 @@ import VerticalNavLink from '@layouts/components/VerticalNavLink.vue'
         to: '/funciones',        
       }"
     /> 
-    <!--
+ 
   </VerticalNavGroup>
 
   <VerticalNavSectionTitle
@@ -153,8 +151,8 @@ import VerticalNavLink from '@layouts/components/VerticalNavLink.vue'
       }"
     />    
   </VerticalNavGroup>
-
 -->
+ 
   <!-- 👉 Apps & Pages -->
   <VerticalNavSectionTitle
     :item="{
