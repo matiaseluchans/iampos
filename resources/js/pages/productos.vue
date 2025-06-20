@@ -54,6 +54,8 @@
                           <v-btn icon="ri-close-line" color="white" @click="dialog = false" />
                           <v-toolbar-title>{{ formTitle }}</v-toolbar-title>
                           <v-spacer />
+                          <VBtn color="white" text @click="dialog = false">Cancelar</VBtn>
+                          <VBtn color="white" @click="$saveWithFile()">Guardar</VBtn>
                         </v-toolbar>
 
                         <v-form ref="form" v-model="valid" >
@@ -154,11 +156,11 @@
                             </v-container>
                           </VCard-text>
                         </v-form>
-                        <VCardActions  >
+                        <!--<VCardActions  >
                           <VSpacer />
                           <VBtn text @click="dialog = false">Cancelar</VBtn>
                           <VBtn color="primary" @click="$saveWithFile()">Guardar</VBtn>
-                        </VCardActions>
+                        </VCardActions>-->
                       </VCard>
                     </v-dialog>
                   </VCol>

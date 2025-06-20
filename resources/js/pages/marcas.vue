@@ -60,15 +60,10 @@
 
                           <v-toolbar-title>{{ formTitle }}</v-toolbar-title>
 
-                          <v-spacer></v-spacer>
-
-                          <v-toolbar-items>
-                            <!--<v-btn
-                text="Guardar"
-                @click="$save()"
-                variant="text"
-                ></v-btn>-->
-                          </v-toolbar-items>
+                          
+                          <VBtn color="white" text @click="dialog = false">Cancelar</VBtn>
+                          <VBtn color="white" @click="$save()">Guardar</VBtn>
+                           
                         </v-toolbar>
 
                         <v-form ref="form" v-model="valid" lazy-validation>
@@ -86,11 +81,11 @@
                             </v-container>
                           </VCard-text>
                         </v-form>
-                        <VCardActions>
+                        <!--<VCardActions>
                           <VSpacer />
                           <VBtn text @click="dialog = false">Cancelar</VBtn>
                           <VBtn color="primary" @click="$save()">Guardar</VBtn>
-                        </VCardActions>
+                        </VCardActions>-->
                       </VCard>
                     </v-dialog>
                   </VCol>
