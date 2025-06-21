@@ -1,11 +1,11 @@
 <template>
   <VCard :title="'Administración de ' + title">
-    <VCardText class="d-flex">
-      <v-container id="crud" fluid tag="section">
+    <VCardText class="d-flex px-2">
+      <v-container id="crud" fluid tag="section" class="px-0 mx-0">
         <VDataTable
           :headers="showHeaders"
           :items="filteredDesserts"
-          :search="search"  
+          :search="search"
           class="text-no-wrap"
         >
           <template v-slot:top>
@@ -38,7 +38,7 @@
                     </VAutocomplete>
                   </VCol>
                   <VCol sm="1" class="pt-20 py-2">
-                    <v-dialog v-model="dialog" max-width="50%" >
+                    <v-dialog v-model="dialog" max-width="50%">
                       <template v-slot:activator="{ props: activatorProps }">
                         <VBtn
                           v-bind="activatorProps"
@@ -51,24 +51,35 @@
                       </template>
                       <VCard>
                         <v-toolbar :color="$cv('principal')">
-                          <v-btn icon="ri-close-line" color="white" @click="dialog = false" />
+                          <v-btn
+                            icon="ri-close-line"
+                            color="white"
+                            @click="dialog = false"
+                          />
                           <v-toolbar-title>{{ formTitle }}</v-toolbar-title>
                           <v-spacer />
                           <VBtn color="white" text @click="dialog = false">Cancelar</VBtn>
                           <VBtn color="white" @click="$saveWithFile()">Guardar</VBtn>
                         </v-toolbar>
 
-                        <v-form ref="form" v-model="valid" >
-                          <VCard-text >
+                        <v-form ref="form" v-model="valid">
+                          <VCard-text>
                             <v-container class="py-0">
                               <VRow class="py-0">
                                 <VCol cols="12" sm="6">
                                   <VRow class="py-0">
                                     <VCol cols="12" sm="12">
-                                      <VTextField v-model="editedItem.name" label="Nombre" required />
+                                      <VTextField
+                                        v-model="editedItem.name"
+                                        label="Nombre"
+                                        required
+                                      />
                                     </VCol>
                                     <VCol cols="12" sm="12">
-                                      <VTextField v-model="editedItem.code" label="Código" />
+                                      <VTextField
+                                        v-model="editedItem.code"
+                                        label="Código"
+                                      />
                                     </VCol>
                                     <VCol cols="12" sm="12">
                                       <VAutocomplete
@@ -77,7 +88,7 @@
                                         item-title="name"
                                         item-value="id"
                                         label="Categoría"
-                                        clearable 
+                                        clearable
                                       />
                                     </VCol>
                                   </VRow>
@@ -135,7 +146,10 @@
                                 </VCol>
                                 <VCol cols="12" sm="1" class="pl-1">
                                   <VBtn
-                                    v-if="editedItem.image && typeof editedItem.image === 'string'"
+                                    v-if="
+                                      editedItem.image &&
+                                      typeof editedItem.image === 'string'
+                                    "
                                     color="error"
                                     size="x-large"
                                     @click="clearImage"
@@ -153,7 +167,7 @@
                                     contain
                                     class="mt-2"
                                   />
-                                  <VImg 
+                                  <VImg
                                     v-if="editedItem.image"
                                     :src="'storage/products/' + editedItem.image"
                                     max-height="150"
@@ -186,7 +200,7 @@
               max-width="50"
               contain
             />
-            <span v-else>Sin imagen</span>
+            <span v-else></span>
           </template>
 
           <template #item.purchase_price="{ item }">
@@ -198,28 +212,46 @@
           </template>
 
           <template #item.active="{ item }">
-            <VChip :color="$resolveStatusVariant(item.active).color" density="comfortable">
+            <VChip
+              :color="$resolveStatusVariant(item.active).color"
+              density="comfortable"
+            >
               {{ $resolveStatusVariant(item.active).text }}
             </VChip>
           </template>
 
           <template #item.actions="{ item }">
-            <div class="d-flex gap-1">
+            <div class="d-flex flex-wrap gap-1 align-center" style="min-width: 120px">
+              <IconBtn
+                size="small"
+                class="my-1"
+                title="Editar"
+                @click="
+                  vista = false;
+                  $editItem(item.id);
+                "
+              >
+                <VIcon icon="ri-pencil-line"  />
+              </IconBtn>
               <VSwitch
                 v-model="item.active"
                 :true-value="1"
                 :false-value="0"
-                @click="$toggleActive(item)"
                 color="primary"
                 hide-details
-                class="pt-2 mt-0"
-                title="Activo o Inactivo"
+                title="Activar o Inactivar"
+                @click="$toggleActive(item)"
+              />
+
+              <IconBtn
+                size="small"
+                title="Eliminar"
+                class="my-1"
+                @click="
+                  vista = false;
+                  $deleteItem(item.id, item.name);
+                "
               >
-              </VSwitch>
-              <IconBtn size="small" @click="vista = false; $editItem(item.id)">
-                <VIcon icon="ri-pencil-line" />
-              </IconBtn>
-              <IconBtn size="small" @click="vista = false; $deleteItem(item.id, item.name)">
                 <VIcon icon="ri-delete-bin-line" />
               </IconBtn>
             </div>
@@ -236,6 +268,7 @@
     </VCardText>
   </VCard>
 </template>
+ 
 
 <script>
 export default {
@@ -251,14 +284,26 @@ export default {
     imagePreview: "",
     valid: true,
     headers: [
-      { title: "ID", align: "start", sortable: false, key: "id" },
+      {
+        title: "Acciones",
+        key: "actions",
+        value: "actions",
+        sortable: false,
+        width: "150px",
+      },
+      {
+        title: "Cód.",
+        filterable: true,
+        key: "code",
+        width: "50px",
+        class: "column-code",
+      },
       { title: "Nombre", filterable: true, key: "name" },
-      { title: "Código", filterable: true, key: "code" },
+
       { title: "Imagen", key: "image", sortable: false },
       { title: "Precio Compra", key: "purchase_price" },
       { title: "Precio Venta", key: "sale_price" },
-      { title: "Estado", key: "active" },
-      { title: "Acciones", key: "actions", sortable: false },
+      { title: "Estado", key: "active", width: "150px" },
     ],
     desserts: [],
     editedIndex: -1,
@@ -289,7 +334,7 @@ export default {
       imageFiles: [],
       active: 1,
     },
-    selectedHeaders: [], 
+    selectedHeaders: [],
   }),
 
   computed: {
@@ -302,9 +347,10 @@ export default {
     filteredDesserts() {
       if (!this.search) return this.desserts;
       const searchTerm = this.search.toLowerCase();
-      return this.desserts.filter(item => 
-        item.name.toLowerCase().includes(searchTerm) ||
-        item.code?.toLowerCase().includes(searchTerm)
+      return this.desserts.filter(
+        (item) =>
+          item.name.toLowerCase().includes(searchTerm) ||
+          item.code?.toLowerCase().includes(searchTerm)
       );
     },
   },
@@ -317,7 +363,6 @@ export default {
   },
 
   methods: {
-
     getImageInputValue() {
       // Verificar si imageFiles existe y tiene elementos
       if (this.editedItem.imageFiles && this.editedItem.imageFiles.length > 0) {
@@ -325,27 +370,25 @@ export default {
       }
       if (this.editedItem.image) {
         // Crear un objeto File ficticio para mostrar en el input
-        return [new File([], this.getImageName(), { type: 'image/*' })];
+        return [new File([], this.getImageName(), { type: "image/*" })];
       }
       return [];
     },
 
     getImageName() {
-      if (!this.editedItem.image) return '';
+      if (!this.editedItem.image) return "";
       // Extraer solo el nombre del archivo de la URL
-      const parts = this.editedItem.image.split('/');
-      return parts.length > 0 ? parts.pop() : '';
+      const parts = this.editedItem.image.split("/");
+      return parts.length > 0 ? parts.pop() : "";
     },
-    
-         
-    async loadCategories() { 
+
+    async loadCategories() {
       try {
         const response = await this.$axios.get(this.$routes["categories"]);
         this.categories = response.data.data;
       } catch (error) {
         console.error("Error cargando categorías:", error);
       } finally {
-        
       }
     },
     async loadBrands() {
@@ -381,7 +424,7 @@ export default {
     },
     filterByActive(item) {
       return this.$filterBy(item, "active");
-    }
+    },
   },
   watch: {
     dialog(val) {

@@ -114,26 +114,16 @@
             </VChip>
           </template>
           <!-- Categoría Padre -->
-          <template #item.categoria_padre="{ item }">
-            <span v-if="item.categoria_padre">{{ item.categoria_padre.name }}</span>
+          <template #item.categoriesParents="{ item }">
+            <span v-if="item.categoriesParents">{{ item.categoriesParents.name }}</span>
             <span v-else class="text-disabled">Ninguna</span>
           </template>
           <!-- Actions -->
           <template #item.actions="{ item }">
-            <div class="d-flex gap-1">
-              <VSwitch
-                v-model="item.active"
-                :true-value="1"
-                :false-value="0"
-                @click="$toggleActive(item)"
-                color="primary"
-                hide-details
-                class="pt-2 mt-0"
-                title="Activar o Inactivar"
-              >
-              </VSwitch> 
+            <div class="d-flex flex-wrap ga-1 align-center" style="min-width: 50px;margin:0px">
               <IconBtn
                 size="small"
+                title="Editar"
                 @click="
                   vista = false;
                   $editItem(item.id);
@@ -141,8 +131,19 @@
               >
                 <VIcon icon="ri-pencil-line" />
               </IconBtn>
+              <VSwitch
+                v-model="item.active"
+                :true-value="1"
+                :false-value="0"
+                color="primary"
+                hide-details 
+                title="Activar o Inactivar"
+                @click="$toggleActive(item)"
+              /> 
+              
               <IconBtn
                 size="small"
+                title="Eliminar"
                 @click="
                   vista = false;
                   $deleteItem(item.id, item.name);
@@ -186,16 +187,11 @@ export default {
     search: "",
     vista: false,
     headers: [
-      {
-        title: "Id",
-        align: "start",
-        sortable: false,
-        key: "id",
-      },
+     
+      { title: "Acciones", key: "actions", value: "actions", sortable: false, width:"150px" },
       { title: "Nombre", filterable: true, key: "name" },
-      { title: "Categoría Padre", filterable: true, key: "categoria_padre" },
-      { title: "Estado", key: "active" },
-      { title: "Acciones", key: "actions", value: "actions", sortable: false },
+      { title: "Categoría Padre", filterable: true, key: "categoriesParents" },
+      { title: "Estado", key: "active", width:"150px" },
     ],
     desserts: [],
     categoriesParents: [],

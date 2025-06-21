@@ -17,12 +17,14 @@ class TenantUserSeeder extends Seeder
         // === Crear un tenant especial para superadmin ===
         $systemTenant = Tenant::firstOrCreate([
 
+            'id' => 1,
             'slug' => 'admin_system',
             'name' => 'Admin System',
         ]);
 
         // === Crear rol superadmin (sin tenant_id o con el del sistema) ===
         $superadminRole = Role::firstOrCreate([
+            'name' => 'id',
             'name' => 'superadmin',
             'tenant_id' => $systemTenant->id,
         ], [
@@ -53,60 +55,65 @@ class TenantUserSeeder extends Seeder
         // === Crear Tenants y sus administradores/usuarios ===
         $tenants = [
             [
+                "id" => 2,
                 "slug" => "bedidas",
                 "name" => "Bebidas"
             ],
             [
+                "id" => 3,
                 "slug" => "petshop",
                 "name" => "pet shop"
             ]
-
         ];
-        foreach ($tenants as $k => $v) {
 
-            $tenant = Tenant::firstOrCreate([
-                'slug' => $v["slug"],
-            ], [
-                'name' => $v["name"],
-            ]);
+        foreach ($tenants as $tenantData) {
+            // Crear o actualizar tenant
+            $tenant = Tenant::updateOrCreate(
+                ['id' => $tenantData['id']],
+                [
+                    'slug' => $tenantData['slug'],
+                    'name' => $tenantData['name']
+                ]
+            );
 
-            // Rol admin tenant
-            $adminRole = Role::firstOrCreate([
-                'name' => 'admin',
-                'tenant_id' => $tenant->id,
-            ], [
-                'description' => 'Administrador del tenant',
-            ]);
+            // Crear roles para el tenant
+            $adminRole = Role::updateOrCreate(
+                [
+                    'name' => 'admin',
+                    'tenant_id' => $tenant->id
+                ],
+                ['description' => 'Administrador del tenant']
+            );
 
-            // Rol usuario básico
-            $userRole = Role::firstOrCreate([
-                'name' => 'user',
-                'tenant_id' => $tenant->id,
-            ], [
-                'description' => 'Usuario básico del tenant',
-            ]);
+            $userRole = Role::updateOrCreate(
+                [
+                    'name' => 'user',
+                    'tenant_id' => $tenant->id
+                ],
+                ['description' => 'Usuario básico del tenant']
+            );
 
-            // Crear admin del tenant
-            $admin = User::firstOrCreate([
-                'email' => $v["slug"] . "_admin@example.com",
-            ], [
-                'name' => $v["name"] . " Admin ",
-                'password' => Hash::make('1q2w3e4r'),
-                'tenant_id' => $tenant->id,
-            ]);
-
+            // Crear usuario admin
+            $admin = User::updateOrCreate(
+                ['email' => $tenantData['slug'] . "_admin@example.com"],
+                [
+                    'name' => $tenantData['name'] . " Admin",
+                    'password' => Hash::make('1q2w3e4r'),
+                    'tenant_id' => $tenant->id
+                ]
+            );
             $admin->roles()->syncWithoutDetaching([$adminRole->id]);
 
             // Crear usuarios básicos
-            foreach (range(1, 2) as $u) {
-                $user = User::firstOrCreate([
-                    'email' =>  $v["slug"] . "_user_" . $u . "@example.com",
-                ], [
-                    'name' => $v["name"] . " User " . $u,
-                    'password' => Hash::make('1q2w3e4r'),
-                    'tenant_id' => $tenant->id,
-                ]);
-
+            foreach (range(1, 2) as $index) {
+                $user = User::updateOrCreate(
+                    ['email' => $tenantData['slug'] . "_user_" . $index . "@example.com"],
+                    [
+                        'name' => $tenantData['name'] . " User " . $index,
+                        'password' => Hash::make('1q2w3e4r'),
+                        'tenant_id' => $tenant->id
+                    ]
+                );
                 $user->roles()->syncWithoutDetaching([$userRole->id]);
             }
         }

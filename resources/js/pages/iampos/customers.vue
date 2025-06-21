@@ -72,10 +72,17 @@
                           <VCard-text>
                             <v-container>
                               <VRow>
-                                <VCol cols="12" sm="6">
+                                <VCol cols="12" sm="12">
                                   <VTextField
                                     v-model="editedItem.address"
                                     label="Direccion"
+                                    required
+                                  />
+                                </VCol>
+                                <VCol cols="12" sm="6">
+                                  <VTextField
+                                    v-model="editedItem.locality_id"
+                                    label="Localidad"
                                     required
                                   />
                                 </VCol>
@@ -122,21 +129,10 @@
           </template>
           <!-- Actions -->
           <template #item.actions="{ item }">
-            <div class="d-flex gap-1">
-              <VSwitch
-                v-model="item.active"
-                :true-value="1"
-                :false-value="0"
-                @click="$toggleActive(item)"
-                color="primary"
-                hide-details
-                class="pt-2 mt-0"
-                title="Activar o Inactivar"
-           
-              >
-              </VSwitch> 
+            <div class="d-flex flex-wrap gap-1 align-center" style="min-width: 120px;">
               <IconBtn
                 size="small"
+                title="Editar"
                 @click="
                   vista = false;
                   $editItem(item.id);
@@ -144,8 +140,19 @@
               >
                 <VIcon icon="ri-pencil-line" />
               </IconBtn>
+              <VSwitch
+                v-model="item.active"
+                :true-value="1"
+                :false-value="0"
+                color="primary"
+                hide-details 
+                title="Activar o Inactivar"
+                @click="$toggleActive(item)"
+              /> 
+              
               <IconBtn
                 size="small"
+                title="Eliminar"
                 @click="
                   vista = false;
                   $deleteItem(item.id, item.address);
@@ -191,23 +198,19 @@ export default {
     search: "",
     vista: false,
     headers: [
-      {
-        title: "Id",
-        align: "start",
-        sortable: false,
-        key: "id",
-      },
+      { title: "Acciones", key: "actions", value: "actions", sortable: false, width:"150px" },
       { title: "Direccion", filterable: true, key: "address" },
+      { title: "Localidad", filterable: true, key: "locality" },
       { title: "Telefono", filterable: true, key: "telephone" },
       { title: "Nombre", filterable: true, key: "name" },
-      { title: "Estado", key: "active" },
-      { title: "Acciones", key: "actions", value: "actions", sortable: false },
+      { title: "Estado", key: "active", width:"150px" },
     ],
     desserts: [],
     editedIndex: -1,
     editedItem: {
       id: "",
       address: "",
+      locality_id: "",
       telephone: "",
       email: "",
       name: "",
@@ -216,6 +219,7 @@ export default {
     defaultItem: {
       id: "",
       address: "",
+      locality_id: "",
       telephone: "",
       email: "",
       name: "",
@@ -224,6 +228,7 @@ export default {
     filters: {
       id: "",
       address: "",
+      locality_id: "",
       telephone: "",
       email: "",
       name: "",
@@ -232,6 +237,7 @@ export default {
     },
     filterKey: [],
     selectedHeaders: [],
+    localities:[]
   }),
 
   computed: {
@@ -275,9 +281,18 @@ export default {
   created() {
     this.$initialize();
     this.selectedHeaders = this.headers;
+    this.loadLocalities();
   },
 
   methods: {
+    async loadLocalities() {
+      try {
+        const response =await this.$axios.get( this.$routes[this.route])
+        this.localities = response.data.data;
+      } catch (error) {
+        console.error("Error al cargar localidades:", error);
+      }
+    },
     filterDessertName(item) {
       return item.name.toLowerCase().includes(this.dessertName.toLowerCase());
     },

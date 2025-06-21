@@ -60,53 +60,32 @@
 
                           <v-toolbar-title>{{ formTitle }}</v-toolbar-title>
 
+                          
                           <VBtn color="white" text @click="dialog = false">Cancelar</VBtn>
                           <VBtn color="white" @click="$save()">Guardar</VBtn>
+                           
                         </v-toolbar>
 
                         <v-form ref="form" v-model="valid" lazy-validation>
                           <VCard-text>
                             <v-container>
                               <VRow>
-                                <VCol cols="12" sm="6">
-                                  <VTextField
-                                    v-model="editedItem.slug"
-                                    label="Slug"
-                                    required
-                                    hint="Identificador único para URLs"
-                                  />
-                                </VCol>
-                                <VCol cols="12" sm="6">
+                                <VCol cols="12" sm="12">
                                   <VTextField
                                     v-model="editedItem.name"
-                                    label="Nombre"
+                                    label="Localidad"
                                     required
-                                  />
-                                </VCol>
-                                <VCol cols="12" sm="6">
-                                  <VTextField
-                                    v-model="editedItem.address"
-                                    label="Dirección"
-                                  />
-                                </VCol>
-                                <VCol cols="12" sm="6">
-                                  <VTextField
-                                    v-model="editedItem.telephone"
-                                    label="Teléfono"
-                                    type="number"
-                                  />
-                                </VCol>
-                                <VCol cols="12">
-                                  <VTextField
-                                    v-model="editedItem.email"
-                                    label="Email"
-                                    type="email"
                                   />
                                 </VCol>
                               </VRow>
                             </v-container>
                           </VCard-text>
                         </v-form>
+                        <!--<VCardActions>
+                          <VSpacer />
+                          <VBtn text @click="dialog = false">Cancelar</VBtn>
+                          <VBtn color="primary" @click="$save()">Guardar</VBtn>
+                        </VCardActions>-->
                       </VCard>
                     </v-dialog>
                   </VCol>
@@ -162,6 +141,7 @@
 
         <v-snackbar v-model="snackbar" :bottom="true" :color="color" :timeout="timeout">
           <div v-html="text"></div>
+
           <template v-slot:action="{ attrs }">
             <v-btn dark text v-bind="attrs" @click="snackbar = false"> Cerrar </v-btn>
           </template>
@@ -173,7 +153,7 @@
 
 <script>
 function title() {
-  return "Tenants";
+  return "Localidades";
 }
 
 export default {
@@ -181,7 +161,7 @@ export default {
     dessertName: "",
     valid: true,
     title: title(),
-    route: "tenants",
+    route: "localities",
     dialog: false,
     snackbar: false,
     visible: true,
@@ -192,46 +172,24 @@ export default {
     vista: false,
     headers: [
       { title: "Acciones", key: "actions", value: "actions", sortable: false, width:"150px" },
-      {
-        title: "Id",
-        align: "start",
-        sortable: false,
-        key: "id",
-      },
-      { title: "Slug", filterable: true, key: "slug" },
       { title: "Nombre", filterable: true, key: "name" },
-      { title: "Dirección", filterable: true, key: "address" },
-      { title: "Teléfono", filterable: true, key: "telephone" },
-      { title: "Email", filterable: true, key: "email" },
       { title: "Estado", key: "active", width:"150px" }, 
     ],
     desserts: [],
     editedIndex: -1,
     editedItem: {
       id: "",
-      slug: "",
       name: "",
-      address: "",
-      telephone: "",
-      email: "",
       active: 1,
     },
     defaultItem: {
       id: "",
-      slug: "",
       name: "",
-      address: "",
-      telephone: "",
-      email: "",
       active: 1,
     },
     filters: {
       id: "",
-      slug: "",
       name: "",
-      address: "",
-      telephone: "",
-      email: "",
       created_at: "",
       updated_at: "",
     },
@@ -243,6 +201,7 @@ export default {
     formTitle() {
       return this.editedIndex === -1 ? "Registrar " + this.title : "Editar " + this.title;
     },
+
     filteredData() {
       return this.$filteredData().data !== undefined
         ? this.$filteredData().data
@@ -253,9 +212,11 @@ export default {
     },
     filteredDesserts() {
       let conditions = [];
+
       if (this.dessertName) {
         conditions.push(this.filterDessertName);
       }
+
       if (conditions.length > 0) {
         return this.desserts.filter((dessert) => {
           return conditions.every((condition) => {
@@ -263,6 +224,7 @@ export default {
           });
         });
       }
+
       return this.desserts;
     },
   },
@@ -273,11 +235,12 @@ export default {
     },
   },
 
+  // eslint-disable-next-line vue/component-api-style
   created() {
     this.$initialize();
     this.selectedHeaders = this.headers;
   },
-
+  // eslint-disable-next-line vue/component-api-style
   mounted() {
     console.log("Componente " + this.title + " creado");
   },

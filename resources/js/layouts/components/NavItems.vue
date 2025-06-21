@@ -21,12 +21,12 @@ import VerticalNavLink from '@layouts/components/VerticalNavLink.vue'
       heading: 'Administracion General',
     }"
   />-->
-  <VerticalNavGroup
+  <!--<VerticalNavGroup
     :item="{
       title: 'Administración',
       icon: 'ri-tools-line',      
     }"
-  >
+  >-->
   <!--
   <VerticalNavLink
       :item="{
@@ -39,14 +39,21 @@ import VerticalNavLink from '@layouts/components/VerticalNavLink.vue'
       :item="{
         title: 'Clientes',
         to: '/customers',        
-        icon: 'ri-shopping-bag-2-fill', 
+        icon: 'ri-shopping-bag-2-line', 
+      }"
+    />
+    <VerticalNavLink
+      :item="{
+        title: 'Localidades',
+        to: '/localities',        
+        icon: 'ri-map-pin-line', 
       }"
     />
     <VerticalNavLink
       :item="{
         title: 'Tenants',
         to: '/tenants',        
-        icon: 'ri-shopping-bag-2-fill', 
+        icon: 'ri-database-2-line', 
       }"
     />
     
@@ -76,7 +83,7 @@ import VerticalNavLink from '@layouts/components/VerticalNavLink.vue'
       }"
     />
     
-  </VerticalNavGroup>
+  <!--</VerticalNavGroup>-->
 
  <!--
    <VerticalNavSectionTitle

@@ -8,24 +8,17 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Scopes\TenantScope;
 use App\Http\Traits\AuditModelTrait;
 
-class Customer extends Model
+class Locality extends Model
 {
     use HasFactory, SoftDeletes, AuditModelTrait;
 
     protected $fillable = [
-
-        'address',
-        'locality_id',
-        'telephone',
-        'email',
-        'firstname',
-        'lastname',
-        'companyname',
+        'name',
+        'active',
         'created_by',
         'last_modified_by',
         'deleted_by',
         'tenant_id',
-        'active',
     ];
 
     protected static function booted(): void

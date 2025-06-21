@@ -1,0 +1,163 @@
+<?php
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+
+class DrinkCustomerSeeder extends Seeder
+{
+    public function run()
+    {
+        $addresses = [
+            '3 de Febrero 3119',
+            'Alvear 3903',
+            'Angel Pini 5263',
+            'Bolivia 2980',
+            'Bouchard 3459',
+            'Cafferata 5649',
+            'Chubut 4645',
+            'Guamini 4857',
+            'Mitre 4945',
+            'Juan M de Rosas 3565',
+            'Oliveira 4354',
+            'Mitre 3957',
+            'Mitre 4568',
+            'Mitre 5212',
+            'Olavarria 3775',
+            'Parodi 4535',
+            'Parodi 5060',
+            'Parodi 5060 (Familiar)',
+            'Puan 3560',
+            'Republica 5349',
+            'Republica 5541',
+            'San Martin 3330',
+            'San Martin 4044',
+            'San Martin 3559',
+            'Spandonari 3134',
+            'Yrigoyen 1720',
+            'Av Diaz Velez 1975',
+            'Av San Martin 2568',
+            'Avellaneda 2572',
+            'Castillo 805',
+            'Colon 999',
+            'Diaz Velez 1049',
+            'Diaz Velez 1975',
+            'Diaz Velez 254',
+            'Av San Martin 42',
+            'Diaz Velez y 12 de Octubre',
+            'Juan M de Rosas 367',
+            'Fragueiro 1249',
+            'Guido 1079',
+            'Las Heras 2240',
+            'Mosconi 1498',
+            'Mosconi 1662',
+            'Mosconi 522',
+            'Nolting 3685',
+            'Paso 1532',
+            'Pereyra 3540',
+            'Rivadavia 12822',
+            'San Martin 357',
+            'Vacca 761',
+            'Villegas 343',
+            'Av San Martin 2122',
+            'Villegas 437',
+            'Villegas 701',
+            'Pellegrini 472',
+            'Alsina 1188',
+            'America 1928',
+            'America 2223',
+            'Arieta 1520',
+            'Arieta 1946',
+            'Arieta 2642',
+            'Brandsen 1177',
+            'Brandsen 119',
+            'Castellano 1448',
+            'Garibaldi 2631',
+            'Illia 2040',
+            'Illia 3145',
+            'Jujuy 3277',
+            'Labarden 2969',
+            'Ocampo 1898',
+            'Ombu 154',
+            'Pte Peron 1090',
+            'Ribera Indarte 1838',
+            'Triunvirato 1983',
+            'Triunvirato 2474',
+            'Venezuela 2674',
+            '12 de Octubre 29',
+            'Alberdi 338',
+            'Alvarado 518',
+            'Alvarado 976',
+            'Av de Mayo 1325',
+            'Av de Mayo 1530',
+            'Av de Mayo 1760',
+            'Av San Martin 1538',
+            'Beron de Astrada 2642',
+            'Bolivar 371',
+            'Bolivar y 25 de Mayo',
+            'Bolivar y Conesa',
+            'Cerrito 1752',
+            'Colon 999',
+            'Espora 1201',
+            'Espora 374',
+            'Lavalle 109',
+            'Medrano 117',
+            'Pereyra 637',
+            'Pizzarro 1537',
+            'Pringles 2063',
+            'Saavedra 575',
+            'Sto Cabral 1156',
+            'Tacuari 959',
+            'Alem 255',
+            'Av Rivadavia 15602',
+            'De las Rosas 6265',
+            'Directorio 1698',
+            'Fasola 853',
+            'Ferrari 250',
+            'Ferrari 322',
+            'Fresco 352',
+            'Bergamini 2456',
+            'Galan 662',
+            'Concordia 776',
+            'Gaona 1199',
+            'Gaona 2173',
+            'Gaona 2746',
+            'Gelly Obes',
+            'Jose Bianco 2642',
+            'Juan B Justo 501',
+            'Marconi 6583',
+            'Primera Junta 698',
+            'Wernique 2220',
+            'Gaona 1576',
+            '2da Rivadavia 14891',
+            'Vignes 1453',
+            'Illia y Diaz Velez',
+            'Rosales 1467'
+        ];
+
+        $customers = [];
+        foreach ($addresses as $address) {
+            /* $companyName = "Cliente " . substr($address, 0, 15);  
+            $firstName = "Nombre" . rand(1, 100);
+            $lastName = "Apellido" . rand(1, 100);
+            $email = strtolower(str_replace(' ', '', $firstName)) . rand(1, 100) . "@example.com";
+            $phone = "11" . rand(1000000, 9999999);*/
+
+            $customers[] = [
+                'address' => $address,
+                /*'telephone' => $phone,
+                'email' => $email,
+                'firstname' => $firstName,
+                'lastname' => $lastName,
+                'companyname' => $companyName,*/
+                'tenant_id' => 2,
+                'active' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+        }
+
+        DB::table('customers')->insert($customers);
+    }
+}
