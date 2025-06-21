@@ -18,8 +18,8 @@ class TenantUserSeeder extends Seeder
         $systemTenant = Tenant::firstOrCreate([
 
             'id' => 1,
-            'slug' => 'admin_system',
-            'name' => 'Admin System',
+            'slug' => 'admin',
+            'name' => 'Administrador',
         ]);
 
         // === Crear rol superadmin (sin tenant_id o con el del sistema) ===

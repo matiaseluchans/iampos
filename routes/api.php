@@ -57,4 +57,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::apiResource('products', App\Http\Controllers\ProductController::class);
     Route::apiResource('brands', App\Http\Controllers\BrandController::class);
     Route::apiResource('localities', App\Http\Controllers\LocalityController::class);
+
+    Route::apiResource('roles', App\Http\Controllers\RoleController::class);
+
+    Route::apiResource('users', App\Http\Controllers\UserController::class);
+    Route::get('users/tenants', [App\Http\Controllers\UserController::class, 'getTenants']);
+    Route::get('users/roles', [App\Http\Controllers\UserController::class, 'getRoles']);
+    Route::patch('users/{user}/toggle-active', [App\Http\Controllers\UserController::class, 'toggleActive']);
 });

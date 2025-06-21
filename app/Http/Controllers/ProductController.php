@@ -121,8 +121,8 @@ class ProductController extends ApiController
             }
 
             // Manejar campo activo específicamente para asegurar tipo booleano
-            if (isset($updateData['activo'])) {
-                $updateData['activo'] = filter_var($updateData['activo'], FILTER_VALIDATE_BOOLEAN);
+            if (isset($updateData['active'])) {
+                $updateData['active'] = filter_var($updateData['active'], FILTER_VALIDATE_BOOLEAN);
             }
 
             // Actualizar el modelo solo con los campos proporcionados

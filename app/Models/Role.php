@@ -12,10 +12,10 @@ class Role extends Model
 
     protected $fillable = ['name', 'description', 'tenant_id'];
 
-    protected static function booted(): void
+    /*protected static function booted(): void
     {
         static::addGlobalScope(new TenantScope);
-    }
+    }*/
 
     public function users()
     {

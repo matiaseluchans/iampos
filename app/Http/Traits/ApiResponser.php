@@ -23,7 +23,7 @@ trait ApiResponser
     }
 
     protected function successResponseCreate($data, $message = null)
-    {        
+    {
         return response()->json([
             'status' =>  'Success',
             'message' => $message,
@@ -45,6 +45,8 @@ trait ApiResponser
                     $message = $ex->errorInfo[2];
                     $defaultCode = $ex->errorInfo[1];
                 } else {
+                    \Log::debug('error:', json_encode($ex));
+
                     $message = $ex->getMessage();
                 }
             }

@@ -56,6 +56,13 @@ import VerticalNavLink from '@layouts/components/VerticalNavLink.vue'
         icon: 'ri-database-2-line', 
       }"
     />
+    <VerticalNavLink
+      :item="{
+        title: 'Usuarios',
+        to: '/users',        
+        icon: 'ri-user-line', 
+      }"
+    />
     
 
     
