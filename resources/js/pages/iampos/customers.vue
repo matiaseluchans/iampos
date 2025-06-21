@@ -1,7 +1,7 @@
 <template>
   <VCard :title="'Administración de ' + title">
-    <VCardText class="d-flex">
-      <v-container id="crud" fluid tag="section">
+    <VCardText class="d-flex px-2">
+       
         <VDataTable
           :headers="showHeaders"
           :items="filteredDesserts"
@@ -39,13 +39,13 @@
                     </VAutocomplete>
                   </VCol>
                   <VCol sm="1" class="pt-20 py-2">
-                    <v-dialog v-model="dialog" max-width="50%">
+                    <v-dialog v-model="dialog" max-width="600px">
                       <template v-slot:activator="{ props: activatorProps }">
                         <VBtn
                           v-bind="activatorProps"
                           :color="$cv('principal')"
                           size="x-large"
-                          :title="'Registrar nueva ' + title"
+                          :title="'Registrar ' + title"
                         >
                           <VIcon size="large" icon="ri-add-circle-line" />
                         </VBtn>
@@ -59,12 +59,7 @@
                           ></v-btn>
 
                           <v-toolbar-title>{{ formTitle }}</v-toolbar-title>
-
-                          <v-spacer></v-spacer>
-
-                          
-                            <VBtn color="white" text @click="dialog = false">Cancelar</VBtn>
-                            <VBtn color="white" @click="$save()">Guardar</VBtn>
+ 
                            
                         </v-toolbar>
 
@@ -106,11 +101,11 @@
                             </v-container>
                           </VCard-text>
                         </v-form>
-                        <!--<VCardActions>
-                          <VSpacer />
-                          <VBtn text @click="dialog = false">Cancelar</VBtn>
-                          <VBtn color="primary" @click="$save()">Guardar</VBtn>
-                        </VCardActions>-->
+                        <VCardActions>
+                        <VSpacer />
+                        <VBtn  variant="outlined" color="primary" @click="dialog = false">Cancelar</VBtn>
+                        <VBtn class="bg-primary" color="white" @click="$save()">Guardar</VBtn>
+                      </VCardActions>
                       </VCard>
                     </v-dialog>
                   </VCol>
@@ -173,7 +168,7 @@
             <v-btn dark text v-bind="attrs" @click="snackbar = false"> Cerrar </v-btn>
           </template>
         </v-snackbar>
-      </v-container>
+    
     </VCardText>
   </VCard>
 </template>

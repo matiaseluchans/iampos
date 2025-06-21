@@ -1,7 +1,6 @@
 <template>
   <VCard :title="'Administración de ' + title">
-    <VCardText class="d-flex px-2">
-      <v-container id="crud" fluid tag="section" class="px-0 mx-0">
+    <VCardText class="d-flex px-2"> 
         <VDataTable
           :headers="showHeaders"
           :items="filteredDesserts"
@@ -44,7 +43,7 @@
                           v-bind="activatorProps"
                           :color="$cv('principal')"
                           size="x-large"
-                          :title="'Registrar nueva ' + title"
+                          :title="'Registrar ' + title"
                         >
                           <VIcon size="large" icon="ri-add-circle-line" />
                         </VBtn>
@@ -264,7 +263,7 @@
             <v-btn dark text v-bind="attrs" @click="snackbar = false">Cerrar</v-btn>
           </template>
         </v-snackbar>
-      </v-container>
+     
     </VCardText>
   </VCard>
 </template>

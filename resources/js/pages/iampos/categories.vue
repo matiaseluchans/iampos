@@ -1,7 +1,6 @@
 <template>
   <VCard :title="'Administración de ' + title">
-    <VCardText class="d-flex">
-      <v-container id="crud" fluid tag="section">
+    <VCardText class="d-flex px-2"> 
         <VDataTable
           :headers="showHeaders"
           :items="filteredDesserts"
@@ -39,7 +38,7 @@
                     </VAutocomplete>
                   </VCol>
                   <VCol sm="1" class="pt-20 py-2">
-                    <v-dialog v-model="dialog" max-width="50%" @update:modelValue="onDialogToggle">
+                    <v-dialog v-model="dialog" max-width="400px" @update:modelValue="onDialogToggle">
                       <template v-slot:activator="{ props: activatorProps }">
                         <VBtn
                           v-bind="activatorProps"
@@ -61,9 +60,6 @@
                           <v-toolbar-title>{{ formTitle }}</v-toolbar-title>
 
                    
-                          
-                          <VBtn color="white" text @click="dialog = false">Cancelar</VBtn>
-                          <VBtn color="white" @click="$save()">Guardar</VBtn>
                            
                         </v-toolbar>
 
@@ -92,11 +88,11 @@
                             </v-container>
                           </VCard-text>
                         </v-form>
-                        <!--<VCardActions>
-                          <VSpacer />
-                          <VBtn text @click="dialog = false">Cancelar</VBtn>
-                          <VBtn color="primary" @click="$save()">Guardar</VBtn>
-                        </VCardActions>-->
+                        <VCardActions>
+                        <VSpacer />
+                        <VBtn  variant="outlined" color="primary" @click="dialog = false">Cancelar</VBtn>
+                        <VBtn class="bg-primary" color="white" @click="$save()">Guardar</VBtn>
+                      </VCardActions>
                       </VCard>
                     </v-dialog>
                   </VCol>
@@ -162,14 +158,14 @@
             <v-btn dark text v-bind="attrs" @click="snackbar = false"> Cerrar </v-btn>
           </template>
         </v-snackbar>
-      </v-container>
+     
     </VCardText>
   </VCard>
 </template>
 
 <script>
 function title() {
-  return "Categorías de Productos";
+  return "Categorías";
 }
 
 export default {
