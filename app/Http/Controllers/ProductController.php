@@ -5,20 +5,20 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Controllers\ApiController;
 use Illuminate\Support\Facades\DB;
-use App\Models\Producto;
-use App\Models\Marca;
-use App\Models\ProductoCategoria;
+use App\Models\Product;
+use App\Models\Brand;
+use App\Models\Category;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
-class ProductoController extends ApiController
+class ProductController extends ApiController
 {
     protected $model;
     private $relations;
 
-    public function __construct(array $relations = ['marca', 'categoria'])
+    public function __construct(array $relations = ['brand', 'category'])
     {
-        $this->model = new Producto();
+        $this->model = new Product();
         $this->relations = $relations;
     }
 
@@ -73,10 +73,10 @@ class ProductoController extends ApiController
 
             //$data['activo'] = filter_var($request->input('activo', true), FILTER_VALIDATE_BOOLEAN);
 
-            $producto = $this->model->create($data);
+            $p = $this->model->create($data);
 
             DB::commit();
-            return $this->successResponseCreate($producto->load($this->relations));
+            return $this->successResponseCreate($p->load($this->relations));
         } catch (\Exception $e) {
             DB::rollBack();
             report($e);
@@ -88,7 +88,7 @@ class ProductoController extends ApiController
     {
         DB::beginTransaction();
         try {
-            $producto = $this->model->findOrFail($id);
+            $p = $this->model->findOrFail($id);
             $requestData = $request->all();
 
             // Inicializar array de datos a actualizar
@@ -98,14 +98,14 @@ class ProductoController extends ApiController
             if (isset($requestData['data'])) {
                 // Si viene en formato {data: {campo: valor}}
                 foreach ($requestData['data'] as $field => $value) {
-                    if ($field !== 'image' && array_key_exists($field, $producto->getAttributes())) {
+                    if ($field !== 'image' && array_key_exists($field, $p->getAttributes())) {
                         $updateData[$field] = $value;
                     }
                 }
             } else {
                 // Si viene en formato plano {campo: valor}
                 foreach ($requestData as $field => $value) {
-                    if ($field !== 'image' && array_key_exists($field, $producto->getAttributes())) {
+                    if ($field !== 'image' && array_key_exists($field, $p->getAttributes())) {
                         $updateData[$field] = $value;
                     }
                 }
@@ -114,8 +114,8 @@ class ProductoController extends ApiController
             // Manejar imagen por separado
             if ($request->hasFile('image')) {
                 // Eliminar imagen anterior si existe
-                if ($producto->image) {
-                    Storage::delete('public/productos/' . $producto->image);
+                if ($p->image) {
+                    Storage::delete('public/products/' . $p->image);
                 }
                 $updateData['image'] = $this->uploadImage($request->file('image'));
             }
@@ -126,10 +126,10 @@ class ProductoController extends ApiController
             }
 
             // Actualizar el modelo solo con los campos proporcionados
-            $producto->update($updateData);
+            $p->update($updateData);
 
             DB::commit();
-            return $this->successResponse($producto->fresh()->load($this->relations));
+            return $this->successResponse($p->fresh()->load($this->relations));
         } catch (\Exception $e) {
             DB::rollBack();
             report($e);
@@ -140,17 +140,17 @@ class ProductoController extends ApiController
     {
         DB::beginTransaction();
         try {
-            $producto = $this->model->findOrFail($id);
+            $p = $this->model->findOrFail($id);
 
             // Eliminar imagen asociada si existe
-            if ($producto->image) {
-                Storage::delete('public/' . $producto->image);
+            if ($p->image) {
+                Storage::delete('public/' . $p->image);
             }
 
-            $producto->delete();
+            $p->delete();
 
             DB::commit();
-            return $this->successResponse($producto);
+            return $this->successResponse($p);
         } catch (\Exception $e) {
             DB::rollBack();
             report($e);
@@ -161,11 +161,11 @@ class ProductoController extends ApiController
     public function changestatus($id)
     {
         try {
-            $producto = $this->model->findOrFail($id);
-            $producto->activo = $producto->activo == 1 ? 0 : 1;
-            $producto->save();
+            $p = $this->model->findOrFail($id);
+            $p->active = $p->active == 1 ? 0 : 1;
+            $p->save();
 
-            return $this->successResponse($producto->fresh()->load($this->relations));
+            return $this->successResponse($p->fresh()->load($this->relations));
         } catch (\Exception $e) {
             report($e);
             return $this->errorResponse($e);
@@ -185,7 +185,7 @@ class ProductoController extends ApiController
         $fileName = $originalName . '_' . uniqid() . '.' . $extension;
 
         // Guardar en storage/app/public/productos con el nombre personalizado
-        $path = $image->storeAs('public/productos', $fileName);
+        $path = $image->storeAs('public/products', $fileName);
 
         // Retornar solo el nombre del archivo (sin ruta)
         return $fileName;
@@ -194,22 +194,22 @@ class ProductoController extends ApiController
     /**
      * Métodos adicionales para relaciones
      */
-    public function getMarcas()
+    public function getBrands()
     {
         try {
-            $marcas = Marca::where('activo', true)->get();
-            return $this->successResponse($marcas);
+            $b = Brand::where('active', true)->get();
+            return $this->successResponse($b);
         } catch (\Exception $e) {
             report($e);
             return $this->errorResponse($e);
         }
     }
 
-    public function getCategorias()
+    public function getCategories()
     {
         try {
-            $categorias = ProductoCategoria::where('activo', true)->get();
-            return $this->successResponse($categorias);
+            $c = Category::where('active', true)->get();
+            return $this->successResponse($c);
         } catch (\Exception $e) {
             report($e);
             return $this->errorResponse($e);

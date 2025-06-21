@@ -4,12 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Tenant extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
-    protected $fillable = ['slug', 'nombre', 'direccion', 'telefono'];
+    protected $fillable = ['slug', 'name', 'address', 'telephone', 'email', 'active'];
 
     public function users()
     {

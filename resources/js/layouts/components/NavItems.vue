@@ -38,10 +38,20 @@ import VerticalNavLink from '@layouts/components/VerticalNavLink.vue'
     <VerticalNavLink
       :item="{
         title: 'Clientes',
-        to: '/clientes',        
+        to: '/customers',        
         icon: 'ri-shopping-bag-2-fill', 
       }"
     />
+    <VerticalNavLink
+      :item="{
+        title: 'Tenants',
+        to: '/tenants',        
+        icon: 'ri-shopping-bag-2-fill', 
+      }"
+    />
+    
+
+    
     <VerticalNavSectionTitle
     :item="{
       heading: 'Productos',
@@ -50,19 +60,19 @@ import VerticalNavLink from '@layouts/components/VerticalNavLink.vue'
     <VerticalNavLink
       :item="{
         title: 'Productos',
-        to: '/productos',        
+        to: '/products',        
       }"
     />
     <VerticalNavLink
       :item="{
         title: 'Categorias',
-        to: '/productos_categoria',        
+        to: '/categories',        
       }"
     />
     <VerticalNavLink
       :item="{
         title: 'Marcas',
-        to: '/marcas',        
+        to: '/brands',        
       }"
     />
     

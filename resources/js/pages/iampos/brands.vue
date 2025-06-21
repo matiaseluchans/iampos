@@ -39,13 +39,13 @@
                     </VAutocomplete>
                   </VCol>
                   <VCol sm="1" class="pt-20 py-2">
-                    <v-dialog v-model="dialog" max-width="50%" @update:modelValue="onDialogToggle">
+                    <v-dialog v-model="dialog" max-width="50%">
                       <template v-slot:activator="{ props: activatorProps }">
                         <VBtn
                           v-bind="activatorProps"
                           :color="$cv('principal')"
                           size="x-large"
-                          :title="'s ' + title"
+                          :title="'Registrar nueva ' + title"
                         >
                           <VIcon size="large" icon="ri-add-circle-line" />
                         </VBtn>
@@ -60,7 +60,6 @@
 
                           <v-toolbar-title>{{ formTitle }}</v-toolbar-title>
 
-                   
                           
                           <VBtn color="white" text @click="dialog = false">Cancelar</VBtn>
                           <VBtn color="white" @click="$save()">Guardar</VBtn>
@@ -73,21 +72,11 @@
                               <VRow>
                                 <VCol cols="12" sm="12">
                                   <VTextField
-                                    v-model="editedItem.nombre"
-                                    label="Nombre"
+                                    v-model="editedItem.name"
+                                    label="Marca"
                                     required
                                   />
                                 </VCol>
-                                <VCol cols="12" sm="12">
-                                  <VAutocomplete
-                                    v-model="editedItem.productos_categorias_id"
-                                    :items="categoriasPadre"
-                                    item-title="nombre"
-                                    item-value="id"
-                                    label="Categoría Padre"
-                                    clearable
-                                  />
-                                </VCol> 
                               </VRow>
                             </v-container>
                           </VCard-text>
@@ -105,33 +94,28 @@
             </VCard>
           </template>
           <!-- status -->
-          <template #item.activo="{ item }">
+          <template #item.active="{ item }">
             <VChip
-              :color="$resolveStatusVariant(item.activo).color"
+              :color="$resolveStatusVariant(item.active).color"
               density="comfortable"
             >
-              {{ $resolveStatusVariant(item.activo).text }}
+              {{ $resolveStatusVariant(item.active).text }}
             </VChip>
-          </template>
-          <!-- Categoría Padre -->
-          <template #item.categoria_padre="{ item }">
-            <span v-if="item.categoria_padre">{{ item.categoria_padre.nombre }}</span>
-            <span v-else class="text-disabled">Ninguna</span>
           </template>
           <!-- Actions -->
           <template #item.actions="{ item }">
             <div class="d-flex gap-1">
               <VSwitch
-                v-model="item.activo"
+                v-model="item.active"
                 :true-value="1"
                 :false-value="0"
-                @click="$toggleActivo(item)"
+                @click="$toggleActive(item)"
                 color="primary"
                 hide-details
                 class="pt-2 mt-0"
                 title="Activar o Inactivar"
               >
-              </VSwitch> 
+              </VSwitch>
               <IconBtn
                 size="small"
                 @click="
@@ -145,7 +129,7 @@
                 size="small"
                 @click="
                   vista = false;
-                  $deleteItem(item.id, item.nombre);
+                  $deleteItem(item.id, item.name);
                 "
               >
                 <VIcon icon="ri-delete-bin-line" />
@@ -168,7 +152,7 @@
 
 <script>
 function title() {
-  return "Categorías de Productos";
+  return "Marcas";
 }
 
 export default {
@@ -176,7 +160,7 @@ export default {
     dessertName: "",
     valid: true,
     title: title(),
-    route: "productosCategoria",
+    route: "brands",
     dialog: false,
     snackbar: false,
     visible: true,
@@ -192,30 +176,25 @@ export default {
         sortable: false,
         key: "id",
       },
-      { title: "Nombre", filterable: true, key: "nombre" },
-      { title: "Categoría Padre", filterable: true, key: "categoria_padre" },
-      { title: "Estado", key: "activo" },
+      { title: "Nombre", filterable: true, key: "name" },
+      { title: "Estado", key: "active" },
       { title: "Acciones", key: "actions", value: "actions", sortable: false },
     ],
     desserts: [],
-    categoriasPadre: [],
     editedIndex: -1,
     editedItem: {
       id: "",
-      nombre: "",
-      productos_categorias_id: null,
-      activo: 1,
+      name: "",
+      active: 1,
     },
     defaultItem: {
       id: "",
-      nombre: "",
-      productos_categorias_id: null,
-      activo: 1,
+      name: "",
+      active: 1,
     },
     filters: {
       id: "",
-      nombre: "",
-      productos_categorias_id: "",
+      name: "",
       created_at: "",
       updated_at: "",
     },
@@ -261,40 +240,26 @@ export default {
     },
   },
 
+  // eslint-disable-next-line vue/component-api-style
   created() {
     this.$initialize();
     this.selectedHeaders = this.headers;
-    this.loadCategoriasPadre();
+  },
+  // eslint-disable-next-line vue/component-api-style
+  mounted() {
+    console.log("Componente " + this.title + " creado");
   },
 
   methods: {
-    onDialogToggle(isOpen) {
-      if (isOpen) {
-        this.loadCategoriasPadre();
-      }
-    },
-    async loadCategoriasPadre() {
-      try {
-        const response =await this.$axios.get( this.$routes[this.route])
-        this.categoriasPadre = response.data.data;
-      } catch (error) {
-        console.error("Error al cargar categorías padre:", error);
-      }
-    },
-    
     filterDessertName(item) {
-      return item.nombre.toLowerCase().includes(this.dessertName.toLowerCase());
+      return item.name.toLowerCase().includes(this.dessertName.toLowerCase());
     },
-    filterByNombre(item) {
-      return this.$filterBy(item, "nombre");
+    filterByName(item) {
+      return this.$filterBy(item, "name");
     },
-    filterByActivo(item) {
-      return this.$filterBy(item, "activo");
-    },
-  },
-  
-  mounted() {
-    console.log("Componente " + this.title + " creado");
+    filterByActive(item) {
+      return this.$filterBy(item, "active");
+    }
   },
 };
 </script>

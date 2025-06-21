@@ -18,7 +18,7 @@ class TenantUserSeeder extends Seeder
         $systemTenant = Tenant::firstOrCreate([
 
             'slug' => 'admin_system',
-            'nombre' => 'Admin System',
+            'name' => 'Admin System',
         ]);
 
         // === Crear rol superadmin (sin tenant_id o con el del sistema) ===
@@ -54,11 +54,11 @@ class TenantUserSeeder extends Seeder
         $tenants = [
             [
                 "slug" => "bedidas",
-                "nombre" => "Bebidas"
+                "name" => "Bebidas"
             ],
             [
                 "slug" => "petshop",
-                "nombre" => "pet shop"
+                "name" => "pet shop"
             ]
 
         ];
@@ -67,7 +67,7 @@ class TenantUserSeeder extends Seeder
             $tenant = Tenant::firstOrCreate([
                 'slug' => $v["slug"],
             ], [
-                'nombre' => $v["nombre"],
+                'name' => $v["name"],
             ]);
 
             // Rol admin tenant
@@ -90,7 +90,7 @@ class TenantUserSeeder extends Seeder
             $admin = User::firstOrCreate([
                 'email' => $v["slug"] . "_admin@example.com",
             ], [
-                'name' => $v["nombre"] . " Admin ",
+                'name' => $v["name"] . " Admin ",
                 'password' => Hash::make('1q2w3e4r'),
                 'tenant_id' => $tenant->id,
             ]);
@@ -102,7 +102,7 @@ class TenantUserSeeder extends Seeder
                 $user = User::firstOrCreate([
                     'email' =>  $v["slug"] . "_user_" . $u . "@example.com",
                 ], [
-                    'name' => $v["nombre"] . " User " . $u,
+                    'name' => $v["name"] . " User " . $u,
                     'password' => Hash::make('1q2w3e4r'),
                     'tenant_id' => $tenant->id,
                 ]);

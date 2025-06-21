@@ -5,7 +5,7 @@
         <VDataTable
           :headers="showHeaders"
           :items="filteredDesserts"
-          :search="search"
+          :search="search"  
           class="text-no-wrap"
         >
           <template v-slot:top>
@@ -63,44 +63,53 @@
                             <v-container class="py-0">
                               <VRow class="py-0">
                                 <VCol cols="12" sm="6">
-                                  <VTextField v-model="editedItem.nombre" label="Nombre" required />
+                                  <VRow class="py-0">
+                                    <VCol cols="12" sm="12">
+                                      <VTextField v-model="editedItem.name" label="Nombre" required />
+                                    </VCol>
+                                    <VCol cols="12" sm="12">
+                                      <VTextField v-model="editedItem.code" label="Código" />
+                                    </VCol>
+                                    <VCol cols="12" sm="12">
+                                      <VAutocomplete
+                                        v-model="editedItem.category_id"
+                                        :items="categories"
+                                        item-title="name"
+                                        item-value="id"
+                                        label="Categoría"
+                                        clearable 
+                                      />
+                                    </VCol>
+                                  </VRow>
                                 </VCol>
+
                                 <VCol cols="12" sm="6">
-                                  <VTextField v-model="editedItem.codigo" label="Código" />
-                                </VCol>
-                                <VCol cols="12" sm="6">
-                                  <VAutocomplete
-                                    v-model="editedItem.productos_categorias_id"
-                                    :items="categorias"
-                                    item-title="nombre"
-                                    item-value="id"
-                                    label="Categoría"
-                                    clearable 
-                                  />
-                                </VCol>
-                                <VCol cols="12" sm="6">
-                                  <VAutocomplete
-                                    v-model="editedItem.marca_id"
-                                    :items="marcas"
-                                    item-title="nombre"
-                                    item-value="id"
-                                    label="Marca"
-                                    clearable
-                                  />
-                                </VCol>
-                                <VCol cols="12" sm="6">
-                                  <VTextField
-                                    v-model="editedItem.precio_compra"
-                                    label="Precio de Compra"
-                                    prefix="$"
-                                  />
-                                </VCol>
-                                <VCol cols="12" sm="6">
-                                  <VTextField
-                                    v-model="editedItem.precio_venta"
-                                    label="Precio de Venta"
-                                    prefix="$"
-                                  />
+                                  <VRow class="py-0">
+                                    <VCol cols="12" sm="12">
+                                      <VAutocomplete
+                                        v-model="editedItem.brand_id"
+                                        :items="brands"
+                                        item-title="name"
+                                        item-value="id"
+                                        label="Marca"
+                                        clearable
+                                      />
+                                    </VCol>
+                                    <VCol cols="12" sm="12">
+                                      <VTextField
+                                        v-model="editedItem.purchase_price"
+                                        label="Precio de Compra"
+                                        prefix="$"
+                                      />
+                                    </VCol>
+                                    <VCol cols="12" sm="12">
+                                      <VTextField
+                                        v-model="editedItem.sale_price"
+                                        label="Precio de Venta"
+                                        prefix="$"
+                                      />
+                                    </VCol>
+                                  </VRow>
                                 </VCol>
                               </VRow>
                               <VRow class="pr-3">
@@ -146,7 +155,7 @@
                                   />
                                   <VImg 
                                     v-if="editedItem.image"
-                                    :src="'storage/productos/' + editedItem.image"
+                                    :src="'storage/products/' + editedItem.image"
                                     max-height="150"
                                     contain
                                     class="mt-2"
@@ -172,7 +181,7 @@
           <template #item.image="{ item }">
             <VImg
               v-if="item.image"
-              :src="'/storage/productos/' + item.image"
+              :src="'/storage/products/' + item.image"
               max-height="50"
               max-width="50"
               contain
@@ -180,27 +189,27 @@
             <span v-else>Sin imagen</span>
           </template>
 
-          <template #item.precio_compra="{ item }">
-            {{ formatCurrency(item.precio_compra) }}
+          <template #item.purchase_price="{ item }">
+            {{ formatCurrency(item.purchase_price) }}
           </template>
 
-          <template #item.precio_venta="{ item }">
-            {{ formatCurrency(item.precio_venta) }}
+          <template #item.sale_price="{ item }">
+            {{ formatCurrency(item.sale_price) }}
           </template>
 
-          <template #item.activo="{ item }">
-            <VChip :color="$resolveStatusVariant(item.activo).color" density="comfortable">
-              {{ $resolveStatusVariant(item.activo).text }}
+          <template #item.active="{ item }">
+            <VChip :color="$resolveStatusVariant(item.active).color" density="comfortable">
+              {{ $resolveStatusVariant(item.active).text }}
             </VChip>
           </template>
 
           <template #item.actions="{ item }">
             <div class="d-flex gap-1">
               <VSwitch
-                v-model="item.activo"
+                v-model="item.active"
                 :true-value="1"
                 :false-value="0"
-                @click="$toggleActivo(item)"
+                @click="$toggleActive(item)"
                 color="primary"
                 hide-details
                 class="pt-2 mt-0"
@@ -210,7 +219,7 @@
               <IconBtn size="small" @click="vista = false; $editItem(item.id)">
                 <VIcon icon="ri-pencil-line" />
               </IconBtn>
-              <IconBtn size="small" @click="vista = false; $deleteItem(item.id, item.nombre)">
+              <IconBtn size="small" @click="vista = false; $deleteItem(item.id, item.name)">
                 <VIcon icon="ri-delete-bin-line" />
               </IconBtn>
             </div>
@@ -232,7 +241,7 @@
 export default {
   data: () => ({
     title: "Productos",
-    route: "productos",
+    route: "products",
     dialog: false,
     snackbar: false,
     text: "Registro Insertado",
@@ -243,41 +252,42 @@ export default {
     valid: true,
     headers: [
       { title: "ID", align: "start", sortable: false, key: "id" },
-      { title: "Nombre", filterable: true, key: "nombre" },
-      { title: "Código", filterable: true, key: "codigo" },
+      { title: "Nombre", filterable: true, key: "name" },
+      { title: "Código", filterable: true, key: "code" },
       { title: "Imagen", key: "image", sortable: false },
-      { title: "Precio Compra", key: "precio_compra" },
-      { title: "Precio Venta", key: "precio_venta" },
-      { title: "Estado", key: "activo" },
+      { title: "Precio Compra", key: "purchase_price" },
+      { title: "Precio Venta", key: "sale_price" },
+      { title: "Estado", key: "active" },
       { title: "Acciones", key: "actions", sortable: false },
     ],
     desserts: [],
     editedIndex: -1,
-    categorias: [],
-    marcas: [],
+    vista: false,
+    categories: [],
+    brands: [],
     editedItem: {
       id: "",
-      nombre: "",
-      codigo: "",
-      productos_categorias_id: null,
-      marca_id: null,
-      precio_compra: "",
-      precio_venta: "",
+      name: "",
+      code: "",
+      category_id: null,
+      brand_id: null,
+      purchase_price: "",
+      sale_price: "",
       image: "",
       imageFiles: [],
-      activo: 1,
+      active: 1,
     },
     defaultItem: {
       id: "",
-      nombre: "",
-      codigo: "",
-      productos_categorias_id: null,
-      marca_id: null,
-      precio_compra: "",
-      precio_venta: "",
+      name: "",
+      code: "",
+      category_id: null,
+      brand_id: null,
+      purchase_price: "",
+      sale_price: "",
       image: "",
       imageFiles: [],
-      activo: 1,
+      active: 1,
     },
     selectedHeaders: [], 
   }),
@@ -293,8 +303,8 @@ export default {
       if (!this.search) return this.desserts;
       const searchTerm = this.search.toLowerCase();
       return this.desserts.filter(item => 
-        item.nombre.toLowerCase().includes(searchTerm) ||
-        item.codigo?.toLowerCase().includes(searchTerm)
+        item.name.toLowerCase().includes(searchTerm) ||
+        item.code?.toLowerCase().includes(searchTerm)
       );
     },
   },
@@ -302,8 +312,8 @@ export default {
   created() {
     this.$initialize();
     this.selectedHeaders = this.headers;
-    this.loadCategorias();
-    this.loadMarcas();
+    this.loadCategories();
+    this.loadBrands();
   },
 
   methods: {
@@ -328,20 +338,20 @@ export default {
     },
     
          
-    async loadCategorias() { 
+    async loadCategories() { 
       try {
-        const response = await this.$axios.get(this.$routes["productosCategoria"]);
-        this.categorias = response.data.data;
+        const response = await this.$axios.get(this.$routes["categories"]);
+        this.categories = response.data.data;
       } catch (error) {
         console.error("Error cargando categorías:", error);
       } finally {
         
       }
     },
-    async loadMarcas() {
+    async loadBrands() {
       try {
-        const response = await this.$axios.get(this.$routes["marcas"]);
-        this.marcas = response.data.data;
+        const response = await this.$axios.get(this.$routes["brands"]);
+        this.brands = response.data.data;
       } catch (error) {
         console.error("Error cargando marcas:", error);
       }
@@ -366,12 +376,17 @@ export default {
     filterDessertName(item) {
       return item.name.toLowerCase().includes(this.dessertName.toLowerCase());
     },
-    filterByNombre(item) {
-      return this.$filterBy(item, "nombre");
+    filterByName(item) {
+      return this.$filterBy(item, "name");
     },
-    filterByActivo(item) {
-      return this.$filterBy(item, "activo");
+    filterByActive(item) {
+      return this.$filterBy(item, "active");
     }
+  },
+  watch: {
+    dialog(val) {
+      val || this.$close();
+    },
   },
 };
 </script>

@@ -3,25 +3,25 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Repositories\MarcaRepository;
+use App\Repositories\CategoryRepository;
 
-class MarcaController extends Controller
+class CategoryController extends Controller
 {
     private $repository;
 
-    public function __construct(MarcaRepository $repository)
+    public function __construct(CategoryRepository $repository)
     {
         $this->repository = $repository;
     }
 
     public function index(Request $request)
     {
-        return $this->repository->all();
+        return $this->repository->with(['categoryParents', 'categoryChildrens'])->all();
     }
 
     public function show($id)
     {
-        return $this->repository->get($id);
+        return $this->repository->with(['categoryParents', 'categoryChildrens'])->get($id);
     }
 
     public function store(Request $request)

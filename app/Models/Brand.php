@@ -8,23 +8,19 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Scopes\TenantScope;
 use App\Http\Traits\AuditModelTrait;
 
-class Cliente extends Model
+class Brand extends Model
 {
     use HasFactory, SoftDeletes, AuditModelTrait;
 
     protected $fillable = [
 
-        'direccion',
-        'telefono',
-        'email',
-        'nombre',
-        'apellido',
-        'razon_social',
+
+        'name',
+        'active',
         'created_by',
         'last_modified_by',
         'deleted_by',
         'tenant_id',
-        'activo',
     ];
 
     protected static function booted(): void

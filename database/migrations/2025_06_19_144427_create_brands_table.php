@@ -11,13 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('productos_categorias', function (Blueprint $table) {
+        Schema::create('brands', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('productos_categorias_id')->nullable();
-            $table->string('nombre');
-
-            $table->boolean('activo')->nullable()->default(1);
-
+            $table->string('name');
+            $table->boolean('active')->nullable()->default(1);
             $table->string('created_by', 1000)->nullable();
             $table->string('last_modified_by', 1000)->nullable();
             $table->string('deleted_by', 1000)->nullable();
@@ -26,9 +23,6 @@ return new class extends Migration
 
             $table->timestamps();
             $table->softDeletes();
-
-            $table->foreign('productos_categorias_id')->references('id')->on('productos_categorias')->onDelete('cascade');
-            $table->foreign('tenant_id')->references('id')->on('tenants')->onDelete('cascade');
         });
     }
 
@@ -37,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('productos_categorias');
+        Schema::dropIfExists('brands');
     }
 };

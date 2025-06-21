@@ -18,24 +18,6 @@ use Illuminate\Support\Facades\Auth;
 |
 */
 
-/*
-Route::post('/login', function (Request $request) {
-    $credentials = $request->only('email', 'password');
-
-    if (!Auth::attempt($credentials)) {
-        return response()->json(['message' => 'Unauthorized'], 401);
-    }
-
-    return $request->user();
-});
-
-Route::post('/logout', function (Request $request) {
-    Auth::guard('web')->logout();
-    $request->session()->invalidate();
-    $request->session()->regenerateToken();
-    return response()->json(['message' => 'Logged out']);
-});
-*/
 
 Route::post('/login', function (Request $request) {
     $credentials = $request->only('email', 'password');
@@ -65,17 +47,13 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 */
-Route::middleware('auth:sanctum')->get('/user', [App\Http\Controllers\AuthController::class, 'getUser']);
+//Route::middleware('auth:sanctum')->get('/user', [App\Http\Controllers\AuthController::class, 'getUser']);
 
 Route::middleware(['auth:sanctum'])->group(function () {
-    Route::apiResource('clientes', App\Http\Controllers\ClienteController::class);
-    Route::apiResource('productos_categorias', App\Http\Controllers\ProductoCategoriaController::class);
-    Route::apiResource('productos', App\Http\Controllers\ProductoController::class);
-    Route::apiResource('marcas', App\Http\Controllers\MarcaController::class);
+    Route::get('/user', [App\Http\Controllers\AuthController::class, 'getUser']);
+    Route::apiResource('tenants', App\Http\Controllers\TenantController::class);
+    Route::apiResource('customers', App\Http\Controllers\CustomerController::class);
+    Route::apiResource('categories', App\Http\Controllers\CategoryController::class);
+    Route::apiResource('products', App\Http\Controllers\ProductController::class);
+    Route::apiResource('brands', App\Http\Controllers\BrandController::class);
 });
-
-
-Route::resource('companies', App\Http\Controllers\CompanyController::class);
-Route::resource('estados', App\Http\Controllers\EstadoController::class);
-Route::resource('clasificaciones', App\Http\Controllers\ClasificacionController::class);
-Route::resource('funciones', App\Http\Controllers\FuncionController::class);

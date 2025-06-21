@@ -12,23 +12,28 @@ export const routes = [
       },
 
       {
-        path: 'clientes',
-        component: () => import('@/pages/clientes.vue'),
+        path: 'customers',
+        component: () => import('@/pages/iampos/customers.vue'),
         meta: { requiresAuth: true }
       }, 
       {
-        path: 'productos',
-        component: () => import('@/pages/productos.vue'),
+        path: 'products',
+        component: () => import('@/pages/iampos/products.vue'),
         meta: { requiresAuth: true }
       }, 
       {
-        path: 'productos_categoria',
-        component: () => import('@/pages/productosCategoria.vue'),
+        path: 'categories',
+        component: () => import('@/pages/iampos/categories.vue'),
         meta: { requiresAuth: true }
       }, 
       {
-        path: 'marcas',
-        component: () => import('@/pages/marcas.vue'),
+        path: 'brands',
+        component: () => import('@/pages/iampos/brands.vue'),
+        meta: { requiresAuth: true }
+      }, 
+      {
+        path: 'tenants',
+        component: () => import('@/pages/iampos/tenants.vue'),
         meta: { requiresAuth: true }
       }, 
 
@@ -66,6 +71,7 @@ export const routes = [
         path: 'about',
         component: () => import('@/pages/about.vue'),
       },
+      /*
       {
         path: 'companies',
         component: () => import('@/pages/companies.vue'),
@@ -84,7 +90,7 @@ export const routes = [
         path: 'funciones',
         component: () => import('@/pages/funciones.vue'),
         meta: { requiresAuth: true }
-      },
+      },*/
       {
         path: 'partes',
         component: () => import('@/pages/partes.vue'),

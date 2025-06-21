@@ -3,25 +3,25 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Repositories\ProductoCategoriaRepository;
+use App\Repositories\CustomerRepository;
 
-class ProductoCategoriaController extends Controller
+class CustomerController extends Controller
 {
     private $repository;
 
-    public function __construct(ProductoCategoriaRepository $repository)
+    public function __construct(CustomerRepository $repository)
     {
         $this->repository = $repository;
     }
 
     public function index(Request $request)
     {
-        return $this->repository->with(['categoriaPadre', 'subcategorias'])->all();
+        return $this->repository->all();
     }
 
     public function show($id)
     {
-        return $this->repository->with(['categoriaPadre', 'subcategorias'])->get($id);
+        return $this->repository->get($id);
     }
 
     public function store(Request $request)

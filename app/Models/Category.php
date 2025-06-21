@@ -8,15 +8,17 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Scopes\TenantScope;
 use App\Http\Traits\AuditModelTrait;
 
-class Marca extends Model
+class Category extends Model
 {
     use HasFactory, SoftDeletes, AuditModelTrait;
 
+    protected $table = 'categories';
     protected $fillable = [
 
 
-        'nombre',
-        'activo',
+        'name',
+        'category_id',
+        'active',
         'created_by',
         'last_modified_by',
         'deleted_by',
@@ -31,5 +33,15 @@ class Marca extends Model
     public function tenant()
     {
         return $this->belongsTo(Tenant::class);
+    }
+
+    public function categoryParents()
+    {
+        return $this->belongsTo(Category::class, 'category_id');
+    }
+
+    public function categoryChildrens()
+    {
+        return $this->hasMany(Category::class, 'category_id');
     }
 }

@@ -3,13 +3,13 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Repositories\ClienteRepository;
+use App\Repositories\TenantRepository;
 
-class ClienteController extends Controller
+class TenantController extends Controller
 {
     private $repository;
 
-    public function __construct(ClienteRepository $repository)
+    public function __construct(TenantRepository $repository)
     {
         $this->repository = $repository;
     }

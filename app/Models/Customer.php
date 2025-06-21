@@ -8,20 +8,23 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Scopes\TenantScope;
 use App\Http\Traits\AuditModelTrait;
 
-class ProductoCategoria extends Model
+class Customer extends Model
 {
     use HasFactory, SoftDeletes, AuditModelTrait;
 
-    protected $table = 'productos_categorias';
     protected $fillable = [
 
-        'productos_categorias_id',
-        'nombre',
+        'address',
+        'telephone',
+        'email',
+        'firstname',
+        'lastname',
+        'companyname',
         'created_by',
         'last_modified_by',
         'deleted_by',
         'tenant_id',
-        'activo',
+        'active',
     ];
 
     protected static function booted(): void
@@ -32,15 +35,5 @@ class ProductoCategoria extends Model
     public function tenant()
     {
         return $this->belongsTo(Tenant::class);
-    }
-
-    public function categoriaPadre()
-    {
-        return $this->belongsTo(ProductoCategoria::class, 'productos_categorias_id');
-    }
-
-    public function subcategorias()
-    {
-        return $this->hasMany(ProductoCategoria::class, 'productos_categorias_id');
     }
 }

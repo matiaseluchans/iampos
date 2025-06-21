@@ -1222,19 +1222,19 @@ export default {
 
       }
 
-      Vue.config.globalProperties.$toggleActivo = async function(item)  {
+      Vue.config.globalProperties.$toggleActive = async function(item)  {
         Swal.alertGetInfo("Actualizando información");
-        const originalState = item.activo; // Guarda el estado original
+        const originalState = item.active; // Guarda el estado original
 
-        console.log("item.activo");
-        console.log(item.activo);
+        console.log("item.active");
+        console.log(item.active);
         try {
           let arrayRoutes = Vue.config.globalProperties.$routes;
 
           let url = arrayRoutes[this.route];
           const response = await this.$axios.put(url+'/'+item.id, {
             data: {
-              activo: item.activo === 1 ? 0 : 1
+              active: item.active === 1 ? 0 : 1
             }
           });
 
@@ -1243,14 +1243,14 @@ export default {
             this.text = "Se modificó el estado con exito.";
             this.color = "success";
           } else {
-            item.activo = originalState;
+            item.active = originalState;
             this.snackbar = true;
             this.text = "Error al cambiar el estado";
             this.color = "error";
           }
           this.$initialize();
         } catch (error) {
-          item.activo = originalState;
+          item.active = originalState;
           console.error("Error al cambiar el estado:", error);
           this.snackbar = true;
           this.text = "Error al cambiar el estado:" + error;

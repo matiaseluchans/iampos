@@ -8,21 +8,21 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Scopes\TenantScope;
 use App\Http\Traits\AuditModelTrait;
 
-class Producto extends Model
+class Product extends Model
 {
     use HasFactory, SoftDeletes, AuditModelTrait;
 
-    protected $table = 'productos';
+    protected $table = 'products';
 
     protected $fillable = [
-        'nombre',
-        'productos_categorias_id',
-        'marca_id',
-        'codigo',
+        'name',
+        'category_id',
+        'brand_id',
+        'code',
         'image',
-        'precio_compra',
-        'precio_venta',
-        'activo',
+        'purchase_price',
+        'sale_price',
+        'active',
         'tenant_id',
         'created_by',
         'last_modified_by'
@@ -42,15 +42,15 @@ class Producto extends Model
 
 
     // Relación con categoría
-    public function categoria()
+    public function category()
     {
-        return $this->belongsTo(ProductoCategoria::class, 'productos_categorias_id');
+        return $this->belongsTo(Category::class, 'category_id');
     }
 
     // Relación con marca
-    public function marca()
+    public function brand()
     {
-        return $this->belongsTo(Marca::class, 'marca_id');
+        return $this->belongsTo(Brand::class, 'brand_id');
     }
 
 
@@ -69,35 +69,35 @@ class Producto extends Model
     }
 
     // Scope para productos activos
-    public function scopeActivos($query)
+    public function scopeActives($query)
     {
-        return $query->where('activo', true);
+        return $query->where('active', true);
     }
 
     // Scope para búsqueda
-    public function scopeBuscar($query, $search)
+    public function scopeSearch($query, $search)
     {
-        return $query->where('nombre', 'like', "%{$search}%")
-            ->orWhere('codigo', 'like', "%{$search}%");
+        return $query->where('name', 'like', "%{$search}%")
+            ->orWhere('code', 'like', "%{$search}%");
     }
 
     // Método para calcular el margen de ganancia
-    public function margenGanancia()
+    public function revenue()
     {
-        if (!$this->precio_compra || !$this->precio_venta) {
+        if (!$this->purchase_price || !$this->sale_price) {
             return 0;
         }
 
-        return $this->precio_venta - $this->precio_compra;
+        return $this->sale_price - $this->purchase_price;
     }
 
     // Método para calcular el porcentaje de ganancia
-    public function porcentajeGanancia()
+    public function revenuePercentage()
     {
-        if (!$this->precio_compra || $this->precio_compra == 0) {
+        if (!$this->purchase_price || $this->purchase_price == 0) {
             return 0;
         }
 
-        return (($this->precio_venta - $this->precio_compra) / $this->precio_compra) * 100;
+        return (($this->sale_price - $this->purchase_price) / $this->purchase_price) * 100;
     }
 }

@@ -14,11 +14,14 @@ return new class extends Migration
         Schema::create('tenants', function (Blueprint $table) {
             $table->id();
             $table->string('slug');
-            $table->string('nombre');
-            $table->string('direccion')->nullable();
-            $table->integer('telefono')->nullable();
+            $table->string('name');
+            $table->string('address')->nullable();
+            $table->integer('telephone')->nullable();
             $table->string('email')->nullable();
+            $table->boolean('active')->nullable()->default(1);
+
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

@@ -74,21 +74,21 @@
                               <VRow>
                                 <VCol cols="12" sm="6">
                                   <VTextField
-                                    v-model="editedItem.direccion"
+                                    v-model="editedItem.address"
                                     label="Direccion"
                                     required
                                   />
                                 </VCol>
                                 <VCol cols="12" sm="6">
                                   <VTextField
-                                    v-model="editedItem.telefono"
+                                    v-model="editedItem.telephone"
                                     label="Telefono"
                                     required
                                   />
                                 </VCol>
                                 <VCol cols="12" sm="6">
                                   <VTextField
-                                    v-model="editedItem.nombre"
+                                    v-model="editedItem.name"
                                     label="Nombre"
                                   />
                                 </VCol>
@@ -112,22 +112,22 @@
             </VCard>
           </template>
           <!-- status -->
-          <template #item.activo="{ item }">
+          <template #item.active="{ item }">
             <VChip
-              :color="$resolveStatusVariant(item.activo).color"
+              :color="$resolveStatusVariant(item.active).color"
               density="comfortable"
             >
-              {{ $resolveStatusVariant(item.activo).text }}
+              {{ $resolveStatusVariant(item.active).text }}
             </VChip>
           </template>
           <!-- Actions -->
           <template #item.actions="{ item }">
             <div class="d-flex gap-1">
               <VSwitch
-                v-model="item.activo"
+                v-model="item.active"
                 :true-value="1"
                 :false-value="0"
-                @click="$toggleActivo(item)"
+                @click="$toggleActive(item)"
                 color="primary"
                 hide-details
                 class="pt-2 mt-0"
@@ -148,7 +148,7 @@
                 size="small"
                 @click="
                   vista = false;
-                  $deleteItem(item.id, item.direccion);
+                  $deleteItem(item.id, item.address);
                 "
               >
                 <VIcon icon="ri-delete-bin-line" />
@@ -181,7 +181,7 @@ export default {
     dessertName: "",
     valid: true,
     title: title(),
-    route: "clientes",
+    route: "customers",
     dialog: false,
     snackbar: false,
     visible: true,
@@ -197,36 +197,36 @@ export default {
         sortable: false,
         key: "id",
       },
-      { title: "Direccion", filterable: true, key: "direccion" },
-      { title: "Telefono", filterable: true, key: "telefono" },
-      { title: "Nombre", filterable: true, key: "nombre" },
-      { title: "Estado", key: "activo" },
+      { title: "Direccion", filterable: true, key: "address" },
+      { title: "Telefono", filterable: true, key: "telephone" },
+      { title: "Nombre", filterable: true, key: "name" },
+      { title: "Estado", key: "active" },
       { title: "Acciones", key: "actions", value: "actions", sortable: false },
     ],
     desserts: [],
     editedIndex: -1,
     editedItem: {
       id: "",
-      direccion: "",
-      telefono: "",
+      address: "",
+      telephone: "",
       email: "",
-      nombre: "",
-      activo: 1,
+      name: "",
+      active: 1,
     },
     defaultItem: {
       id: "",
-      direccion: "",
-      telefono: "",
+      address: "",
+      telephone: "",
       email: "",
-      nombre: "",
-      activo: 1,
+      name: "",
+      active: 1,
     },
     filters: {
       id: "",
-      direccion: "",
-      telefono: "",
+      address: "",
+      telephone: "",
       email: "",
-      nombre: "",
+      name: "",
       created_at: "",
       updated_at: "",
     },
@@ -281,11 +281,11 @@ export default {
     filterDessertName(item) {
       return item.name.toLowerCase().includes(this.dessertName.toLowerCase());
     },
-    filterByNombre(item) {
-      return this.$filterBy(item, "nombre");
+    filterByName(item) {
+      return this.$filterBy(item, "name");
     },
-    filterByActivo(item) {
-      return this.$filterBy(item, "activo");
+    filterByActive(item) {
+      return this.$filterBy(item, "active");
     },
 
     

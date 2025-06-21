@@ -61,7 +61,7 @@ const userPermissions = computed(() => store.getters.userPermissions)
         
         <div v-if="currentUser" class="user-info text-end pr-4">
           {{ currentUser.data.email }} <br>
-          <span class="text-caption">{{ currentUser.data.tenant.nombre }} | {{ currentUser.data.roles[0] }}</span>
+          <span class="text-caption">{{ currentUser.data.tenant.name }} | {{ currentUser.data.roles[0] }}</span>
         </div>
         <IconBtn class="me-2">
           <VIcon icon="ri-notification-line" />

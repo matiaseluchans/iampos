@@ -66,7 +66,7 @@ async function handleLogout() {
             <VListItemTitle v-if="currentUser" class="font-weight-semibold">
             {{ currentUser.data.name }}  
             </VListItemTitle>
-            <VListItemSubtitle>{{ currentUser.data.tenant.nombre }}</VListItemSubtitle>
+            <VListItemSubtitle>{{ currentUser.data.tenant.name }}</VListItemSubtitle>
             <VListItemSubtitle>{{ currentUser.data.roles[0] }}</VListItemSubtitle>
           </VListItem>
 
