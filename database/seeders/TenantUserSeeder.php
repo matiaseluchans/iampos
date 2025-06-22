@@ -38,6 +38,7 @@ class TenantUserSeeder extends Seeder
             'name' => 'Matias Eluchans',
             'password' => Hash::make('1q2w3e4r'),
             'tenant_id' => $systemTenant->id,
+            'image' => 'matias eluchans_6858888f33926.png'
         ]);
         $superadmin2 = User::firstOrCreate([
             'email' => 'luis.quintero1983@gmail.com',

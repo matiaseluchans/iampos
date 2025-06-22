@@ -15,7 +15,7 @@ class TenantScope implements Scope
         $user = Auth::user();
 
         // Si no hay usuario o es superadmin, no aplicamos el filtro
-        if (!$user || ($user->tenant && $user->tenant->slug === 'admin_system')) {
+        if (!$user || ($user->tenant && $user->tenant->id === 1)) {
             return;
         }
 
