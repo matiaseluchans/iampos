@@ -63,6 +63,80 @@
                         <VCardText>
                           <VContainer class="py-0">
                             <VRow class="py-0">
+                              <VCol cols="12">
+                                <VCard  >
+                                  <VCardText class="d-flex">
+                                    <!-- 👉 Avatar -->
+                                    <VAvatar
+                                      v-if="!imagePreview && !editedItem.image"
+                                      rounded="lg"
+                                      size="100"
+                                      class="me-6"
+                                      :image="avatar"
+                                    />
+                                    
+                                    <!-- Previsualización de nueva imagen -->
+                                    <VAvatar
+                                      v-else-if="imagePreview"
+                                      rounded="lg"
+                                      size="100"
+                                      class="me-6"
+                                      :image="imagePreview"
+                                    />
+                                    
+                                    <!-- Imagen existente del usuario -->
+                                    <VAvatar
+                                      v-else-if="editedItem.image"
+                                      rounded="lg"
+                                      size="100"
+                                      class="me-6"
+                                      :image="getImageUrl(editedItem.image)"
+                                    />
+                                                            
+
+                                                                    <!-- 👉 Upload Photo -->
+                                                                    <!-- 👉 Upload Photo -->
+                                    <div class="d-flex flex-column justify-center gap-5">
+                                      <div class="d-flex flex-wrap gap-2">
+                                        <!-- Botón para subir foto -->
+                                        <VBtn
+                                          color="primary"
+                                          @click="$refs.fileInput.click()"
+                                        >
+                                          <VIcon icon="ri-upload-cloud-line" class="d-sm-none" />
+                                          <span class="d-none d-sm-block">Subir foto</span>
+                                        </VBtn>
+
+                                        <!-- Input file oculto -->
+                                        <input
+                                          ref="fileInput"
+                                          type="file"
+                                          name="image"
+                                          accept=".jpeg,.png,.jpg,.gif"
+                                          hidden
+                                          @change="handleFileUpload"
+                                        >
+
+                                        <!-- Botón para resetear -->
+                                        <VBtn
+                                          color="error"
+                                          variant="outlined"
+                                          @click="resetAvatar"
+                                        >
+                                          <span class="d-none d-sm-block">Restablecer</span>
+                                          <VIcon icon="ri-refresh-line" class="d-sm-none" />
+                                        </VBtn>
+                                      </div>
+                                      <p class="text-body-1 mb-0">
+                                        Formatos permitidos: JPG, GIF o PNG. Tamaño máximo 800KB
+                                      </p>
+                                    </div> 
+                                  </VCardText>
+
+                                  <VDivider />
+                          
+                                </VCard>
+                              </VCol>
                               <VCol cols="12" sm="12">
                                 <VRow class="py-0">
                                   <VCol cols="12" sm="12">
@@ -144,7 +218,7 @@
                         <VCardActions>
                           <VSpacer />
                           <VBtn  variant="outlined" color="primary" @click="dialog = false">Cancelar</VBtn>
-                          <VBtn class="bg-primary" color="white" @click="$save()">Guardar</VBtn>
+                          <VBtn class="bg-primary" color="white" @click="$saveUser()">Guardar</VBtn>
                         </VCardActions>
                       
                       </VForm>
@@ -166,6 +240,17 @@
         </template>
         
 
+        <template #item.image="{ item }">
+          <VAvatar
+            v-if="item.image"
+            :image="getImageUrl(item.image)"
+           
+            max-height="50"
+            max-width="50"
+            contain
+          />
+          <span v-else></span>
+        </template>
         <template #item.tenant.name="{ item }">
           <VChip
             v-if="item.tenant"
@@ -211,7 +296,7 @@
               size="small"
               title="Eliminar"
               class="my-1"
-              @click="deleteItem(item)"
+              @click="$deleteItem(item)"
             >
               <VIcon icon="ri-delete-bin-line" />
             </IconBtn>
@@ -231,8 +316,15 @@
 </template>
 
 <script>
+
+import avatar1 from '@images/avatars/avatar-1.png'
+
+
 export default {
   data: () => ({
+    imagePreview: null,
+    imageFile: null,
+    avatar: avatar1,
     title: "Usuarios",
     route: "users",
     dialog: false,
@@ -251,9 +343,10 @@ export default {
         sortable: false,
         width: "150px",
       },
+      { title: "Imagen", key: "image", sortable: false, width: "100px" },
       { title: "Nombre", filterable: true, key: "name" },
       { title: "Email", filterable: true, key: "email" },
-      { title: "Tenant", key: "tenant.name" },
+      { title: "Tenant", key: "tenant.name", width: "100px", width: "100px" },
       { title: "Roles", key: "roles", sortable: false },
       { title: "Estado", key: "active", width: "150px" },
     ],
@@ -269,6 +362,7 @@ export default {
       tenant_id: null,
       roles: [],
       active: 1,
+      image:"",
     },
     defaultItem: {
       id: "",
@@ -278,6 +372,7 @@ export default {
       tenant_id: null,
       roles: [],
       active: 1,
+      image:"",
     },
     selectedHeaders: [],
     emailRules: [
@@ -357,102 +452,124 @@ export default {
       try {
         if (!tenantId) {
           this.roles = [];
-          return;
+          return Promise.resolve();
         }
         const response = await this.$axios.get(`${this.$routes['roles']}?tenant_id=${tenantId}`);
         this.roles = response.data.data;
+        return Promise.resolve();
       } catch (error) {
         console.error("Error cargando roles:", error);
+        return Promise.reject(error);
       } finally {
         this.rolesLoading = false;
       }
     },
+ 
 
-    editItem(item) {
-      this.editedIndex = this.desserts.indexOf(item);
-      this.editedItem = Object.assign({}, item);
-      this.editedItem.roles = item.roles.map(role => role.id);
-      this.dialog = true;
+    handleImageUpload(event) {
+      const file = event.target.files?.[0];
+      this.imagePreview = file ? URL.createObjectURL(file) : "";
     },
 
-    async save() {
-      if (!this.$refs.form.validate()) return;
+    handleFileUpload(event) {
+      const file = event.target.files[0]
+      if (!file) return
+      
+      // Validaciones
+      const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/jpg']
+      if (!validTypes.includes(file.type)) {
+        this.showSnackbar('Formato de imagen no válido. Use JPG, PNG o GIF.', 'error')
+        return
+      }
 
-      try {
-        const url = this.editedIndex === -1 
-          ? this.$routes[this.route] 
-          : `${this.$routes[this.route]}/${this.editedItem.id}`;
+      if (file.size > 800 * 1024) {
+        this.showSnackbar('La imagen es demasiado grande (máx. 800KB)', 'error')
+        return
+      }
 
-        const method = this.editedIndex === -1 ? 'post' : 'put';
+      // Asignar el archivo a editedItem.imageFile para que $saveWithFile lo encuentre
+      this.editedItem.imageFile = file
+      
+      // Crear previsualización
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        this.imagePreview = e.target.result
+      }
+      reader.readAsDataURL(file)
+    },
 
-        const response = await this.$axios[method](url, this.editedItem);
-
-        if (this.editedIndex === -1) {
-          this.desserts.push(response.data.data);
-        } else {
-          Object.assign(this.desserts[this.editedIndex], response.data.data);
-        }
-
-        this.showSnackbar('Usuario guardado exitosamente', 'success');
-        this.close();
-      } catch (error) {
-        console.error("Error guardando usuario:", error);
-        this.showSnackbar(error.response?.data?.message || 'Error al guardar', 'error');
+    // Método para resetear la imagen
+    resetAvatar() {
+      this.imagePreview = null
+      this.imageFile = null
+      this.editedItem.image = null
+      if (this.$refs.fileInput) {
+        this.$refs.fileInput.value = ''
       }
     },
 
-    async deleteItem(item) {
-      if (!confirm(`¿Estás seguro de eliminar al usuario ${item.name}?`)) return;
-
-      try {
-        await this.$axios.delete(`${this.$routes[this.route]}/${item.id}`);
-        const index = this.desserts.indexOf(item);
-        this.desserts.splice(index, 1);
-        this.showSnackbar('Usuario eliminado exitosamente', 'success');
-      } catch (error) {
-        console.error("Error eliminando usuario:", error);
-        this.showSnackbar(error.response?.data?.message || 'Error al eliminar', 'error');
-      }
+    // Método para construir la URL de la imagen
+    getImageUrl(imagePath) {
+      if (!imagePath) return ''
+      if (imagePath.startsWith('http')) return imagePath
+      return `${process.env.VUE_APP_API_URL || ''}/storage/users/${imagePath}`
     },
 
-    async toggleActive(item) {
-      try {
-        const response = await this.$axios.patch(`${this.$routes[this.route]}/${item.id}/toggle-active`);
-        item.active = response.data.data.active;
-        this.showSnackbar('Estado actualizado', 'success');
-      } catch (error) {
-        console.error("Error cambiando estado:", error);
-        this.showSnackbar(error.response?.data?.message || 'Error al cambiar estado', 'error');
-        // Revertir el cambio visual si falla
-        item.active = !item.active;
+    // Modificar el método editItem
+    async editItem(item) {
+      this.editedIndex = item.id;
+      this.editedItem = Object.assign({}, item)
+      
+      console.log( this.editedIndex);
+      console.log( this.editedItem);
+      // Cargar imagen existente
+      if (item.image) {
+        this.imagePreview = this.getImageUrl(item.image)
+      } else {
+        this.imagePreview = null
       }
+      
+      // Abrir diálogo primero
+      this.dialog = true
+      
+      // Esperar a que el diálogo esté abierto
+      await this.$nextTick()
+      
+      // Cargar roles del tenant
+      this.loadRoles(item.tenant_id).then(() => {
+        // Asignar los roles seleccionados (como objetos completos)
+        this.editedItem.roles = this.roles.filter(role => 
+          item.roles.some(userRole => userRole.id === role.id)
+        )
+      })
     },
-    
+
+    // Modificar el método close
     close() {
-      this.dialog = false;
+      this.dialog = false
       this.$nextTick(() => {
-        this.editedItem = Object.assign({}, this.defaultItem);
-        this.editedIndex = -1;
-      });
-    },
-
-
+        this.editedItem = Object.assign({}, this.defaultItem)
+        this.editedIndex = -1
+        this.imagePreview = null
+        this.resetAvatar()
+      })
+    }, 
+     
+  
     showSnackbar(text, color) {
       this.text = text;
       this.color = color;
       this.snackbar = true;
     },
     getTenantColor(item) {
-      if (!item.tenant) return 'grey';
-      // Ejemplo simple: color basado en el ID del tenant
+      if (!item.tenant) return 'grey'; 
       const colors = ['primary', 'secondary', 'success', 'info', 'warning', 'error'];
       
       return colors[item.tenant.id];
     },
     getRandomColor(item) {
       const colors = ['primary', 'secondary', 'success', 'info', 'warning', 'error'];
-      //return colors[Math.floor(Math.random() * colors.length)];
-      console.log(item.roles[0].id);
+     
       return colors[item.roles[0].id];
     },
   },

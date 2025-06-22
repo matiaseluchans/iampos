@@ -72,6 +72,7 @@ class UserController extends ApiController
             // Manejar la imagen si se proporcionó
             if ($request->hasFile('image')) {
                 $data['image'] = $this->uploadImage($request->file('image'));
+                \Log::info('Imagen subida:', ['nombre' => $data['image']]); // Para depuración
             }
 
             $user = $this->model->create($data);
@@ -97,26 +98,17 @@ class UserController extends ApiController
             $user = $this->model->findOrFail($id);
             $requestData = $request->all();
 
-            // Inicializar array de datos a actualizar
-            $updateData = [];
+            // Depuración: registrar datos recibidos
+            \Log::debug('Update User - Data Received:', [
+                'all_data' => $request->all(),
+                'roles_data' => $request->input('roles', []),
+            ]);
 
-            // Determinar la fuente de datos (formato {data: {}} o plano)
-            $sourceData = isset($requestData['data']) ? $requestData['data'] : $requestData;
+            $updateData = $request->except('image', 'password', 'roles');
 
-            // Manejar campos regulares
-            foreach ($sourceData as $field => $value) {
-                if (
-                    $field !== 'image' &&
-                    $field !== 'roles' &&
-                    array_key_exists($field, $user->getAttributes())
-                ) {
-                    $updateData[$field] = $value;
-                }
-            }
-
-            // Manejar contraseña CORREGIDO - usando $sourceData en lugar de $request
-            if (!empty($sourceData['password'])) {
-                $updateData['password'] = Hash::make($sourceData['password']);
+            // Manejar contraseña
+            if ($request->filled('password')) {
+                $updateData['password'] = Hash::make($request->password);
             }
 
             // Manejar imagen
@@ -125,33 +117,61 @@ class UserController extends ApiController
                     Storage::delete('public/users/' . $user->image);
                 }
                 $updateData['image'] = $this->uploadImage($request->file('image'));
-            } elseif (isset($sourceData['image']) && $sourceData['image'] === null) {
+                \Log::info('Imagen actualizada:', ['nombre' => $updateData['image']]); // Para depuración
+
+            } elseif ($request->has('image') && $request->image === null) {
                 if ($user->image) {
                     Storage::delete('public/users/' . $user->image);
                 }
                 $updateData['image'] = null;
             }
 
-            // Manejar campo active
-            if (isset($sourceData['active'])) {
-                $updateData['active'] = filter_var($sourceData['active'], FILTER_VALIDATE_BOOLEAN);
-            }
+            // Actualizar datos básicos
+            $user->update($updateData);
 
-            // Actualizar el modelo
-            if (!empty($updateData)) {
-                $user->update($updateData);
-            }
+            // Manejar roles - versión robusta
+            if ($request->has('roles')) {
+                $rolesInput = $request->input('roles');
 
-            // Manejar roles
-            if (isset($sourceData['roles'])) {
-                $user->roles()->sync($sourceData['roles']);
+                // Convertir a array si es string JSON
+                if (is_string($rolesInput)) {
+                    $rolesInput = json_decode($rolesInput, true) ?: [];
+                }
+
+                // Asegurar que sea array
+                $rolesArray = (array)$rolesInput;
+
+                // Extraer IDs de roles
+                $roleIds = [];
+                foreach ($rolesArray as $role) {
+                    if (is_numeric($role)) {
+                        $roleIds[] = (int)$role;
+                    } elseif (is_array($role) && isset($role['id'])) {
+                        $roleIds[] = (int)$role['id'];
+                    } elseif (is_object($role) && isset($role->id)) {
+                        $roleIds[] = (int)$role->id;
+                    }
+                }
+
+                // Filtrar IDs válidos
+                $validRoleIds = array_filter(array_unique($roleIds));
+
+                \Log::debug('Roles to sync:', ['role_ids' => $validRoleIds]);
+
+                // Sincronizar roles
+                $user->roles()->sync($validRoleIds);
+
+                \Log::debug('Roles after sync:', [
+                    'attached' => $user->roles->pluck('id')->toArray()
+                ]);
             }
 
             DB::commit();
+
             return $this->successResponse($user->fresh()->load($this->relations));
         } catch (\Exception $e) {
             DB::rollBack();
-            report($e);
+            \Log::error('Error updating user roles: ' . $e->getMessage());
             return $this->errorResponse($e->getMessage());
         }
     }

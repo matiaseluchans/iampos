@@ -14,6 +14,7 @@ class UserResource extends JsonResource
             'name' => $this->name,
             'email' => $this->email,
             'tenant' => $this->tenant,
+            'image' => $this->image,
             'roles' => $this->roles->pluck('name'),
             //'permissions' => $this->roles->flatMap->permissions->pluck('name')->unique(),
             'email_verified_at' => $this->email_verified_at,

@@ -159,6 +159,74 @@ export default {
     }
 
 
+    Vue.config.globalProperties.$saveUser = async function() {
+      let vm = this;
+      
+      if (vm.$refs.form.validate()) {
+        let formData = new FormData();
+        
+        // Agregar todos los campos del formulario
+        /*Object.keys(vm.editedItem).forEach(key => {
+          if (key === 'roles') {
+            // Manejar roles como array de IDs
+            const roleIds = vm.editedItem.roles.map(role => role.id || role);
+            formData.append('roles', JSON.stringify(roleIds));
+          } else if (key !== 'imageFile' && key !== 'image') {
+            formData.append(key, vm.editedItem[key]);
+          }
+        });*/
+
+        Object.keys(this.editedItem).forEach(key => {
+          if (key !== 'imageFiles' && key !== 'image') {
+            formData.append(key, this.editedItem[key]);
+          }
+        });
+
+        
+        // Agregar la imagen si existe
+        if (vm.editedItem.imageFile) {
+          formData.append('image', vm.editedItem.imageFile);
+        }
+        
+        try {
+          Swal.alertGetInfo(vm.editedIndex != -1 ? "Actualizando información" : "Registrando información");
+          
+          let response;
+          if (vm.editedIndex != -1) {
+            // Para edición
+            formData.append('_method', 'PUT');
+            response = await vm.$axios.post(
+              `${vm.$routes[vm.route]}/${vm.editedItem.id}`,
+              formData,
+              {
+                headers: {
+                  'Content-Type': 'multipart/form-data'
+                }
+              }
+            );
+          } else {
+            // Para creación
+            response = await vm.$axios.post(
+              vm.$routes[vm.route],
+              formData,
+              {
+                headers: {
+                  'Content-Type': 'multipart/form-data'
+                }
+              }
+            );
+          }
+          
+          vm.$respuesta(vm, response, vm.editedIndex != -1 ? 2 : 1);
+          vm.$close();
+        } catch (error) {
+          vm.$respuesta(vm, error, vm.editedIndex != -1 ? 2 : 1, true);
+        } finally {
+          Swal.close();
+        }
+      }
+    };
+
     Vue.config.globalProperties.$saveWithFile = async function() {
       let vm = this;
       
