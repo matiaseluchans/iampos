@@ -16,6 +16,9 @@ class RoleController extends Controller
 
     public function index(Request $request)
     {
+        if ($request->has('tenant_id')) {
+            return $this->repository->getByTenant($request->tenant_id);
+        }
         return $this->repository->all();
     }
 

@@ -92,6 +92,30 @@
                                       :rules="[v => !!v || 'Tenant es requerido']"
                                     />
                                   </VCol>
+                                
+                                  <VCol cols="12"> 
+                                    <VAutocomplete
+                                      v-model="editedItem.roles"
+                                      :items="roles"
+                                      item-title="name"
+                                      item-value="id"
+                                      label="Rol"
+                                      :disabled="!editedItem.tenant_id"
+                                      :loading="rolesLoading"
+                                      clearable
+                                      :rules="[v => !!v || 'Rol es requerido']"
+                                    >
+                                      <template v-if="!editedItem.tenant_id" v-slot:prepend-inner>
+                                        <VTooltip location="bottom">
+                                          <template v-slot:activator="{ props }">
+                                            <VIcon v-bind="props" icon="ri-information-line" />
+                                          </template>
+                                          <span>Seleccione un tenant primero</span>
+                                        </VTooltip>
+                                      </template>
+                                    </VAutocomplete>
+                                  </VCol>
+                                
                                   <VCol cols="12" sm="12">
                                     <VTextField
                                       v-model="editedItem.password"
@@ -114,19 +138,7 @@
                                 </VRow>
                               </VCol>
                             </VRow>
-                            <VRow>
-                              <VCol cols="12">
-                                <VAutocomplete
-                                  v-model="editedItem.roles"
-                                  :items="roles"
-                                  item-title="name"
-                                  item-value="id"
-                                  label="Roles"
-                                  multiple
-                                  chips
-                                />
-                              </VCol>
-                            </VRow>
+                            
                           </VContainer>
                         </VCardText>
                         <VCardActions>
@@ -276,8 +288,32 @@ export default {
       v => !!v || 'Contraseña es requerida',
       v => (v && v.length >= 8) || 'Mínimo 8 caracteres',
     ],
+    rolesLoading: false,
   }),
 
+  watch: {
+    dialog(val) {
+      val || this.close();
+    },
+    'editedItem.tenant_id': {
+      handler(newTenantId) {
+        if (this.dialog) {
+          this.loadRoles(newTenantId);
+          // Resetear el rol seleccionado al cambiar tenant
+          this.editedItem.roles = [];
+        }
+      },
+      immediate: false
+    }
+  },
+
+  
+  created() {
+    this.initialize();
+    this.selectedHeaders = this.headers;
+    this.loadTenants();
+    //this.loadRoles();
+  },
   computed: {
     formTitle() {
       return this.editedIndex === -1 ? "Registrar Usuario" : "Editar Usuario";
@@ -297,12 +333,6 @@ export default {
     },
   },
 
-  created() {
-    this.initialize();
-    this.selectedHeaders = this.headers;
-    this.loadTenants();
-    this.loadRoles();
-  },
 
   methods: {
     async initialize() {
@@ -321,14 +351,20 @@ export default {
       } catch (error) {
         console.error("Error cargando tenants:", error);
       }
-    },
-
-    async loadRoles() {
+    }, 
+    async loadRoles(tenantId) {
+      this.rolesLoading = true;
       try {
-        const response = await this.$axios.get(this.$routes['roles']);
+        if (!tenantId) {
+          this.roles = [];
+          return;
+        }
+        const response = await this.$axios.get(`${this.$routes['roles']}?tenant_id=${tenantId}`);
         this.roles = response.data.data;
       } catch (error) {
         console.error("Error cargando roles:", error);
+      } finally {
+        this.rolesLoading = false;
       }
     },
 
@@ -391,7 +427,7 @@ export default {
         item.active = !item.active;
       }
     },
-
+    
     close() {
       this.dialog = false;
       this.$nextTick(() => {
@@ -399,6 +435,7 @@ export default {
         this.editedIndex = -1;
       });
     },
+
 
     showSnackbar(text, color) {
       this.text = text;
@@ -417,12 +454,6 @@ export default {
       //return colors[Math.floor(Math.random() * colors.length)];
       console.log(item.roles[0].id);
       return colors[item.roles[0].id];
-    },
-  },
-
-  watch: {
-    dialog(val) {
-      val || this.close();
     },
   },
 };

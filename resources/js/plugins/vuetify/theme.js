@@ -1,13 +1,13 @@
 //export const staticPrimaryColor = '#8C57FF'
-export const staticPrimaryColor = '#011F5B'
-export const staticPrimaryDarkenColor = '#7E4EE6'
+export const staticPrimaryColor = '#044299'//color principal
+export const staticPrimaryDarkenColor = '#065cd7' //color hover
 export const themes = {
   light: {
     dark: false,
     colors: {
       'primary': staticPrimaryColor,
       'on-primary': '#fff',
-      'primary-darken-1': '#7E4EE6',
+      'primary-darken-1': '#065cd7',
       'secondary': '#8A8D93',
       'secondary-darken-1': '#7C7F84',
       'on-secondary': '#fff',
@@ -76,7 +76,7 @@ export const themes = {
     colors: {
       'primary': staticPrimaryColor,
       'on-primary': '#fff',
-      'primary-darken-1': '#7E4EE6',
+      'primary-darken-1': '#065cd7',
       'secondary': '#8A8D93',
       'secondary-darken-1': '#7C7F84',
       'on-secondary': '#fff',

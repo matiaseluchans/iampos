@@ -46,6 +46,10 @@ const authThemeMask = computed(() => {
 });
 
 const isPasswordVisible = ref(false);
+
+const logoColor = computed(() => {
+  return vuetifyTheme.global.name.value === "light" ? '#ff0000' : '#00ff00';
+});
 </script>
 
 <template>
@@ -55,8 +59,8 @@ const isPasswordVisible = ref(false);
     <VCard class="auth-card pa-4 pt-7" max-width="448">
       <VCardItem class="justify-center">
         <template #prepend>
-          <div class="d-flex">
-            <div v-html="logo" />
+          <div class="d-flex" >
+            <div v-html="logo" :style="{ color: logoColor }"/>
           </div>
         </template>
 
