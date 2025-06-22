@@ -14,4 +14,12 @@ class AuthController extends Controller
             'tenant'
         ]));
     }
+
+    public function validateToken(Request $request)
+    {
+        return response()->json([
+            'valid' => true,
+            'user' => $request->user()
+        ]);
+    }
 }

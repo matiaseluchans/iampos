@@ -3,6 +3,8 @@ import App from '@/App.vue'
 import { registerPlugins } from '@core/utils/plugins'
 import store from './store/modules' 
 import router from './router'
+import { initializeAuth } from '@/api/auth' // Importa initializeAuth
+
 
 // Styles
 import '@core-scss/template/index.scss'
@@ -46,4 +48,7 @@ app.use(router)
 registerPlugins(app)
 
 // Mount vue app
-app.mount('#app')
+initializeAuth().finally(() => {
+    // Mount vue app
+    app.mount('#app')
+  })

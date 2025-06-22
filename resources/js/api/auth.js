@@ -34,14 +34,15 @@ export async function fetchUser() {
       throw new Error('No authentication token found')
     }
     
-    const config = {
+    // Verificar primero si el token es válido
+    await verifyToken(token)
+    
+    const response = await axios.get('/api/user', {
       headers: {
         Authorization: `Bearer ${token}`
       },
       withCredentials: true
-    }
-    
-    const response = await axios.get('/api/user', config)
+    })
     
     // Guardar en el store
     store.commit('SET_USER', response.data)
@@ -51,6 +52,22 @@ export async function fetchUser() {
     console.error('Error fetching user data:', error)
     store.commit('CLEAR_USER')
     throw error
+  }
+}
+
+// Función para verificar si el token es válido
+async function verifyToken(token) {
+  try {
+    const response = await axios.get('/api/validate-token', {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+    
+    return response.data.valid
+  } catch (error) {
+    console.error('Token validation failed:', error)
+    throw new Error('Invalid or expired token')
   }
 }
 
@@ -75,15 +92,23 @@ export async function initializeAuth() {
   const token = localStorage.getItem('token')
   if (token) {
     try {
+      // Verificar el token primero
+      await verifyToken(token)
+      
       // Restaurar token en axios y store
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
       store.commit('SET_TOKEN', token)
       
       // Obtener datos del usuario
       await fetchUser()
+      return true
     } catch (error) {
       console.error('Error initializing auth:', error)
       store.commit('CLEAR_USER')
+      localStorage.removeItem('token')
+      delete axios.defaults.headers.common['Authorization']
+      return false
     }
   }
+  return false
 }

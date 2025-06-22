@@ -42,6 +42,8 @@ Route::middleware('auth:sanctum')->post('/logout', function (Request $request) {
 
     return response()->json(['message' => 'Successfully logged out']);
 });
+
+Route::middleware('auth:sanctum')->get('/validate-token', [App\Http\Controllers\AuthController::class, 'validateToken']);
 /*
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
