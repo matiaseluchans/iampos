@@ -30,12 +30,29 @@ async function handleLogout() {
     console.error("Error al cerrar sesión:", e);
   }
 }
+function getImageUrl(imagePath) {
+  if (!imagePath) return ''
+  if (imagePath.startsWith('http')) return imagePath
+  return `${process.env.VUE_APP_API_URL || ''}/storage/users/${imagePath}`
+}
+
+const avatarSrc = computed(() => {
+  const image = currentUser.value?.data?.image
+  return image ? getImageUrl(image) : avatar1
+})
+ 
+
 </script>
 
 <template>
   <VBadge dot location="bottom right" offset-x="3" offset-y="3" color="success" bordered>
-    <VAvatar class="cursor-pointer" color="primary" variant="tonal">
-      <VImg :src="avatar1" />
+    <VAvatar  color="primary" variant="tonal" max-height="50"
+    max-width="50" contain >
+      <VImg :src="avatarSrc" 
+      cover
+      class="rounded-circle"
+      @error="e => e.target.src = avatar1" />
+    
 
       <!-- SECTION Menu -->
       <VMenu activator="parent" width="230" location="bottom end" offset="14px">
@@ -55,9 +72,10 @@ async function handleLogout() {
                 >
                   <VAvatar
                     color="primary"
-                    variant="tonal"
+                    
+                    :image="avatarSrc" 
                   >
-                    <VImg :src="avatar1" />
+               
                   </VAvatar>
                 </VBadge>
               </VListItemAction>

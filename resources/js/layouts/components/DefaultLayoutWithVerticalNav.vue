@@ -17,6 +17,8 @@ const isAuthenticated = computed(() => store.getters.isAuthenticated)
 const currentUser = computed(() => store.getters.currentUser)
 const userPermissions = computed(() => store.getters.userPermissions)
 
+
+
 </script>
 
 <template>
@@ -60,8 +62,14 @@ const userPermissions = computed(() => store.getters.userPermissions)
         -->
         
         <div v-if="currentUser" class="user-info text-end pr-4">
-          {{ currentUser.data.email }} <br>
-          <span class="text-caption">{{ currentUser.data.tenant.name }} | {{ currentUser.data.roles[0] }}</span>
+          {{ currentUser.data.email }} <br> 
+          <VChip
+            class="ma-0"
+            style="height: 20px;"
+            color="secondary"
+          >
+            <span class="text-caption">{{ currentUser.data.tenant.name }} | {{ currentUser.data.roles[0] }}</span>
+          </VChip>
         </div>
         <IconBtn class="me-2">
           <VIcon icon="ri-notification-line" />
