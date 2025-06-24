@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Auth;
 |
 */
 
-
+/*
 Route::post('/login', function (Request $request) {
     $credentials = $request->only('email', 'password');
 
@@ -42,6 +42,12 @@ Route::middleware('auth:sanctum')->post('/logout', function (Request $request) {
 
     return response()->json(['message' => 'Successfully logged out']);
 });
+*/
+
+Route::post('/login', [App\Http\Controllers\AuthController::class, 'login']);
+
+
+
 
 Route::middleware('auth:sanctum')->get('/validate-token', [App\Http\Controllers\AuthController::class, 'validateToken']);
 /*
@@ -52,6 +58,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //Route::middleware('auth:sanctum')->get('/user', [App\Http\Controllers\AuthController::class, 'getUser']);
 
 Route::middleware(['auth:sanctum'])->group(function () {
+    Route::post('/logout', [App\Http\Controllers\AuthController::class, 'logout']);
     Route::get('/user', [App\Http\Controllers\AuthController::class, 'getUser']);
     Route::apiResource('tenants', App\Http\Controllers\TenantController::class);
     Route::apiResource('customers', App\Http\Controllers\CustomerController::class);
