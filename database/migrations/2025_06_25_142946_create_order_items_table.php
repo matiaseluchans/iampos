@@ -24,6 +24,7 @@ return new class extends Migration
             $table->string('created_by', 1000)->nullable();
             $table->string('last_modified_by', 1000)->nullable();
             $table->string('deleted_by', 1000)->nullable();
+            $table->unsignedBigInteger('tenant_id');
             $table->timestamps();
             $table->softDeletes();
 
