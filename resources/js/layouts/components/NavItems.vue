@@ -34,7 +34,7 @@ import VerticalNavLink from '@layouts/components/VerticalNavLink.vue'
         to: '/companies',        
       }"
     />
-    -->
+    -->    
     <VerticalNavLink
       :item="{
         title: 'Clientes',
@@ -95,6 +95,24 @@ import VerticalNavLink from '@layouts/components/VerticalNavLink.vue'
         to: '/brands',        
       }"
     />
+
+    <VerticalNavSectionTitle
+    :item="{
+      heading: 'Administracion',
+    }"
+  />
+    <VerticalNavLink
+      :item="{
+        title: 'Estados',
+        to: '/statuses',        
+      }"
+    />
+    <VerticalNavLink
+      :item="{
+        title: 'Metodos de Pago',
+        to: '/paymentMethods',        
+      }"
+    />    
     
   <!--</VerticalNavGroup>-->
 

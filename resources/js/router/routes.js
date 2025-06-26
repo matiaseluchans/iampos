@@ -51,7 +51,19 @@ export const routes = [
         path: 'users',
         component: () => import('@/pages/iampos/users.vue'),
         meta: { requiresAuth: true }
-      }, 
+      },
+      
+      {
+        path: 'statuses',
+        component: () => import('@/pages/iampos/statuses.vue'),
+        meta: { requiresAuth: true },
+      },
+
+      {
+        path: 'paymentMethods',
+        component: () => import('@/pages/iampos/paymentMethods.vue'),
+        meta: { requiresAuth: true },
+      },
 
 
       
