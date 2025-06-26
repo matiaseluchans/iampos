@@ -27,6 +27,11 @@ export const routes = [
         meta: { requiresAuth: true }
       }, 
       {
+        path: 'warehouses',
+        component: () => import('@/pages/iampos/warehouses.vue'),
+        meta: { requiresAuth: true }
+      }, 
+      {
         path: 'categories',
         component: () => import('@/pages/iampos/categories.vue'),
         meta: { requiresAuth: true }

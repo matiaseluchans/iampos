@@ -14,4 +14,6 @@ export const apiRoute = Object.freeze({
   localities: "api/localities",
   roles: "api/roles",
   users: "api/users",
+  warehouses: "api/warehouses",
+  stocks: "api/stocks",
 });

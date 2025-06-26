@@ -79,6 +79,12 @@ import VerticalNavLink from '@layouts/components/VerticalNavLink.vue'
     />
     <VerticalNavLink
       :item="{
+        title: 'Depositos',
+        to: '/warehouses',        
+      }"
+    />
+    <VerticalNavLink
+      :item="{
         title: 'Categorias',
         to: '/categories',        
       }"

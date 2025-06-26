@@ -73,4 +73,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('users/tenants', [App\Http\Controllers\UserController::class, 'getTenants']);
     Route::get('users/roles', [App\Http\Controllers\UserController::class, 'getRoles']);
     Route::patch('users/{user}/toggle-active', [App\Http\Controllers\UserController::class, 'toggleActive']);
+
+
+    Route::apiResource('warehouses', App\Http\Controllers\WarehouseController::class);
+    Route::apiResource('stocks', App\Http\Controllers\StockController::class);
+    Route::post('stocks/{stock}/movements', [App\Http\Controllers\StockController::class, 'recordMovement']);
+    Route::get('stocks/{stock}/movements', [App\Http\Controllers\StockController::class, 'getMovements']);
 });
