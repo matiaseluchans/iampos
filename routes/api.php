@@ -78,7 +78,29 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
 
     Route::apiResource('warehouses', App\Http\Controllers\WarehouseController::class);
+
+
+    Route::get('stocks/summary', [App\Http\Controllers\StockController::class, 'summary']);
+
     Route::apiResource('stocks', App\Http\Controllers\StockController::class);
     Route::post('stocks/{stock}/movements', [App\Http\Controllers\StockController::class, 'recordMovement']);
     Route::get('stocks/{stock}/movements', [App\Http\Controllers\StockController::class, 'getMovements']);
+
+    // Operaciones especiales
+    Route::post('stocks/create-or-update', [App\Http\Controllers\StockController::class, 'createOrUpdate']);
+    Route::post('stocks/transfer', [App\Http\Controllers\StockController::class, 'transfer']);
+    Route::get('stocks/get-or-create', [App\Http\Controllers\StockController::class, 'getOrCreate']);
+
+    // Reservas
+    Route::post('stocks/{stock}/reserve', [App\Http\Controllers\StockController::class, 'reserve']);
+    Route::post('stocks/{stock}/release-reservation', [App\Http\Controllers\StockController::class, 'releaseReservation']);
+
+    // Consultas específicas
+    Route::get('stocks/low-stock', [App\Http\Controllers\StockController::class, 'lowStock']);
+    Route::get('stocks/by-product/{product}', [App\Http\Controllers\StockController::class, 'byProduct']);
+    Route::get('stocks/by-warehouse/{warehouse}', [App\Http\Controllers\StockController::class, 'byWarehouse']);
+
+    // Reportes
+    Route::get('stocks/reports/movements', [App\Http\Controllers\StockController::class, 'movementsReport']);
+    Route::get('stocks/reports/valuation', [App\Http\Controllers\StockController::class, 'valuationReport']);
 });
