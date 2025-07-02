@@ -25,7 +25,7 @@ class AuthController extends Controller
         }
 
         $user = Auth::user();
-        $tokenResult = $user->createToken('auth_token', ['*'], now()->addMinutes(20));
+        $tokenResult = $user->createToken('auth_token', ['*'], now()->addHours(12));
 
         return response()->json([
             'access_token' => $tokenResult->plainTextToken,
@@ -67,7 +67,7 @@ class AuthController extends Controller
         }
 
         // Si el token es válido, renovamos por 30 minutos más
-        $newExpiration = now()->addMinutes(30);
+        $newExpiration = now()->addHours(12);
         $currentToken->forceFill([
             'expires_at' => $newExpiration
         ])->save();

@@ -67,17 +67,10 @@
                           <VCard-text>
                             <v-container>
                               <VRow>
-                                <VCol cols="12" sm="12">
+                                <VCol cols="12" sm="6">
                                   <VTextField
                                     v-model="editedItem.address"
                                     label="Direccion"
-                                    required
-                                  />
-                                </VCol>
-                                <VCol cols="12" sm="6">
-                                  <VTextField
-                                    v-model="editedItem.locality_id"
-                                    label="Localidad"
                                     required
                                   />
                                 </VCol>
@@ -94,6 +87,18 @@
                                     label="Nombre"
                                   />
                                 </VCol>
+                                <VCol cols="12" sm="6">
+                                  <VAutocomplete
+                                        v-model="editedItem.locality_id"
+                                        :items="localities"
+                                        item-title="name"
+                                        item-value="id"
+                                        label="Localidad"
+                                        clearable
+                                      />
+                                </VCol>
+                                
+                                
                                 <VCol cols="12" sm="6">
                                   <VTextField v-model="editedItem.email" label="Email" />
                                 </VCol>
@@ -282,7 +287,7 @@ export default {
   methods: {
     async loadLocalities() {
       try {
-        const response =await this.$axios.get( this.$routes[this.route])
+        const response =await this.$axios.get( this.$routes["localities"])
         this.localities = response.data.data;
       } catch (error) {
         console.error("Error al cargar localidades:", error);
