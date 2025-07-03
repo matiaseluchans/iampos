@@ -12,7 +12,7 @@ class PetshopCustomerSeeder extends Seeder
     {
         for ($i = 1; $i <= 5; $i++) {
             DB::table('customers')->insert([
-                'address'           => "Calle Falsa $i",
+                'address'           => "Calle de Prueba $i",
                 'telephone'         => "12345678$i",
                 'email'             => "cliente$i@tenant3.com",
                 'firstname'         => "Nombre$i",
