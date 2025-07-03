@@ -152,7 +152,7 @@
                   density="compact"
                 />
               </VCol>
-              <VCol cols="12" md="2" xs="6" class="ml-6">
+              <VCol cols="12" md="2" xs="6">
                 <VTextField
                   v-model="newItem.unit_price"
                   label="Precio Unitario"
