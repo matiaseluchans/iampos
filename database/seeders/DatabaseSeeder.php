@@ -21,11 +21,15 @@ class DatabaseSeeder extends Seeder
             DrinkCustomerSeeder::class,
             DrinkLocalitySeeder::class,
             DrinkWarehouseSeeder::class,
+            DrinkStockSeeder::class,
 
             PetshopBrandSeeder::class,
             PetshopCategorySeeder::class,
             PetshopProductSeeder::class,
             PetshopWarehouseSeeder::class,
+            PetshopLocalitySeeder::class,
+            PetshopCustomerSeeder::class,
+            PetshopStockSeeder::class,
         ]);
     }
 }
