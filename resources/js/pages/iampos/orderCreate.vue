@@ -126,11 +126,13 @@
                     <v-sheet border="info md"> 
                     <VListItem v-bind="props">
                       <!--<VListItemTitle>{{ item.raw.name }}</VListItemTitle>-->
-                      
+            
                         <VListItemSubtitle class="text-caption" >
-                        Código: {{ item.raw.code }}   Stock:
-                        {{ getProductStock(item.raw.id) }} 
-                      </VListItemSubtitle>
+                       
+                        <VChip :color="getProductStock(item.raw.id) >0 ?'success':'error'">Stock: {{ getProductStock(item.raw.id) }} </VChip>
+                      
+                        Código: {{ item.raw.code }}   
+                        </VListItemSubtitle>
                     
                     </VListItem>
                   </v-sheet>
