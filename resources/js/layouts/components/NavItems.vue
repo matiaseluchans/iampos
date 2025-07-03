@@ -37,19 +37,114 @@ import VerticalNavLink from '@layouts/components/VerticalNavLink.vue'
     -->    
     <VerticalNavLink
       :item="{
+        title: 'Registrar Orden',
+        to: '/order-create',        
+        icon: 'ri-store-line', 
+      }"
+    />
+    <VerticalNavLink
+      :item="{
         title: 'Clientes',
         to: '/customers',        
         icon: 'ri-shopping-bag-2-line', 
       }"
     />
+    
+   
+    
+
+    
+    <!--<VerticalNavSectionTitle
+    :item="{
+      heading: 'Productos',
+    }"
+  />-->
+  <VerticalNavGroup
+    :item="{
+      title: 'Productos',
+      icon: 'ri-stock-line',      
+    }"
+  >
+  <VerticalNavLink
+      :item="{
+        title: 'Stock',
+        to: '/stocks',   
+        icon: 'ri-stock-line',    
+     
+      }"
+    />
+    <VerticalNavLink
+      :item="{
+        title: 'Productos',
+        to: '/products',      
+        icon: 'ri-stock-line',    
+  
+      }"
+    />
+    
+  </VerticalNavGroup>
+    
+  
+  <VerticalNavGroup
+    :item="{
+      title: 'Administración',
+      icon: 'ri-tools-line',      
+    }"
+  >
+  <VerticalNavLink
+      :item="{
+        title: 'Depositos',
+        to: '/warehouses',        
+      }"
+    />
+    <VerticalNavLink
+      :item="{
+        title: 'Categorias',
+        to: '/categories',  
+        icon: 'ri-bookmark-line',        
+      }"
+    />
+    <VerticalNavLink
+      :item="{
+        title: 'Marcas',
+        to: '/brands',   
+        icon: 'ri-bookmark-line',     
+          
+      }"
+    />
+    <VerticalNavLink
+      :item="{
+        title: 'Estados',
+        to: '/statuses',
+        icon: 'ri-bookmark-line',          
+      }"
+    />
+    <VerticalNavLink
+      :item="{
+        title: 'Metodos de Pago',
+        to: '/paymentMethods',       
+        icon: 'ri-wallet-3-line',    
+      }"
+    />   
     <VerticalNavLink
       :item="{
         title: 'Localidades',
         to: '/localities',        
         icon: 'ri-map-pin-line', 
       }"
-    />
-    <VerticalNavLink
+    />   
+    
+    
+ </VerticalNavGroup> 
+
+
+ <VerticalNavGroup
+    :item="{
+      title: 'Configuración',
+      icon: 'ri-settings-5-line',      
+    }"
+  >
+  <VerticalNavLink
       :item="{
         title: 'Tenants',
         to: '/tenants',        
@@ -63,65 +158,7 @@ import VerticalNavLink from '@layouts/components/VerticalNavLink.vue'
         icon: 'ri-user-line', 
       }"
     />
-    
-
-    
-    <VerticalNavSectionTitle
-    :item="{
-      heading: 'Productos',
-    }"
-  />
-  <VerticalNavLink
-      :item="{
-        title: 'Stock',
-        to: '/stocks',        
-      }"
-    />
-    <VerticalNavLink
-      :item="{
-        title: 'Productos',
-        to: '/products',        
-      }"
-    />
-    <VerticalNavLink
-      :item="{
-        title: 'Depositos',
-        to: '/warehouses',        
-      }"
-    />
-    <VerticalNavLink
-      :item="{
-        title: 'Categorias',
-        to: '/categories',        
-      }"
-    />
-    <VerticalNavLink
-      :item="{
-        title: 'Marcas',
-        to: '/brands',        
-      }"
-    />
-
-    <VerticalNavSectionTitle
-    :item="{
-      heading: 'Administracion',
-    }"
-  />
-    <VerticalNavLink
-      :item="{
-        title: 'Estados',
-        to: '/statuses',        
-      }"
-    />
-    <VerticalNavLink
-      :item="{
-        title: 'Metodos de Pago',
-        to: '/paymentMethods',        
-      }"
-    />    
-    
-  <!--</VerticalNavGroup>-->
-
+  </VerticalNavGroup>
  <!--
    <VerticalNavSectionTitle
     :item="{
