@@ -103,4 +103,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // Reportes
     Route::get('stocks/reports/movements', [App\Http\Controllers\StockController::class, 'movementsReport']);
     Route::get('stocks/reports/valuation', [App\Http\Controllers\StockController::class, 'valuationReport']);
+
+    Route::apiResource('payments', \App\Http\Controllers\PaymentController::class);
+
 });
