@@ -1081,7 +1081,7 @@ tbody{
 }
 
 .v-field__field {
-    /*height: 35px !important;*/
+    height: 35px !important;
     font-size: 13px !important;
     margin-top: 0px !important;
 }
