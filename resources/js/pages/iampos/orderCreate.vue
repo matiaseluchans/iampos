@@ -1,4 +1,5 @@
 <template>
+ <!--
   <VRow class="">
     <VCol cols="12" sm="12" md="12">
       <VCard>
@@ -6,10 +7,10 @@
           <VRow align="center" class="d-flex" >
             <VCol cols="12" md="2">
             <h3>
-              Orden para:
+              Orden para:-->
               <!--<VChip color="warning">Pendiente</VChip>
               <VChip color="info">Listo para Retirar</VChip>-->
-            </h3>
+            <!--</h3>
             </VCol>
             <VCol cols="12" md="10" v-if="selectedCustomer">
                     <VAlert type="info" variant="tonal">
@@ -24,11 +25,11 @@
         </VCardText>
       </VCard>
     </VCol>
-  </VRow>
+  </VRow>-->
   <VForm ref="orderForm" v-model="validOrder">
     <!-- Sección Cliente -->
     <VRow class="">
-      <VCol cols="12" sm="12" md="6">
+      <VCol cols="12" sm="12" md="12">
         <VCard >
           <div class="v-card-item"> 
             <div class="v-card-item__content">
@@ -42,9 +43,9 @@
               </span>
             </div>
           </div> 
-          <VCardText>
-            <VRow>
-              <VCol cols="12" md="12">
+          <VCardText class="mb-0 pb-0">
+            <VRow class="mb-0 pb-0">
+              <VCol cols="12" md="4" class="mb-0 pb-0" >
                 <VAutocomplete
                   v-model="order.customer_id"
                   :items="customers"
@@ -54,7 +55,10 @@
                   :rules="[(v) => !!v || 'Cliente es requerido']"
                   clearable
                   @update:model-value="onCustomerChange"
+                  style="min-height: 90px;font-size:40px"
                   density="compact"
+                  class="cliente mb-0 pb-0"
+              
                 >
                   <template v-slot:item="{ props, item }">
                     <v-sheet border="info md"> 
@@ -67,6 +71,14 @@
                   </template>
                 </VAutocomplete>
               </VCol>
+              <VCol cols="12" md="8" v-if="selectedCustomer" class="mb-0 pb-0">
+                    <VAlert type="info" variant="tonal" class="mb-0">
+                      <strong>Dirección:</strong> {{ selectedCustomer.address }} 
+                      <strong>Teléfono:</strong> {{ selectedCustomer.telephone }} 
+                      <strong>Cliente:</strong> {{ selectedCustomer.name ?? "-"}} 
+                      <strong>Email:</strong> {{ selectedCustomer.email ??"-"}} 
+                    </VAlert>
+                  </VCol>
             </VRow>
             <VRow> 
               <!-- Información del cliente seleccionado -->
@@ -83,38 +95,7 @@
         </VCard>
       </VCol>
 
-      <VCol cols="12" sm="12" md="6">
-        <!-- Sección Dirección de Entrega -->
-        <VCard  >
-          <div class="v-card-item">
-            <div class="v-card-item__content">
-              <div class="v-card-title"><h5 class="text-h5">
-                <VAvatar   icon="ri-map-pin-line" class="text-info mr-2" variant="tonal"/>Dirección de Entrega</h5></div> 
-            </div>
-            <div class="v-card-item__append"><span class="text-primary cursor-pointer">
-              <VBtn
-                @click="useCustomerAddress"
-                :color="$cv('principal')"
-                title="Usar del cliente"
-              >
-                <VIcon icon="ri-refresh-line" class="mr-2" />
-              </VBtn></span>
-            </div>
-          </div> 
-          <VCardText>
-            <VRow>
-              <VCol cols="12" md="12">
-                <VTextField
-                  v-model="order.shipping_address"
-                  label="Dirección de Entrega"
-                  :rules="[(v) => !!v || 'Dirección de entrega es requerida']"
-                  density="compact"
-                  />
-              </VCol>
-            </VRow>
-          </VCardText>
-        </VCard>
-      </VCol>
+       
     </VRow>
     <!-- Sección Productos -->
     <VRow>
@@ -157,10 +138,10 @@
                   </template>
                 </VAutocomplete>
               </VCol>
-              <VCol cols="12" md="2" xs="1">
+              <VCol cols="12" md="1" xs="1" >
                 <VTextField
                   v-model="newItem.quantity"
-                  label="Cantidad"
+                  label="Cant"
                   type="number"
                   min="1"
                   :rules="[
@@ -171,7 +152,7 @@
                   density="compact"
                 />
               </VCol>
-              <VCol cols="12" md="2" xs="6">
+              <VCol cols="12" md="2" xs="6" class="ml-6">
                 <VTextField
                   v-model="newItem.unit_price"
                   label="Precio Unitario"
@@ -205,74 +186,152 @@
             <br>
 
             <!-- Lista de Productos Agregados -->
-            <div style="max-height: 300px; overflow-y: auto;">
-              <VDataTable
-                :headers="itemHeaders"
-                :items="order.items"
-                class="elevation-1"
-                no-data-text="No hay productos agregados"
-                hide-default-footer
-                density="compact"
-              >
-                <template #item.product_name="{ item }">
-                  {{ getProductById(item.product_id)?.name }}
-                </template>
-                <template #item.unit_price="{ item, index }">
-                  <VTextField
-                    v-model="item.unit_price"
-                    type="number"
-                    step="0.01"
-                    prefix="$"
-                    density="compact"
-                    hide-details
-                    @input="updateItemTotal(index)"
-                    class="ma-0 pa-0 text-sm"
-                
-                  />
-                </template>
-                <template #item.quantity="{ item, index }">
-                  <VTextField
-                    v-model="item.quantity"
-                    type="number"
-                    min="1"
-                    density="compact"
-                    hide-details
-                    @input="updateItemTotal(index)"
-                    style="width: 80px;"
-                  />
-                </template>
-                <template #item.total_price="{ item }">
-                  ${{ formatNumber(item.total_price) }}
-                </template>
-                <template #item.actions="{ index }">
-                  <IconBtn size="small" color="error" @click="removeItem(index)">
-                    <VIcon icon="ri-delete-bin-line" />
-                  </IconBtn>
-                </template>
-              </VDataTable>
-            </div>
+            <VRow>
+              <VCol cols="12" sm="12" md="9">
+                <VCard> 
+                  <div class="v-card-item"> 
+                    <div class="v-card-item__content">
+                      <div class="v-card-title"><h5 class="text-h5">
+                        <VAvatar icon="ri-calculator-line" class="text-info mr-2" variant="tonal"/>Productos agregados</h5></div> 
+                    </div> 
+                  </div> 
+                  <VCardText>
+                    <div style="min-height: 300px;max-height: 280px; overflow-y: auto;">
+                      <VDataTable
+                        :headers="itemHeaders"
+                        :items="order.items"
+                        class="elevation-1"
+                        no-data-text="No hay productos agregados"
+                        
+                        density="compact"
+                      >
+                      <template #bottom v-if="!showFooter"></template>
+                        <template #item.product_name="{ item }">
+                          {{ getProductById(item.product_id)?.name }}
+                        </template>
+                        <template #item.unit_price="{ item, index }">
+                          <VTextField
+                            v-model="item.unit_price"
+                            type="number"
+                            step="0.01"
+                            prefix="$"
+                            density="compact"
+                            hide-details
+                            @input="updateItemTotal(index)"
+                            class="ma-0 pa-0 text-sm"
+                        
+                          />
+                        </template>
+                        <template #item.quantity="{ item, index }">
+                          <VTextField
+                            v-model="item.quantity"
+                            type="number"
+                            min="1"
+                            density="compact"
+                            hide-details
+                            @input="updateItemTotal(index)"
+                            style="width: 80px;"
+                          />
+                        </template>
+                        <template #item.total_price="{ item }">
+                          ${{ formatNumber(item.total_price) }}
+                        </template>
+                        <template #item.actions="{ index }">
+                          <IconBtn size="small" color="error" @click="removeItem(index)">
+                            <VIcon icon="ri-delete-bin-line" />
+                          </IconBtn>
+                        </template>
+                      </VDataTable>
+                    </div>
+                  </VCardText>
+                </VCard>
+
+              </VCol>
+
+              <VCol cols="12" sm="12" md="3">
+                <VCard> 
+                  <div class="v-card-item"> 
+                    <div class="v-card-item__content">
+                      <div class="v-card-title"><h5 class="text-h5">
+                        <VAvatar   icon="ri-calculator-line" class="text-info mr-2" variant="tonal"/>Totales</h5></div> 
+                    </div> 
+                  </div> 
+                  <VCardText>
+                    <VRow>
+                      <VCol cols="12" md="12">
+                        <VTextField
+                          v-model="order.discount_amount"
+                          label="Descuento"
+                          type="number"
+                          step="0.01"
+                          prefix="$"
+                          @input="calculateTotals"
+                          density="compact"
+                        />
+                      </VCol>
+                      <VCol cols="12" md="12">
+                        <VTextField
+                          v-model="order.tax_amount"
+                          label="Impuestos"
+                          type="number"
+                          step="0.01"
+                          prefix="$"
+                          @input="calculateTotals"
+                          density="compact"
+                        />
+                      </VCol>
+                    </VRow>
+                    <VDivider class="my-4" />
+                    <VRow>
+                      <VCol cols="12" md="12">
+                        <VTextField
+                          :model-value="formatCurrency(order.subtotal)"
+                          label="Subtotal" 
+                          readonly
+                          variant="outlined"
+                          density="compact"
+                        />
+                      </VCol>
+                      <VCol cols="12" md="12">
+                        <VTextField
+                          :model-value="formatCurrency(order.discount_amount)"
+                          label="Descuento"
+                          readonly
+                          variant="outlined"
+                          density="compact"
+                        >
+                        <template #input="{ props }">
+                          <input
+                            v-bind="props"
+                            class="text-right"
+                            style="text-align: right;"
+                          />
+                        </template></VTextField>
+
+                      </VCol>
+                      <VCol cols="12" md="12">
+                        <VTextField
+                          :model-value="formatCurrency(order.total_amount)"
+                          label="Total Final"
+                          readonly
+                          variant="outlined"
+                          class="text-h6"
+                          density="compact"
+                          
+                        />
+                      </VCol>
+                    </VRow>
+                  </VCardText>
+                </VCard>
+              </VCol>
+            </VRow>
           </VCardText>
         </VCard>
       </VCol>
     </VRow>
+    <!--
     <VRow class="">
-      <VCol cols="12" sm="12"  md="9">
-        <VCard   >
-          <!--<VCardTitle>
-            <VIcon icon="ri-file-text-line" class="mr-2" />
-            ssss
-          </VCardTitle>-->
-          <div class="v-card-item"> 
-            <div class="v-card-item__content">
-              <div class="v-card-title"><h5 class="text-h5">
-                <VAvatar   icon="ri-file-text-line" class="text-info mr-2" variant="tonal"/>Notas Adicionales</h5></div> 
-            </div> 
-          </div> 
-          <VCardText>
-            <VTextarea v-model="order.notes" label="Notas de la orden" rows="13" />
-          </VCardText>
-        </VCard>
-      </VCol>
+      
       <VCol cols="12" sm="12" md="3">
         <VCard> 
           <div class="v-card-item"> 
@@ -338,6 +397,61 @@
                 />
               </VCol>
             </VRow>
+          </VCardText>
+        </VCard>
+      </VCol>
+    </VRow>-->
+
+    <VRow class="">
+       
+
+      <VCol cols="12" sm="12" md="6">
+        <!-- Sección Dirección de Entrega -->
+        <VCard  >
+          <div class="v-card-item">
+            <div class="v-card-item__content">
+              <div class="v-card-title"><h5 class="text-h5">
+                <VAvatar   icon="ri-map-pin-line" class="text-info mr-2" variant="tonal"/>Dirección de Entrega</h5></div> 
+            </div>
+            <div class="v-card-item__append"><span class="text-primary cursor-pointer">
+              <VBtn
+                @click="useCustomerAddress"
+                :color="$cv('principal')"
+                title="Usar del cliente"
+              >
+                <VIcon icon="ri-refresh-line" class="mr-2" />
+              </VBtn></span>
+            </div>
+          </div> 
+          <VCardText>
+            <VRow>
+              <VCol cols="12" md="12">
+                <VTextarea
+                  v-model="order.shipping_address"
+                  label="Dirección de Entrega"
+                  :rules="[(v) => !!v || 'Dirección de entrega es requerida']"
+                  rows="2"
+                  />
+              </VCol>
+            </VRow>
+          </VCardText>
+        </VCard>
+      </VCol>
+
+      <VCol cols="12" sm="12"  md="6">
+        <VCard>
+          <!--<VCardTitle>
+            <VIcon icon="ri-file-text-line" class="mr-2" />
+            ssss
+          </VCardTitle>-->
+          <div class="v-card-item"> 
+            <div class="v-card-item__content">
+              <div class="v-card-title"><h5 class="text-h5">
+                <VAvatar   icon="ri-file-text-line" class="text-info mr-2" variant="tonal"/>Notas Adicionales</h5></div> 
+            </div> 
+          </div> 
+          <VCardText>
+            <VTextarea v-model="order.notes" label="Notas de la orden" rows="2" />
           </VCardText>
         </VCard>
       </VCol>
@@ -601,7 +715,7 @@ export default {
         { title: "Producto", key: "product_name", width: "300px" },
         { title: "Cantidad", key: "quantity", width: "80px" },
         { title: "Precio Unit.", key: "unit_price", width: "150px" },
-        { title: "Total", key: "total_price", width: "150px" },
+        { title: "Total", key: "total_price", width: "150px", align: "end" },
         { title: "Acciones", key: "actions", width: "100px", sortable: false },
       ],
       localities:[]
@@ -946,19 +1060,42 @@ export default {
 };
 </script>
 
-<style scoped>
+<style>
+
+
 .v-card-title {
   font-weight: 600;
 }
 
 .v-data-table {
   border: 1px solid #e0e0e0;
+  
 }
 
+tbody{
+  font-size: 13px !important;
+}
 .text-h6 input {
   font-size: 1.25rem !important;
   font-weight: 600 !important;
 }
 
+.v-field__field {
+    /*height: 35px !important;*/
+    font-size: 13px !important;
+    margin-top: 0px !important;
+}
+.v-field__input{
+  min-block-size: 19px !important;
+}
+.v-data-table__tr{
+  height: 43px !important;
+}
 
+.cliente .v-autocomplete__selection {
+    font-size: 23px;
+    font-weight: bold;
+    margin-top: 10px;
+    margin-bottom: -10px;
+}
 </style>
