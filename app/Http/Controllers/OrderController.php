@@ -2,64 +2,45 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Order;
+use App\Repositories\OrderRepository;
 use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    private $repository;
+
+    public function __construct(OrderRepository $repository)
     {
-        //
+        $this->repository = $repository;
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function index(Request $request)
     {
-        //
+        return $this->repository->all();
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+    public function show($id)
+    {
+        return $this->repository->get($id);
+    }
+
     public function store(Request $request)
     {
-        //
+        return $this->repository->save($request);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Order $order)
+    public function update(Request $request, $id)
     {
-        //
+        return $this->repository->update($request, $id);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Order $order)
+    public function destroy($id)
     {
-        //
+        return $this->repository->delete($id);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Order $order)
+    public function changestatus(Request $request, $id)
     {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Order $order)
-    {
-        //
+        return $this->repository->changestatus($request, $id);
     }
 }

@@ -558,8 +558,8 @@
       <VCardText>
         <VAlert type="success" class="mb-4">
           ¡Orden creada exitosamente!<br />
-          <strong>Número de Orden:</strong> {{ createdOrder?.order_number }}<br />
-          <strong>Total:</strong> {{ formatCurrency(createdOrder?.total_amount) }}
+          <strong>Número de Orden:</strong> {{ createdOrder?.order?.order_number }}<br />
+          <strong>Total:</strong> {{ formatCurrency(createdOrder?.order?.total_amount) }}
         </VAlert>
         <p>¿Deseas registrar un pago para esta orden?</p>
       </VCardText>
@@ -928,7 +928,8 @@ export default {
       try {
         const orderData = {
           ...this.order,
-          order_date: new Date().toISOString(),
+
+          //order_date: new Date().toISOString(), //lo obtenemos en el back
           quantity_products: this.order.items.reduce(
             (sum, item) => sum + parseInt(item.quantity),
             0
@@ -943,7 +944,9 @@ export default {
           ),
         };
 
+
         const response = await this.$axios.post(this.$routes["orders"], orderData);
+
         this.createdOrder = response.data.data || response.data;
 
         this.showSnackbar("Orden creada exitosamente", "success");

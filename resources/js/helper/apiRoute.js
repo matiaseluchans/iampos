@@ -18,4 +18,5 @@ export const apiRoute = Object.freeze({
   stocks: "api/stocks",
   statuses: "api/statuses",
   paymentMethods: "api/payment-methods",
-});
+  orders: "api/orders",
+})

@@ -83,7 +83,7 @@
                                 </VCol>
                                 <VCol cols="12" sm="6">
                                   <VTextField
-                                    v-model="editedItem.name"
+                                    v-model="editedItem.firstname"
                                     label="Nombre"
                                   />
                                 </VCol>
@@ -202,7 +202,7 @@ export default {
       { title: "Direccion", filterable: true, key: "address" },
       { title: "Localidad", filterable: true, key: "locality" },
       { title: "Telefono", filterable: true, key: "telephone" },
-      { title: "Nombre", filterable: true, key: "name" },
+      { title: "Nombre", filterable: true, key: "firstname" },
       { title: "Estado", key: "active", width:"150px" },
     ],
     desserts: [],
@@ -213,7 +213,7 @@ export default {
       locality_id: "",
       telephone: "",
       email: "",
-      name: "",
+      firstname: "",
       active: 1,
     },
     defaultItem: {
@@ -222,7 +222,7 @@ export default {
       locality_id: "",
       telephone: "",
       email: "",
-      name: "",
+      firstname: "",
       active: 1,
     },
     filters: {
@@ -231,7 +231,7 @@ export default {
       locality_id: "",
       telephone: "",
       email: "",
-      name: "",
+      firstname: "",
       created_at: "",
       updated_at: "",
     },
@@ -297,7 +297,7 @@ export default {
       return item.name.toLowerCase().includes(this.dessertName.toLowerCase());
     },
     filterByName(item) {
-      return this.$filterBy(item, "name");
+      return this.$filterBy(item, "firstname");
     },
     filterByActive(item) {
       return this.$filterBy(item, "active");
