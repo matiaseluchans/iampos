@@ -10,13 +10,16 @@ export const routes = [
         component: () => import('@/pages/dashboard.vue'),
         meta: { requiresAuth: true }
       },
-
       {
         path: 'order-create',
         component: () => import('@/pages/iampos/orderCreate.vue'),
         meta: { requiresAuth: true }
       },
-      
+      {
+        path: 'order-list',
+        component: () => import('@/pages/iampos/orderList.vue'),
+        meta: { requiresAuth: true }
+      },      
       {
         path: 'customers',
         component: () => import('@/pages/iampos/customers.vue'),

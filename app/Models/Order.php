@@ -37,6 +37,13 @@ class Order extends Model
         'deleted_by',                
     ];
 
+    protected $casts = [
+        'order_date' => 'datetime:d/m/Y H:i:s',        
+        'created_at' => 'datetime:d/m/Y H:i:s',
+        'updated_at' => 'datetime:d/m/Y H:i:s',
+        'deleted_at' => 'datetime:d/m/Y H:i:s',
+    ];
+
     protected static function booted(): void
     {
         static::addGlobalScope(new TenantScope);

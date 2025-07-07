@@ -39,14 +39,21 @@ import VerticalNavLink from '@layouts/components/VerticalNavLink.vue'
       :item="{
         title: 'Registrar Orden',
         to: '/order-create',        
-        icon: 'ri-store-line', 
+        icon: 'ri-draft-line', 
+      }"
+    />
+    <VerticalNavLink
+      :item="{
+        title: 'Ordenes',
+        to: '/order-list',        
+        icon: 'ri-shopping-bag-line',         
       }"
     />
     <VerticalNavLink
       :item="{
         title: 'Clientes',
         to: '/customers',        
-        icon: 'ri-shopping-bag-2-line', 
+        icon: 'ri-group-line', 
       }"
     />
     

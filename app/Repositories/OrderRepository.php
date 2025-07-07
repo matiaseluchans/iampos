@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Stock;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -19,30 +20,18 @@ class OrderRepository extends BaseRepository
     }
 
     public function save($request)
-    {
-        /*try {
-            $jsonData = $request->getContent(); // Obtener datos del cuerpo de la solicitud
-            $modelData = json_decode($jsonData, true); // Deserializar JSON a array
-
-            dd($modelData);
-
-            // Crear un nuevo modelo a partir de los datos recibidos            
-            $this->model->fill($modelData);
-            $this->model->save();
-
-            //$this->cacheForget();
-            return $this->successResponseCreate($this->model);
-        } catch (\Exception $e) {
-
-            report($e);
-            DB::rollBack();
-            return $this->errorResponse($e);
-        }*/
-
-
+    {       
         DB::beginTransaction();
 
         try {
+            //Datos del Usuario
+            $user = Auth::user();
+            // Datos del formulario
+            $formRequest = $request->all();
+            
+            $form = $formRequest;
+            $items = $formRequest['items'];
+            $errors = [];
             // Validación de los datos generales del pedido
             $validator = Validator::make($request->all(), [                
                 'customer_id' => 'required',                
@@ -67,30 +56,34 @@ class OrderRepository extends BaseRepository
                 );
 
                 return $this->errorResponse(null, implode(', ', $errors));
-            }
-           
+            }           
 
-            //Datos del Usuario
-            $user = Auth::user();
-            // Datos del formulario
-            $formRequest = $request->all();
+            foreach ($items as $item) {
+                $stock = Stock::where('product_id', $item['product_id'])->first();
+                
+                if ($stock->quantity < $item['quantity']) {
+                    $errors[] = "No hay suficiente stock para el item ID {$item['product_id']}";
+                }
+            }
+
+            if (count($errors)) {
+                return $this->errorResponse(null, implode(', ', $errors));
+            }
             
-            $form = $formRequest;
-            $items = $formRequest['items'];                   
             // Creación de la instancia del modelo 'order'
             $model = new $this->model;                 
 
             $model->fill([                
                 'order_date'=>Carbon::now(),                
                 'customer_id' => $form['customer_id'],
-                //'customer_details',
+                //'customer_details', //ver de guardar los datos del cliente
                 'shipping_address' => $form['shipping_address'],
                 'status_id' => 1,
                 'order_type_id' => 1,
                 'shipping_status_id' => 1,
                 'quantity_products' => $form['quantity_products'],
-                'subtotal' => $form['quantity_products'],
-                'tax_amount' => $form['subtotal'],
+                'subtotal' => $form['subtotal'],
+                'tax_amount' => $form['tax_amount'],
                 'discount_amount' => $form['discount_amount'],
                 'total_amount' => $form['total_amount'],
                 'total_cost' => $form['total_cost'],
@@ -102,20 +95,7 @@ class OrderRepository extends BaseRepository
             $model->save();            
 
             // Registro de items con inserción masiva
-            if (!empty($items)) {
-                /*
-                "items" => array:1 [
-                    0 => array:6 [
-                    "product_id" => 1
-                    "quantity" => 1
-                    "unit_price" => 1400
-                    "unit_cost_price" => 1000
-                    "total_price" => 1400
-                    "total_profit" => 400
-                    ]
-                ]
-                */                
-            
+            if (!empty($items)) {              
                 $data = array_map(function ($item) use ($model, $user) {
                     return [
                         'order_id' => $model->id,
@@ -131,6 +111,18 @@ class OrderRepository extends BaseRepository
                     ];
                 }, $items);
                 OrderItem::insert($data);
+
+                //tengo q descontar del stock las cantidades de los items
+                $ids = collect($items)->pluck('product_id')->toArray();
+
+                //creo un update masivo
+                $sql = "UPDATE stocks SET quantity = CASE product_id ";
+                foreach ($items as $item) {
+                    $sql .= "WHEN {$item['product_id']} THEN quantity - {$item['quantity']} ";
+                }
+                $sql .= "END WHERE product_id IN (" . implode(',', $ids) . ")";
+                
+                DB::statement($sql);                
             }
             // Confirmar la transacción
             DB::commit();

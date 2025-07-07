@@ -26,7 +26,7 @@
                     :items="warehouses"
                     item-title="name"
                     item-value="id"
-                    label="depósito"
+                    label="Depósito"
                     clearable
                   />
                 </VCol>
@@ -46,7 +46,7 @@
                     :items="products"
                     item-title="name"
                     item-value="id"
-                    label="producto"
+                    label="Producto"
                     clearable
                   />
                 </VCol>
