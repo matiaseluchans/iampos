@@ -3,7 +3,7 @@ import router from '@/router';
 import { logout } from '@/api/auth'
 
 const instance = axios.create({
-  baseURL: 'http://iampos.local',
+  baseURL: import.meta.env.VITE_APP_URL,
 })
 
 const token = localStorage.getItem('token')

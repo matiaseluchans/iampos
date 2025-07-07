@@ -5,47 +5,47 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
-class StatusSeeder extends Seeder
+class PetshopStatusSeeder extends Seeder
 {
     public function run()
-    {        
-        DB::table('status')->insert([
-            'id' => 1,
+    {
+        DB::table('statuses')->insert([
+            'id' => 6,
             'name' => 'Pendiente',
             'active' => true,
-            'tenant_id' => 1,
+            'tenant_id' => 3,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
-        DB::table('status')->insert([
-            'id' => 2,
+        DB::table('statuses')->insert([
+            'id' => 7,
             'name' => 'Confirmado',
             'active' => true,
-            'tenant_id' => 1,
+            'tenant_id' => 3,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
-        DB::table('status')->insert([
-            'id' => 3,
+        DB::table('statuses')->insert([
+            'id' => 8,
             'name' => 'Procesando',
             'active' => true,
-            'tenant_id' => 1,
+            'tenant_id' => 3,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
-        DB::table('status')->insert([
-            'id' => 4,
+        DB::table('statuses')->insert([
+            'id' => 9,
             'name' => 'Completo',
             'active' => true,
-            'tenant_id' => 1,
+            'tenant_id' => 3,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
-        DB::table('status')->insert([
-            'id' => 5,
+        DB::table('statuses')->insert([
+            'id' => 10,
             'name' => 'Cancelado',
             'active' => true,
-            'tenant_id' => 1,
+            'tenant_id' => 3,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
