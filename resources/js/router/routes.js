@@ -34,7 +34,7 @@ export const routes = [
         path: 'customers',
         component: () => import('@/pages/iampos/customers.vue'),
         meta: { requiresAuth: true,
-          allowedTenants: ['2','3'],  
+          allowedTenants: [2,3],  
           allowedRoles: ['admin'] 
         }
       }, 
@@ -73,7 +73,7 @@ export const routes = [
         component: () => import('@/pages/iampos/tenants.vue'),
         meta: { requiresAuth: true ,
           allowedTenants: [1,2], // Solo para superadmin
-          allowedRoles: ['superadmin','admin']
+          allowedRoles: ['superadmin']
         }
       }, 
 
