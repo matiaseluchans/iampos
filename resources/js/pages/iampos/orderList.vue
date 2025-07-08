@@ -133,7 +133,7 @@
        
 
         <template #item.actions="{ item }">
-          <div class="d-flex flex-wrap gap-1 align-center" style="min-width: 80px">
+          <div class="d-flex flex-wrap gap-1 align-center" style="min-width: 120px">
             <IconBtn
               size="small"
               class="my-1"
@@ -150,6 +150,22 @@
               @click="showHistory(item)"
             >
               <VIcon icon="ri-history-line" />
+            </IconBtn>
+            <IconBtn
+              size="small"
+              class="my-1"
+              title="Ver Factura"
+              @click="showFactura(item)"
+            >
+              <VIcon icon="ri-file-pdf-2-line" />
+            </IconBtn>
+            <IconBtn
+              size="small"
+              class="my-1"
+              title="Ver Factura"
+              @click="showFactura2(item)"
+            >
+              <VIcon icon="ri-file-pdf-2-line" />
             </IconBtn>
           </div>
         </template>
@@ -673,7 +689,72 @@ export default {
       this.snackbarText = text
       this.snackbarColor = color
       this.snackbar = true
+    },
+    async showFactura(item) {
+      try {
+        // Mostrar loader mientras se genera el PDF
+        this.loading = true;
+        
+        // Llamar al endpoint de Laravel que genera el PDF
+        const response = await this.$axios.get(
+          `${this.$routes["orders"]}/invoice/${item.id}`,
+          { 
+            responseType: 'blob' 
+          }
+        );
+        
+         
+        var blob = new Blob([response.data], { type: "application/pdf" });
+        const url = window.URL.createObjectURL(blob, { oneTimeOnly: true });
+        const link = document.createElement("a");
+        link.target = "_blank";
+
+        link.href = url;
+
+        document.body.appendChild(link);
+        link.click();
+    
+        
+      } catch (error) {
+        console.error('Error generando factura:', error);
+        this.showSnackbar('Error al generar la factura', 'error');
+      } finally {
+        this.loading = false;
+      }
+    },
+    async showFactura2(item) {
+      try {
+        // Mostrar loader mientras se genera el PDF
+        this.loading = true;
+        
+        // Llamar al endpoint de Laravel que genera el PDF
+        const response = await this.$axios.get(
+          `${this.$routes["orders"]}/invoice2/${item.id}`,
+          { 
+            responseType: 'blob' 
+          }
+        );
+        
+         
+        var blob = new Blob([response.data], { type: "application/pdf" });
+        const url = window.URL.createObjectURL(blob, { oneTimeOnly: true });
+        const link = document.createElement("a");
+        link.target = "_blank";
+
+        link.href = url;
+
+        document.body.appendChild(link);
+        link.click();
+    
+        
+      } catch (error) {
+        console.error('Error generando factura:', error);
+        this.showSnackbar('Error al generar la factura', 'error');
+      } finally {
+        this.loading = false;
+      }
     }
+
   }
 }
 </script>

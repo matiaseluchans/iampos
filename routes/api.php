@@ -69,6 +69,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::apiResource('statuses', App\Http\Controllers\StatusController::class);
     Route::apiResource('payment-methods', App\Http\Controllers\PaymentMethodController::class);
     Route::apiResource('orders', App\Http\Controllers\OrderController::class);
+    Route::get('orders/invoice/{id}', [App\Http\Controllers\OrderController::class, "generateInvoice"]);
+    Route::get('orders/invoice2/{id}', [App\Http\Controllers\OrderController::class, "generateInvoice2"]);
 
     Route::apiResource('roles', App\Http\Controllers\RoleController::class);
 
@@ -106,5 +108,4 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('stocks/reports/valuation', [App\Http\Controllers\StockController::class, 'valuationReport']);
 
     Route::apiResource('payments', \App\Http\Controllers\PaymentController::class);
-
 });
