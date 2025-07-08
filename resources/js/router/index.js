@@ -8,6 +8,60 @@ const router = createRouter({
   routes,
 })
 
+
+
+// Función para verificar si el usuario tiene acceso a la ruta
+function hasAccess(to, user) {
+  if (!to.meta) return true
+  
+  const tenantId = user?.data?.tenant?.id || null
+  const userRoles = user?.data?.roles || []
+  
+  // Verificar tenant
+  const allowedTenants = to.meta.allowedTenants || ['*']
+  if (allowedTenants[0] !== '*' && !allowedTenants.includes(tenantId)) {
+    return false
+  }
+  
+  // Verificar roles
+  const allowedRoles = to.meta.allowedRoles || ['*']
+  if (allowedRoles[0] !== '*' && !userRoles.some(role => allowedRoles.includes(role))) {
+    return false
+  }
+  
+  return true
+}
+
+
+
+
+router.beforeEach(async (to, from, next) => {
+  const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
+  const isLoginRoute = to.path === '/login'
+  
+  // Intentar inicializar la autenticación si hay token
+  const token = localStorage.getItem('token')
+  if (token) {
+    await initializeAuth()
+  }
+
+  const currentUser = store.getters.currentUser
+  
+  console.log(currentUser);
+  // Lógica de redirección
+  if (requiresAuth && !store.getters.isAuthenticated) {
+    next('/login')
+  } else if (isLoginRoute && store.getters.isAuthenticated) {
+    next('/dashboard')
+  } else if (requiresAuth && !hasAccess(to, currentUser)) {
+    // Si no tiene acceso, redirigir al dashboard o mostrar error
+    next('/dashboard') // o podrías usar next('/unauthorized')
+  } else {
+    next()
+  }
+})
+
+/*
 // Guard de navegación global
 router.beforeEach(async (to, from, next) => {
   // Verificar si la ruta requiere autenticación
@@ -19,6 +73,7 @@ router.beforeEach(async (to, from, next) => {
   if (token) {
     await initializeAuth()
   }
+ 
 
   // Lógica de redirección
   if (requiresAuth && !store.getters.isAuthenticated) {
@@ -31,7 +86,9 @@ router.beforeEach(async (to, from, next) => {
     // Continuar normalmente
     next()
   }
-})
+})*/
+
+
 
 export default function (app) {
   app.use(router)
