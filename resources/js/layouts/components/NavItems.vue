@@ -149,7 +149,7 @@ const navItems = [
       }
     ]
   } ,
-  {
+  /*{
     component: 'VerticalNavSectionTitle',
     item: {
       heading: 'Apps & Pages'
