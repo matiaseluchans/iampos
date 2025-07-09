@@ -27,7 +27,7 @@ export const routes = [
         component: () => import('@/pages/iampos/orderList.vue'),
         meta: { requiresAuth: true, 
           allowedTenants: [2,3], // Solo tenant
-          allowedRoles: ['admin'] 
+          allowedRoles: ['*'] 
         }
       },      
       {
