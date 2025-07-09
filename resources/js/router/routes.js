@@ -6,24 +6,37 @@ export const routes = [
     component: () => import('@/layouts/default.vue'),
     children: [
       {
-        path: 'dashboard',
+        path: '/dashboard',
         component: () => import('@/pages/dashboard.vue'),
-        meta: { requiresAuth: true }
+        meta: { requiresAuth: true,
+          allowedTenants: ['*'],
+          allowedRoles: ['*']
+          
+         }
       },
       {
         path: 'order-create',
         component: () => import('@/pages/iampos/orderCreate.vue'),
-        meta: { requiresAuth: true }
+        meta: { requiresAuth: true,
+          allowedTenants: ['*'],  
+          allowedRoles: ['*'] 
+        }
       },
       {
         path: 'order-list',
         component: () => import('@/pages/iampos/orderList.vue'),
-        meta: { requiresAuth: true }
+        meta: { requiresAuth: true, 
+          allowedTenants: [2,3], // Solo tenant
+          allowedRoles: ['admin'] 
+        }
       },      
       {
         path: 'customers',
         component: () => import('@/pages/iampos/customers.vue'),
-        meta: { requiresAuth: true }
+        meta: { requiresAuth: true,
+          allowedTenants: [2,3],  
+          allowedRoles: ['admin'] 
+        }
       }, 
       {
         path: 'localities',
@@ -58,13 +71,19 @@ export const routes = [
       {
         path: 'tenants',
         component: () => import('@/pages/iampos/tenants.vue'),
-        meta: { requiresAuth: true }
+        meta: { requiresAuth: true ,
+          allowedTenants: [1,2], // Solo para superadmin
+          allowedRoles: ['superadmin']
+        }
       }, 
 
       {
         path: 'users',
         component: () => import('@/pages/iampos/users.vue'),
-        meta: { requiresAuth: true }
+        meta: { requiresAuth: true,
+          allowedTenants: ['1'], // Solo para superadmin
+          allowedRoles: ['superadmin']
+        }
       },
       
       {

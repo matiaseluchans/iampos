@@ -22,7 +22,7 @@ class Order extends Model
         'status_id',
         'order_type_id',
         'shipping_status_id',
-        'quantity_products',        
+        'quantity_products',
         'subtotal',
         'tax_amount',
         'discount_amount',
@@ -34,11 +34,11 @@ class Order extends Model
         'tenant_id',
         'created_by',
         'last_modified_by',
-        'deleted_by',                
+        'deleted_by',
     ];
 
     protected $casts = [
-        'order_date' => 'datetime:d/m/Y H:i:s',        
+        'order_date' => 'datetime:d/m/Y H:i:s',
         'created_at' => 'datetime:d/m/Y H:i:s',
         'updated_at' => 'datetime:d/m/Y H:i:s',
         'deleted_at' => 'datetime:d/m/Y H:i:s',
@@ -68,7 +68,7 @@ class Order extends Model
     {
         return $this->belongsTo(Customer::class);
     }
-    
+
     public function status()
     {
         return $this->belongsTo(Status::class);
@@ -101,6 +101,4 @@ class Order extends Model
     {
         return $this->belongsTo(Tenant::class);
     }
-
 }
-
