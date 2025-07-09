@@ -95,7 +95,7 @@
         </template>        
 
         <template #item.total_amount="{ item }">                      
-              <strong>{{ setMoneyFormat(item.total_amount)  }}</strong>                      
+              <strong>{{ formatCurrency(item.total_amount)  }}</strong>                      
         </template>
 
         <template #item.status.name="{ item }">    
@@ -367,16 +367,11 @@ export default {
   },
 
   methods: {
-    setMoneyFormat(value){
-      if(!value)
-        return 0;
-  
-      const formato = new Intl.NumberFormat('es-AR', {
-        style: 'currency',
-        currency: 'ARS',
-      })
-
-      return (formato.format(value))
+    formatCurrency(value) {
+      return new Intl.NumberFormat("es-AR", {
+        style: "currency",
+        currency: "ARS",
+      }).format(value || 0);
     },
     async loadProducts() {
       try {

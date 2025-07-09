@@ -1,32 +1,5 @@
-<template>
- <!--
-  <VRow class="">
-    <VCol cols="12" sm="12" md="12">
-      <VCard>
-        <VCardText>
-          <VRow align="center" class="d-flex" >
-            <VCol cols="12" md="2">
-            <h3>
-              Orden para:-->
-              <!--<VChip color="warning">Pendiente</VChip>
-              <VChip color="info">Listo para Retirar</VChip>-->
-            <!--</h3>
-            </VCol>
-            <VCol cols="12" md="10" v-if="selectedCustomer">
-                    <VAlert type="info" variant="tonal">
-                      <strong>Dirección:</strong> {{ selectedCustomer.address }} 
-                      <strong>Teléfono:</strong> {{ selectedCustomer.telephone }} 
-                      <strong>Cliente:</strong> {{ selectedCustomer.name ?? "-"}} 
-                      <strong>Email:</strong> {{ selectedCustomer.email ??"-"}} 
-                    </VAlert>
-                  </VCol>
-            <div class="text-caption text-disabled">{{ formattedDate }}</div>
-          </VRow>
-        </VCardText>
-      </VCard>
-    </VCol>
-  </VRow>-->
-  <VForm ref="orderForm" v-model="validOrder">
+<template> 
+  <VForm :key="keyOrderForm" ref="orderForm" v-model="validOrder">
     <!-- Sección Cliente -->
     <VRow class="">
       <VCol cols="12" sm="12" md="12">
@@ -116,7 +89,7 @@
                   :items="products"
                   item-title="name"
                   item-value="id"
-                  size="x-small"
+                  
                   label="Seleccionar Producto"
                   clearable
                   @update:model-value="onProductChange"
@@ -331,85 +304,13 @@
         </VCard>
       </VCol>
     </VRow>
-    <!--
-    <VRow class="">
-      
-      <VCol cols="12" sm="12" md="3">
-        <VCard> 
-          <div class="v-card-item"> 
-            <div class="v-card-item__content">
-              <div class="v-card-title"><h5 class="text-h5">
-                <VAvatar   icon="ri-calculator-line" class="text-info mr-2" variant="tonal"/>Totales</h5></div> 
-            </div> 
-          </div> 
-          <VCardText>
-            <VRow>
-              <VCol cols="12" md="12">
-                <VTextField
-                  v-model="order.discount_amount"
-                  label="Descuento"
-                  type="number"
-                  step="0.01"
-                  prefix="$"
-                  @input="calculateTotals"
-                  density="compact"
-                />
-              </VCol>
-              <VCol cols="12" md="12">
-                <VTextField
-                  v-model="order.tax_amount"
-                  label="Impuestos"
-                  type="number"
-                  step="0.01"
-                  prefix="$"
-                  @input="calculateTotals"
-                  density="compact"
-                />
-              </VCol>
-            </VRow>
-            <VDivider class="my-4" />
-            <VRow>
-              <VCol cols="12" md="12">
-                <VTextField
-                  :model-value="formatCurrency(order.subtotal)"
-                  label="Subtotal" 
-                  readonly
-                  variant="outlined"
-                  density="compact"
-                />
-              </VCol>
-              <VCol cols="12" md="12">
-                <VTextField
-                  :model-value="formatCurrency(order.discount_amount)"
-                  label="Descuento"
-                  readonly
-                  variant="outlined"
-                  density="compact"
-                />
-              </VCol>
-              <VCol cols="12" md="12">
-                <VTextField
-                  :model-value="formatCurrency(order.total_amount)"
-                  label="Total Final"
-                  readonly
-                  variant="outlined"
-                  class="text-h6"
-                  density="compact"
-                  
-                />
-              </VCol>
-            </VRow>
-          </VCardText>
-        </VCard>
-      </VCol>
-    </VRow>-->
-
+    
     <VRow class="">
        
 
       <VCol cols="12" sm="12" md="6">
         <!-- Sección Dirección de Entrega -->
-        <VCard  >
+        <VCard>
           <div class="v-card-item">
             <div class="v-card-item__content">
               <div class="v-card-title"><h5 class="text-h5">
@@ -432,8 +333,7 @@
                   v-model="order.shipping_address"
                   label="Dirección de Entrega"
                   :rules="[(v) => !!v || 'Dirección de entrega es requerida']"
-                  rows="2"
-                  />
+                  rows="2"/>
               </VCol>
             </VRow>
           </VCardText>
@@ -441,11 +341,7 @@
       </VCol>
 
       <VCol cols="12" sm="12"  md="6">
-        <VCard>
-          <!--<VCardTitle>
-            <VIcon icon="ri-file-text-line" class="mr-2" />
-            ssss
-          </VCardTitle>-->
+        <VCard>          
           <div class="v-card-item"> 
             <div class="v-card-item__content">
               <div class="v-card-title"><h5 class="text-h5">
@@ -572,7 +468,7 @@
   </VDialog>
 
   <!-- Dialog Registrar Pago -->
-  <VDialog v-model="paymentFormDialog" max-width="600px">
+  <VDialog v-model="paymentFormDialog" max-width="1000px">
     <VCard>
       <VToolbar color="success">
         <VBtn icon="ri-close-line" color="white" @click="closePaymentForm" />
@@ -585,11 +481,13 @@
               <VCol cols="12">
                 <VAlert type="info" class="mb-4">
                   <strong>Total de la Orden:</strong>
-                  {{ formatCurrency(createdOrder?.total_amount) }}<br />
+                  {{ formatCurrency(createdOrder?.order?.total_amount) }}<br />
                   <strong>Total Pagado:</strong> {{ formatCurrency(totalPaid) }}<br />
                   <strong>Saldo Pendiente:</strong> {{ formatCurrency(pendingAmount) }}
                 </VAlert>
               </VCol>
+
+              <!--
               <VCol cols="12" sm="6">
                 <VTextField
                   v-model="payment.amount"
@@ -618,6 +516,22 @@
               <VCol cols="12">
                 <VTextarea v-model="payment.notes" label="Notas del Pago" rows="2" density="compact" />
               </VCol>
+              -->
+            </VRow>
+            
+            <!-- aca debe ir la linea de pagos -->
+            <VRow class="justify-center">                
+              <VCol cols="12" md="12" sm="12">
+                <VCard title="Pagos">                        
+                  <VCardText>               
+                    <PaymentsRow                        
+                          ref="paymentsRow"
+                          modulo="pagos"                          
+                          :key="keyPayments"
+                    ></PaymentsRow>
+                  </VCardText>
+                </VCard>               
+              </VCol>
             </VRow>
           </VContainer>
         </VCardText>
@@ -644,9 +558,13 @@
 <script>
 import { VAvatar, VCardItem, VTextField } from "vuetify/lib/components/index.mjs";
 
+import PaymentsRow from "@/components/PaymentsRow.vue";
+
 export default {
   data() {
     return {
+      keyOrderForm: 1,
+      showFooter: false,
       validOrder: false,
       validCustomer: false,
       validPayment: false,
@@ -665,7 +583,7 @@ export default {
       customers: [],
       products: [],
       stock: [],
-      paymentMethods: [],
+      //paymentMethods: [],
 
       // Order data
       order: {
@@ -720,7 +638,8 @@ export default {
         { title: "Total", key: "total_price", width: "150px", align: "end" },
         { title: "Acciones", key: "actions", width: "100px", sortable: false },
       ],
-      localities:[]
+      localities: [],
+      keyPayments: 0,
     };
   },
 
@@ -754,7 +673,8 @@ export default {
     },
 
     pendingAmount() {
-      return this.createdOrder ? this.createdOrder.total_amount - this.totalPaid : 0;
+      
+      return this.createdOrder ? this.createdOrder.order.total_amount - this.totalPaid : 0;
     },
   },
 
@@ -769,20 +689,20 @@ export default {
           customersRes,
           productsRes,
           stockRes,
-          paymentMethodsRes,
+      //    paymentMethodsRes,
           localitiesRes,
         ] = await Promise.all([
           this.$axios.get(this.$routes["customers"]),
           this.$axios.get(this.$routes["products"]),
           this.$axios.get(this.$routes["stocks"]),
-          this.$axios.get(this.$routes["payment_methods"]),
+    //      this.$axios.get(this.$routes["paymentMethods"]),
           this.$axios.get(this.$routes["localities"]),
         ]);
 
         this.customers = customersRes.data.data || customersRes.data;
         this.products = productsRes.data.data || productsRes.data;
-        this.stock = stockRes.data.data || stockRes.data;
-        this.paymentMethods = paymentMethodsRes.data.data || paymentMethodsRes.data;
+        this.stock = stockRes.data.data || stockRes.data;        
+        //this.paymentMethods = paymentMethodsRes.data.data || paymentMethodsRes.data;        
         this.localities = localitiesRes.data.data || localitiesRes.data;
       } catch (error) {
         console.error("Error loading data:", error);
@@ -949,7 +869,7 @@ export default {
 
         this.createdOrder = response.data.data || response.data;
 
-        this.showSnackbar("Orden creada exitosamente", "success");
+        //this.showSnackbar("Orden creada exitosamente", "success");
         this.paymentDialog = true;
       } catch (error) {
         console.error("Error creating order:", error);
@@ -968,26 +888,89 @@ export default {
 
     closePaymentForm() {
       this.paymentFormDialog = false;
-      this.payment = {
+      this.clearForm();
+      /*this.payment = {
         amount: 0,
         payment_method_id: null,
         notes: "",
+      };*/
+    },
+
+    clearForm(){      
+      this.order = {
+        customer_id: null,
+        shipping_address: '',
+        subtotal: 0,
+        tax_amount: 0,
+        discount_amount: 0,
+        total_amount: 0,
+        notes: '',
+        items: [],
       };
+      this.order.shipping_address = '';
+
+      // Paso 2: Forzar limpieza de validaciones
+      this.$refs.orderForm.resetValidation();
+
+      // Paso 3 (opcional): Retrasar un poco el reset para evitar que la validación se dispare
+      // por el cambio reactivo inmediato
+      this.$nextTick(() => {
+        this.$refs.orderForm.resetValidation();
+      });
+
+      this.loadData();
+
+      
+      
+    },
+
+    async  validatePayments(payments) {                        
+      if(payments.length<=0){
+        return "Debe incluir al menos una modalidad de pago";        
+      }
+
+      const paymentMethod = new Set();
+      const total = payments.reduce((acc, payment) => acc + parseFloat(payment.amount), 0);
+      if (total > this.pendingAmount) {
+        return "El total excede el saldo pendiente";
+      }
+
+      for (const payment of payments) {                
+        if((!payment.amount)||(!payment.payment_method_id)){
+          return "Verifique la informacion de los pagos";
+        }
+        // 1. Verificar paymentMethod duplicados
+        if (paymentMethod.has(payment.payment_method_id.id)) {
+          return 'Ha seleccionado mas de una vez el mismo metodo de pago. Metodo de pago: '+payment.payment_method_id.name;          
+        }
+        paymentMethod.add(payment.payment_method_id.id);        
+      }       
+      
+      return true;
     },
 
     async savePayment() {
-      const isValid = await this.$refs.paymentForm.validate();
-      if (!isValid) return;
+      //console.log("this.$refs.payments.personas");
+      //console.log(this.$refs.paymentsRow.payments);
+      const isValid = await this.validatePayments(this.$refs.paymentsRow.payments);      
+          
+      if (isValid !== true) return this.showSnackbar(isValid, "error");
 
       this.savingPayment = true;
       try {
         const paymentData = {
-          ...this.payment,
-          order_id: this.createdOrder.id,
-          payment_date: new Date().toISOString(),
+          //...this.payment,
+          order_id: this.createdOrder.order.id,
+          payments: this.$refs.paymentsRow.payments,
         };
 
         const response = await this.$axios.post(this.$routes["payments"], paymentData);
+        console.log(response);
+        if(response.status == 201){
+          this.showSnackbar("Pago registrado exitosamente", "success");
+          this.finishOrder();
+        }
+        /*
         const newPayment = response.data.data || response.data;
 
         this.orderPayments.push(newPayment);
@@ -1000,10 +983,10 @@ export default {
           this.showSnackbar("Pago registrado exitosamente", "success");
         }
 
-        this.closePaymentForm();
+        this.closePaymentForm();*/
 
         // Ask for another payment if there's still pending amount
-        if (this.pendingAmount > 0) {
+        /*if (this.pendingAmount > 0) {
           setTimeout(() => {
             if (confirm("¿Deseas registrar otro pago?")) {
               this.openPaymentForm();
@@ -1013,7 +996,7 @@ export default {
           }, 1000);
         } else {
           this.finishOrder();
-        }
+        }*/
       } catch (error) {
         console.error("Error saving payment:", error);
         this.showSnackbar("Error al registrar el pago", "error");
@@ -1035,10 +1018,12 @@ export default {
       }
     },
 
-    finishOrder() {
+    finishOrder() {      
+      this.clearForm();      
       this.paymentDialog = false;
-      this.paymentFormDialog = false;
-      this.$router.push({ name: "orders" });
+      this.paymentFormDialog = false;      
+      //this.$router.push({ path: "/order-create" });
+
     },
 
     // Utility methods

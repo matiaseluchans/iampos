@@ -161,7 +161,7 @@
 </template>
 
 <script>
-import oficialesRow from "../components/OficialesRow.vue";
+import oficialesRow from "../components/PaymentsRow.vue";
 import axios from "axios";
 function title() {
   return "Parte";

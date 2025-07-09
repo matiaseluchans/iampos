@@ -27,6 +27,7 @@ class DatabaseSeeder extends Seeder
             DrinkPaymentStatusSeeder::class,
             DrinkOrderTypeSeeder::class,
             DrinkShippingStatusSeeder::class,
+            DrinkPaymentMethodSeeder::class,
 
             PetshopBrandSeeder::class,
             PetshopCategorySeeder::class,
@@ -36,6 +37,11 @@ class DatabaseSeeder extends Seeder
             PetshopCustomerSeeder::class,
             PetshopStockSeeder::class,
             PetshopStatusSeeder::class,
+            PetshopPaymentMethodSeeder::class,
+
+            StatusCodesSeeder::class,
+            PaymentStatusCodesSeeder::class,
+            ShippingStatusCodesSeeder::class,
         ]);
     }
 }
