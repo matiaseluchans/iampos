@@ -59,7 +59,7 @@ class OrderController extends Controller
             'customer',
             'items',
             //'paymentMethod',
-            'shippingStatus'
+            //'shippingStatus'
         ])->findOrFail($id);
 
         $pdf = PDF::loadView('invoices.order', [
@@ -84,7 +84,7 @@ class OrderController extends Controller
         $order = Order::with([
             'customer',
             'items',
-            'shippingStatus'
+            //'shippingStatus'
         ])->findOrFail($id);
 
         // Configuración de mPDF

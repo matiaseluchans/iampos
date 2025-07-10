@@ -14,8 +14,8 @@ class StatusCodesSeeder extends Seeder
             'Pagada'             => 'paid',
             'Cerrada'            => 'paid',
             'Finalizada'         => 'paid',
-            'Completa'             => 'paid',
-            'Completo'             => 'paid',
+            'Completa'             => 'completed',
+            'Completo'             => 'completed',
             'Pendiente'          => 'pending',
             'Pendiente de pago'  => 'pending',
             'Cancelada'          => 'cancelled',
@@ -23,7 +23,19 @@ class StatusCodesSeeder extends Seeder
             'Confirmada'          => 'confirm',
             'Confirmado'          => 'confirm',
             'En Proceso'          => 'process',
-            'Procesando'          => 'process',
+            'Procesando'          => 'process',            
+            'Pagado'             => 'paid',                                    
+            'Pago Parcial'        => 'partial_payment',
+            'Reembolso'        => 'refund',
+
+            'No requiere envío'             => 'not_required',            
+            'Preparando'         => 'preparing',
+            'Listo para recoger'             => 'ready_pickup',
+            'Enviado'             => 'shipped',
+            'En tránsito'          => 'in_transit',
+            'Entregado'  => 'delivered',
+            'Entrega fallida'          => 'failed',
+            'Devuelto'          => 'returned',            
         ];
 
         foreach ($map as $name => $code) {

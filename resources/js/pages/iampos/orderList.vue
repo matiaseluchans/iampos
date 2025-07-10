@@ -31,47 +31,36 @@
                     label="Clientes"
                     clearable
                   />
-                </VCol>
-                <!--
-                <VCol cols="12" sm="6" class="pt-20 py-2 d-flex gap-2">
-                  <VBtn
-                    color="primary"
-                    size="large"
-                    title="Registrar movimiento"
-                    @click="openMovementDialog(null)"
-                  >
-                    <VIcon icon="ri-add-circle-line" class="mr-1" />
-                    Movimiento
-                  </VBtn>
-                  <VBtn
-                    color="secondary"
-                    size="large"
-                    title="Transferir stock"
-                    @click="openTransferDialog()"
-                  >
-                    <VIcon icon="ri-arrow-left-right-line" class="mr-1" />
-                    Transferir
-                  </VBtn>
-                  <VBtn
-                    color="info"
-                    size="large"
-                    title="Ver resumen"
-                    @click="showSummary()"
-                  >
-                    <VIcon icon="ri-pie-chart-line" />
-                  </VBtn>
-                </VCol>
-                -->
+                </VCol>                
               </VRow>
             </VCardText>
           </VCard>
         </template>
         
 
+        <template #item.order_number="{ item }">
+          <div class="d-flex align-center">                
+            <!-- avatar -->                                        
+        
+            <div class="d-flex flex-column text-start">
+              <span class="d-block font-weight-medium text-high-emphasis text-truncate">{{ item.order_number }}</span>              
+              <small>PRODUCTOS: {{ item.quantity_products }}</small>
+              <div class="d-flex align-left gap-2">
+                <VChip
+                  color="primary"
+                  density="comfortable"
+                >
+                  {{ item.order_type.name }}
+                </VChip>            
+              </div>
+            </div>            
+          </div>
+        </template>
+
         <template #item.customer.firstname="{ item }">
           <span v-if="item.customer.firstname">{{ item.customer.firstname+' '+item.customer.lastname }}</span>          
         </template>
-
+<!--
         <template #item.quantity_products="{ item }">
           <div class="d-flex align-center gap-2">
             <VChip
@@ -93,9 +82,26 @@
             </VChip>            
           </div>
         </template>        
-
+-->
+        <template #item.total_cost="{ item }">                      
+          <div class="text-right text-error">
+            <strong>${{ formatCurrency(item.total_cost) }}</strong>
+          </div>
+        </template>
+        <template #item.total_profit="{ item }">                      
+          <div class="text-right text-success">
+            <strong>${{ formatCurrency(item.total_profit) }}</strong>
+          </div>
+        </template>
+        <template #item.customer="{ item }">                      
+          
+            <strong>{{ getCustomer(item.customer) }}</strong>
+          
+        </template>
         <template #item.total_amount="{ item }">                      
-              <strong>{{ formatCurrency(item.total_amount)  }}</strong>                      
+          <div :class=" (item.total_profit>0)? 'text-right text-success':'text-right text-error'">
+            <strong>${{ formatCurrency(item.total_amount) }}</strong>
+          </div>
         </template>
 
         <template #item.status.name="{ item }">    
@@ -107,68 +113,71 @@
               {{ item.status.name }}
             </VChip>            
           </div>                                
-        </template>
-
-        <template #item.shipping_status.name="{ item }">    
-          <div class="d-flex align-center gap-2">
-            <VChip
-              :color="getShippingStatusColor(item)"
-              density="comfortable"
-            >
-              {{ item.shipping_status.name }}
-            </VChip>            
-          </div>                                
-        </template>
-
-        <template #item.payment_status.name="{ item }">    
-          <div class="d-flex align-center gap-2">
-            <VChip
-              :color="getPaymentStatusColor(item)"
-              density="comfortable"
-            >
-              {{ item.payment_status.name }}
-            </VChip>            
-          </div>                                
-        </template>
-       
-
+        </template>      
+       <!-- Actions -->
         <template #item.actions="{ item }">
-          <div class="d-flex flex-wrap gap-1 align-center" style="min-width: 120px">
-            <IconBtn
-              size="small"
-              class="my-1"
-              title="Registrar movimiento"
-              @click="openMovementDialog(item)"
+          <div class="d-flex justify-center align-center gap-1">              
+            <!-- Icono de hamburguesa para el menú de acciones -->
+            <VMenu
+              offset-y
+              transition="scale-transition"
             >
-              <VIcon icon="ri-arrow-up-down-line" />
-            </IconBtn>
-            
-            <IconBtn
-              size="small"
-              class="my-1"
-              title="Ver historial"
-              @click="showHistory(item)"
-            >
-              <VIcon icon="ri-history-line" />
-            </IconBtn>
-            <IconBtn
-              size="small"
-              class="my-1"
-              title="Ver Factura"
-              @click="showFactura(item)"
-            >
-              <VIcon icon="ri-file-pdf-2-line" />
-            </IconBtn>
-            <IconBtn
-              size="small"
-              class="my-1"
-              title="Ver Factura"
-              @click="showFactura2(item)"
-            >
-              <VIcon icon="ri-file-pdf-2-line" />
-            </IconBtn>
+              <template #activator="{ props }">
+                <IconBtn size="small" v-bind="props">
+                  <VIcon icon="ri-more-2-fill" />
+                </IconBtn>
+              </template>
+
+              <!-- Opciones del menú -->
+              <VList>                
+                <VListItem @click="showFactura2(item)">
+                  <VListItemContent>                      
+                      <VListItemTitle>
+                        <IconBtn
+                        size="small"
+                        class="my-1"
+                        title="Ver Factura"
+                        @click="showFactura2(item)"
+                      >
+                        <VIcon icon="ri-file-pdf-2-line" />
+                      </IconBtn>
+                      </VListItemTitle>                                              
+                  </VListItemContent>
+                </VListItem>
+                
+                <VListItem  @click="showFactura(item)">
+                  <VListItemContent>                      
+                      <VListItemTitle>
+                        <IconBtn
+                        size="small"
+                        class="my-1"
+                        title="Ver Factura"                        
+                      >
+                        <VIcon icon="ri-file-pdf-2-line" />
+                      </IconBtn>
+                      </VListItemTitle>                                              
+                  </VListItemContent>
+                </VListItem>
+                <VListItem @click="openMovementDialog(item)">
+                  <VListItemContent>                      
+                      <VListItemTitle>
+                        <IconBtn
+                          size="small"
+                          class="my-1"
+                          title="Registrar movimiento"
+                          @click="openMovementDialog(item)"
+                        >
+                          <VIcon icon="ri-arrow-up-down-line" />
+                        </IconBtn>
+                      </VListItemTitle>                                              
+                  </VListItemContent>
+                </VListItem>
+              </VList>
+            </VMenu>
           </div>
         </template>
+
+        
       </VDataTable>            
 
       <!-- Dialog para historial -->
@@ -291,16 +300,18 @@ export default {
       
       // Headers
       headers: [
-        { title: 'Acciones', key: 'actions', sortable: false, width: '100px' },
-        { title: 'Orden', key: 'order_number', width: '250px' }, 
-        { title: 'Fecha', key: 'order_date', width: '150px' },   
-        { title: 'Tipo de Orden', key: 'order_type.name', width: '250px' }, 
-        { title: 'Cliente', key: 'customer.firstname', width: '50px' },                
-        { title: 'Productos', key: 'quantity_products', width: '80px' },
-        { title: 'Total', key: 'total_amount', width: '150px' },
-        { title: 'Estado', key: 'status.name', width: '50px' },        
-        { title: 'Envio', key: 'shipping_status.name', width: '50px' },        
-        { title: 'Pago', key: 'payment_status.name', width: '50px' },        
+        
+        { title: 'Orden', key: 'order_number'  }, 
+        { title: 'Fecha', key: 'order_date'  },   
+        /*{ title: 'Tipo de Orden', key: 'order_type.name', width: '250px' }, */
+        { title: 'Cliente', key: 'customer' },                
+        /*{ title: 'Productos', key: 'quantity_products', width: '80px' },*/        
+        { title: 'Costo', key: 'total_cost',  align: 'end' },
+        { title: 'Ganancia', key: 'total_profit', align: 'end' },
+        { title: 'Total', key: 'total_amount', align: 'end' },
+        { title: 'Envio', key: 'shipping', align: 'center' },
+        { title: 'Estado', key: 'status.name' },                
+        { title: 'Acciones', key: 'actions', sortable: false },
       ],
       
       historyHeaders: [
@@ -353,9 +364,8 @@ export default {
         });
       }*/
       
-      console.log("filtered");
-      console.log(filtered);
-      return filtered;
+      
+      return filtered
     },
 
     movementFormTitle() {
@@ -383,6 +393,13 @@ export default {
   },
 
   methods: {
+    getCustomer(customer) {
+      if (!customer) return 'Cliente no disponible';
+      
+      return (customer.firstname || customer.lastname) 
+        ? `${customer.firstname || ''} ${customer.lastname || ''}`.trim()
+        : customer.address || 'Dirección no disponible';
+    },
     formatCurrency(value) {
       return new Intl.NumberFormat("es-AR", {
         style: "currency",
@@ -590,44 +607,18 @@ export default {
     },
 
     // Utility Methods
-    getStatusColor(item) {      
-      switch(item.status_id){
-      case 1: return 'primary'; break
-      case 2: 
-      case 3: 
-        return 'warning'; break      
-      case 4: return 'success'; break
-      default: return 'error'; break
-      }      
-    },
-
-    getPaymentStatusColor(item) {
+    getStatusColor(item) {
+      const statusColorMap = {
+        [this.$statusOrders.PENDING]: 'primary',
+        [this.$statusOrders.PROCESS]: 'warning',
+        [this.$statusOrders.PARTIAL_PAYMENT]: 'warning',
+        [this.$statusOrders.PAID]: 'success',
+        [this.$statusOrders.COMPLETED]: 'success',
+        [this.$statusOrders.APPROVED]: 'success'
+      };
       
-      switch(item.payment_status_id){
-      case 1: return 'warning'; break
-      case 2: return 'success'; break
-      case 3: return 'primary'; break      
-      default: return 'error'; break
-      }
-      
-    },
-
-    getShippingStatusColor(item) {
-      
-      switch(item.shipping_status_id){
-      case 1: return 'primary'; break
-      case 2: 
-      case 3: 
-        return 'warning'; break      
-      case 4: 
-      case 5: 
-      case 6: 
-      case 7: 
-        return 'success'; break      
-      default: return 'error'; break
-      }
-      
-    },
+      return statusColorMap[item.status.code] || 'error';
+    },    
     getStockLevelColor(item) {
       if (!item.minimum_stock) return 'primary'
       

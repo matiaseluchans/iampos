@@ -14,7 +14,8 @@ class OrderRepository extends BaseRepository
 {
 
 
-    public function __construct(Order $m, array $relations = ['customer', 'status', 'orderType', 'shippingStatus', 'paymentStatus'])
+    //public function __construct(Order $m, array $relations = ['customer', 'status', 'orderType', 'shippingStatus', 'paymentStatus'])
+    public function __construct(Order $m, array $relations = ['customer', 'status', 'orderType'])
     {
         parent::__construct($m, $relations);
     }
@@ -78,9 +79,10 @@ class OrderRepository extends BaseRepository
                 'customer_id' => $form['customer_id'],
                 //'customer_details', //ver de guardar los datos del cliente
                 'shipping_address' => $form['shipping_address'],
+                //'shipping' => $form['shipping'],
                 'status_id' => 1,
                 'order_type_id' => 1,
-                'shipping_status_id' => 1,
+                //'shipping_status_id' => 1,
                 'quantity_products' => $form['quantity_products'],
                 'subtotal' => $form['subtotal'],
                 'tax_amount' => $form['tax_amount'],
@@ -88,7 +90,7 @@ class OrderRepository extends BaseRepository
                 'total_amount' => $form['total_amount'],
                 'total_cost' => $form['total_cost'],
                 'total_profit' => ($form['total_profit'])??0,
-                'payment_status_id' => 1,
+                //'payment_status_id' => 1,
                 'notes' => $form['notes'],
             ]);
 

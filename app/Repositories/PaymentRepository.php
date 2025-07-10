@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Order;
 use App\Models\Status;
 use App\Models\PaymentStatus;
+use App\Enums\StatusEnum;
 
 class PaymentRepository extends BaseRepository
 {
@@ -76,23 +77,18 @@ class PaymentRepository extends BaseRepository
 
             // Calcular total de pagos actuales
             $totalPagado = Payment::where('order_id', $orderId)->sum('amount');
-
             // Obtener el total de la orden
             $order = Order::findOrFail($orderId);
-
             // Verificar si se pagó completamente            
             if ((float) $totalPagado == (float) $order->total_amount) {  
-                $statusCode = $paymentStatusCode = 'paid';
+                $statusCode = StatusEnum::PAID;
             }
             else{
-                $statusCode = 'process';
-                $paymentStatusCode = 'partial_payment';                
+                $statusCode = StatusEnum::PARTIAL_PAYMENT;
             }
-            $status = Status::where('code', $statusCode)->first();
-            $paymentStatus = PaymentStatus::where('code', $paymentStatusCode)->first();
+            $status = Status::where('code', $statusCode)->first();            
             //actualizo el estado de la orden    
-            $order->status_id = $status->id;
-            $order->payment_status_id = $paymentStatus->id;
+            $order->status_id = $status->id;            
             $order->save();
 
             // Confirmar la transacción

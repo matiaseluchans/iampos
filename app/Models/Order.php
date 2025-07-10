@@ -18,18 +18,17 @@ class Order extends Model
         'order_number',
         'customer_id',
         'customer_details',
+        'shipping',
         'shipping_address',
         'status_id',
-        'order_type_id',
-        'shipping_status_id',
+        'order_type_id',        
         'quantity_products',
         'subtotal',
         'tax_amount',
         'discount_amount',
         'total_amount',
         'total_cost',
-        'total_profit',
-        'payment_status_id',
+        'total_profit',        
         'notes',
         'tenant_id',
         'created_by',
@@ -77,17 +76,7 @@ class Order extends Model
     public function orderType()
     {
         return $this->belongsTo(OrderType::class);
-    }
-
-    public function shippingStatus()
-    {
-        return $this->belongsTo(ShippingStatus::class);
-    }
-
-    public function paymentStatus()
-    {
-        return $this->belongsTo(PaymentStatus::class);
-    }
+    }    
 
     public function items()
     {

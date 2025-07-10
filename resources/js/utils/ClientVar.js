@@ -44,6 +44,28 @@ export default {
 
           Vue.config.globalProperties.$routes = apiRoute;
 
+          Vue.config.globalProperties.$statusOrders = Object.freeze({
+            PENDING: 'pending',
+           APPROVED: 'approved',
+           REJECTED: 'rejected',
+           COMPLETED: 'completed',
+           CONFIRM: 'confirm',
+           PROCESS: 'process',
+           PAID: 'paid',
+           CANCEL: 'cancelled',
+           PARTIAL_PAYMENT: 'partial_payment',
+           REFUND: 'refund',
+           NOT_REQUIRED: 'not_required',
+           READY_PICKUP: 'ready_pickup',
+           SHIPPED: 'shipped',
+           IN_TRANSIT: 'in_transit',
+           DELIVERED: 'delivered',
+           FAILED: 'failed',
+           RETURNED: 'returned',
+          });
+
+          
+
       }
   }
 

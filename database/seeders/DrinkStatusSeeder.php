@@ -18,6 +18,25 @@ class DrinkStatusSeeder extends Seeder
             'En Proceso',
             'Completa',
             'Cancelada',
+            
+            //estado de pago
+            //'Pendiente',
+            'Pagado',
+            'Pago Parcial',
+            'Reembolso',
+            //'Cancelado',
+
+            //estados de envio
+            'No requiere envío',
+            //'Pendiente',
+            //'Preparando',
+            'Listo para recoger',
+            'Enviado',
+            'En tránsito',
+            'Entregado',
+            'Entrega fallida',
+            'Devuelto',
+            //'Cancelado',
         ];        
         foreach ($records as $record) {
             $data[] = [
