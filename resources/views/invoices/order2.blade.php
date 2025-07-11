@@ -3,81 +3,156 @@
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Factura #{{ $order->order_number }}</title>
+    <title>REMITO #{{ $order->order_number }}</title>
     <style>
+        /* Estilos optimizados para mPDF 150mm */
         body {
             font-family: 'dejavusans', sans-serif;
-            font-size: 8pt;
+            font-size: 10pt;
             color: #333;
             margin: 0;
             padding: 0;
+            line-height: 1.3;
+
         }
 
         .invoice-container {
-            width: 100%;
-            max-width: 100mm;
-            margin: 0 auto;
+            width: 120mm;
+            margin: 0 0;
+            padding: 3mm;
+            border: #e0e0e0 solid 1px;
         }
 
         .header {
-            text-align: center;
-            margin-bottom: 10px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
-        }
-
-        .header img {
-            max-height: 30mm;
+            margin-bottom: 5mm;
+            padding-bottom: 3mm;
+            border-bottom: 1px solid #e0e0e0;
+            overflow: hidden;
         }
 
         .company-info {
-            font-size: 7pt;
-            text-align: center;
-            margin-bottom: 5mm;
+            float: left;
+            width: 40%;
+        }
+
+        .invoice-info {
+            float: right;
+            width: 48%;
+            font-size: 0.8rem;
+            text-align: right;
+        }
+
+        .company-name {
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-bottom: 1mm;
+        }
+
+        .company-details {
+            font-size: 0.7rem;
+            color: #555;
         }
 
         .invoice-title {
-            font-size: 12pt;
+            font-size: 0.8rem;
             font-weight: bold;
             color: #2c3e50;
-            margin-bottom: 2mm;
+            margin-bottom: 1mm;
         }
 
-        .invoice-details {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 5mm;
-            font-size: 9pt;
+        .invoice-number {
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #1976d2;
+        }
+
+        .invoice-date {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .logo {
+            height: 3mm;
+            margin-top: 2mm;
+            margin-left: 40%;
         }
 
         .client-info {
-            margin-bottom: 5mm;
-            border: 1px solid #eee;
+            margin-bottom: 4mm;
             padding: 3mm;
-            font-size: 8pt;
+            background-color: #f9f9f9;
+            border-left: 3px solid #1976d2;
+            font-size: 0.8rem;
         }
 
-        .info-label {
+        .section-title {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #1976d2;
+            margin-bottom: 2mm;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 1mm;
+        }
+
+        .client-name {
+            font-weight: bold;
+            margin-bottom: 1mm;
+        }
+
+        .client-details {
+            font-size: 0.8rem;
+        }
+
+        .detail-item {
+            margin-bottom: 1mm;
+        }
+
+        .detail-label {
             font-weight: bold;
             color: #555;
+            display: inline-block;
+            width: 20mm;
+        }
+
+        .payment-section {
+            margin-bottom: 4mm;
+            overflow: hidden;
+            background-color: #f5f9ff;
+        }
+
+        .payment-method {
+            width: 40%;
+            float: left;
+            padding: 2mm;
+            background-color: #f5f9ff;
+            font-size: 0.9rem;
+        }
+
+        .shipping-method {
+            width: 48%;
+            float: right;
+            padding: 2mm;
+            background-color: #f5f9ff;
+            font-size: 0.9rem;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 5mm;
-            font-size: 7pt;
+            margin-bottom: 4mm;
+            font-size: 0.9rem;
         }
 
         th {
-            background-color: #f5f5f5;
-            text-align: left;
+            background-color: #1976d2;
+            color: white;
             padding: 2mm;
             font-weight: bold;
+            text-align: left;
         }
 
         td {
-            padding: 2mm;
+            padding: 1mm 2mm;
             border-bottom: 1px solid #eee;
         }
 
@@ -89,43 +164,79 @@
             text-align: center;
         }
 
+        .product-code {
+            color: #666;
+            font-size: 0.7rem;
+        }
+
         .totals {
-            margin-top: 5mm;
-            width: 60%;
-            margin-left: auto;
+            width: 60mm;
+            float: right;
+            margin-top: 3mm;
         }
 
         .total-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 2mm;
+            overflow: hidden;
+            margin-bottom: 1mm;
+        }
+
+        .total-label {
+            float: left;
+            width: 40mm;
+        }
+
+        .total-value {
+            float: right;
+            width: 20mm;
+            text-align: right;
+        }
+
+        .subtotal {
+            border-top: 1px solid #ddd;
+            padding-top: 2mm;
+        }
+
+        .taxes {
+            color: #666;
         }
 
         .grand-total {
             font-weight: bold;
-            border-top: 1px solid #333;
-            padding-top: 2mm;
-            font-size: 9pt;
+            border-top: 1px solid #1976d2;
+            border-bottom: 1px solid #1976d2;
+            padding: 1mm 0;
+            margin: 2mm 0;
+        }
+
+        .notes {
+            margin-top: 4mm;
+            padding: 2mm;
+            background-color: #f9f9f9;
+            font-size: 0.8rem;
+            clear: both;
         }
 
         .footer {
-            margin-top: 10mm;
-            font-size: 7pt;
+            margin-top: 4mm;
+            font-size: 0.7rem;
             text-align: center;
             color: #777;
+            border-top: 1px solid #eee;
+            padding-top: 2mm;
         }
 
-        .badge {
-            display: inline-block;
-            padding: 1mm 2mm;
-            border-radius: 2mm;
-            font-size: 7pt;
-            font-weight: bold;
+        .legal-info {
+            font-size: 0.7rem;
+            color: #999;
+            margin-top: 1mm;
         }
 
-        .badge-primary {
-            background-color: #e3f2fd;
-            color: #1976d2;
+        .barcode {
+            margin-top: 3mm;
+            text-align: center;
+            font-family: 'idautomationhc39m', monospace;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
         }
     </style>
 </head>
@@ -135,64 +246,68 @@
         <!-- Encabezado -->
         <div class="header">
             @if(file_exists($logo))
-
-            <img style="width:200px" class="company-logo" src="data:image/png;base64,{{ base64_encode(file_get_contents($logo)) }}" />
-
+            <img class="logo" src="data:image/png;base64,{{ base64_encode(file_get_contents($logo)) }}" />
             @endif
-            <div class="invoice-title">FACTURA</div>
             <div class="company-info">
-                <div>Matias Eluchans SRL</div>
-                <div>Sargento Cabral 2005, Ramos Mejía</div>
-                <div>CUIT: 30-12345678-9</div>
+                <div class="company-name">Matias Eluchans SRL</div>
+                <div class="company-details">
+                    <div>Sargento Cabral 2005, Ramos Mejía</div>
+                    <div>CUIT: 30-12345678-9</div>
+                    <div>Tel: (011) 1234-5678</div>
+                </div>
             </div>
-        </div>
 
-        <!-- Detalles de factura -->
-        <div class="invoice-details">
-            <div>
-                <div class="info-label">N° Factura</div>
-                <div>{{ $order->order_number }}</div>
-            </div>
-            <div>
-                <div class="info-label">Fecha</div>
-                <div>{{ $date }}</div>
+            <div class="invoice-info">
+                <div class="invoice-title">REMITO</div>
+                <div class="invoice-number">N° {{ $order->order_number }}</div>
+                <div class="invoice-date">Fecha: {{ $date }}</div>
+
             </div>
         </div>
 
         <!-- Información del cliente -->
         <div class="client-info">
-            <div class="info-label">CLIENTE</div>
-            <div>{{ $order->customer->name }}</div>
-            <div>{{ $order->customer->document_type }}: {{ $order->customer->document_number }}</div>
-            <div>Tel: {{ $order->customer->phone }}</div>
+            <div class="section-title">DATOS DEL CLIENTE</div>
+            <div class="client-name">{{ $order->customer->name ?? 'Consumidor Final' }}</div>
+            <div class="client-details">
+                <div class="detail-item"><span class="detail-label">Dirección:</span> {{ $order->customer->address }}</div>
+                <div class="detail-item"><span class="detail-label">Teléfono:</span> {{ $order->customer->telephone }}</div>
+                <div class="detail-item"><span class="detail-label">CUIT/DNI:</span> {{ $order->customer->tax_id ?? 'No especificado' }}</div>
+            </div>
         </div>
 
         <!-- Métodos de pago y envío -->
-        <div style="display: flex; justify-content: space-between; margin-bottom: 5mm; font-size: 7pt;">
-            <div>
-                <div class="info-label">Método de pago</div>
-                <div class="badge badge-primary">{{ $order->paymentMethod->name ?? 'No especificado' }}</div>
+        <div class="payment-section">
+            <div class="payment-method">
+                <div class="section-title">MÉTODO DE PAGO</div>
+                <div class="detail-item"><span class="detail-label">Forma:</span> {{ $order->paymentMethod->name ?? 'No especificado' }}</div>
+                <div class="detail-item"><span class="detail-label">Vencimiento:</span> {{ $order->due_date ?? 'A convenir' }}</div>
             </div>
-            <div>
-                <div class="info-label">Método de envío</div>
-                <div class="badge badge-primary">{{ $order->shippingMethod->name ?? 'No especificado' }}</div>
+
+            <div class="shipping-method">
+                <div class="section-title">DATOS DE ENVÍO</div>
+                <div class="detail-item"><span class="detail-label">Método:</span> {{ $order->shippingMethod->name ?? 'No especificado' }}</div>
+                @if($order->shipping_cost > 0)
+                <div class="detail-item"><span class="detail-label">Costo:</span> ${{ number_format($order->shipping_cost, 2, ',', '.') }}</div>
+                @endif
             </div>
         </div>
 
         <!-- Productos -->
+        <div class="section-title">DETALLE DE PRODUCTOS</div>
         <table>
             <thead>
                 <tr>
-                    <th>Producto</th>
-                    <th class="text-right">Precio</th>
-                    <th class="text-right">Cant.</th>
-                    <th class="text-right">Total</th>
+                    <th style="width: 60mm;">Descripción</th>
+                    <th style="width: 20mm;" class="text-right">P. Unit.</th>
+                    <th style="width: 15mm;" class="text-right">Cant.</th>
+                    <th style="width: 25mm;" class="text-right">Total</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($order->items as $item)
                 <tr>
-                    <td>{{ $item->product->name }}</td>
+                    <td>{{ $item->product->name }}<br><span class="product-code">Código: {{ $item->product->code }}</span></td>
                     <td class="text-right">${{ number_format($item->unit_price, 2, ',', '.') }}</td>
                     <td class="text-right">{{ $item->quantity }}</td>
                     <td class="text-right">${{ number_format($item->unit_price * $item->quantity, 2, ',', '.') }}</td>
@@ -203,36 +318,53 @@
 
         <!-- Totales -->
         <div class="totals">
+            <div class="total-row subtotal">
+                <span class="total-label">Subtotal:</span>
+                <span class="total-value">${{ number_format($order->subtotal, 2, ',', '.') }}</span>
+            </div>
+
+            @if($order->discount > 0)
             <div class="total-row">
-                <span>Subtotal:</span>
-                <span>${{ number_format($order->subtotal, 2, ',', '.') }}</span>
+                <span class="total-label">Descuento:</span>
+                <span class="total-value">-${{ number_format($order->discount, 2, ',', '.') }}</span>
+            </div>
+            @endif
+
+            <div class="total-row taxes">
+                <span class="total-label">IVA (21%):</span>
+                <span class="total-value">${{ number_format($order->tax_amount, 2, ',', '.') }}</span>
             </div>
 
             @if($order->shipping_cost > 0)
             <div class="total-row">
-                <span>Envío:</span>
-                <span>${{ number_format($order->shipping_cost, 2, ',', '.') }}</span>
-            </div>
-            @endif
-
-            @if($order->discount > 0)
-            <div class="total-row">
-                <span>Descuento:</span>
-                <span>-${{ number_format($order->discount, 2, ',', '.') }}</span>
+                <span class="total-label">Envío:</span>
+                <span class="total-value">${{ number_format($order->shipping_cost, 2, ',', '.') }}</span>
             </div>
             @endif
 
             <div class="total-row grand-total">
-                <span>TOTAL:</span>
-                <span>${{ number_format($order->total_amount, 2, ',', '.') }}</span>
+                <span class="total-label">TOTAL:</span>
+                <span class="total-value">${{ number_format($order->total_amount, 2, ',', '.') }}</span>
+            </div>
+        </div>
+
+        <!-- Notas -->
+        <div class="notes">
+            <div class="section-title">INFORMACIÓN ADICIONAL</div>
+            <div>{{ $order->notes ?? 'Sin observaciones' }}</div>
+            <div class="legal-info">
+                Documento no válido como comprobante fiscal según RG AFIP 4291/2018
             </div>
         </div>
 
         <!-- Pie de página -->
         <div class="footer">
-            <div>Gracias por su compra</div>
-            <div>Factura electrónica válida como comprobante fiscal</div>
-            <div>Conserve este documento para cualquier reclamo</div>
+            <div>¡Gracias por su compra!</div>
+            <div>Para consultas: info@empresa.com - Tel: (011) 1234-5678</div>
+            <div class="legal-info">
+                Conserve este documento para cualquier gestión posterior
+            </div>
+            <div class="barcode">*{{ $order->order_number }}*</div>
         </div>
     </div>
 </body>

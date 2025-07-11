@@ -58,25 +58,43 @@ class OrderController extends Controller
         $order = Order::with([
             'customer',
             'items',
-            //'paymentMethod',
             //'shippingStatus'
         ])->findOrFail($id);
 
-        $pdf = PDF::loadView('invoices.order', [
+        // Configuración de mPDF
+        $defaultConfig = (new ConfigVariables())->getDefaults();
+
+        $mpdf = new \Mpdf\Mpdf([
+            'mode' => 'utf-8',
+            'format' => [120, 297], // 80mm de ancho, alto automático
+            'margin_left' => 2,
+            'margin_right' => 2,
+            'margin_top' => 5,
+            'margin_bottom' => 5,
+            'margin_header' => 2,
+            'margin_footer' => 2,
+            'default_font_size' => 8,
+            'default_font' => 'Arial',
+            'orientation' => 'P'
+        ]);
+
+        // Para maximizar compatibilidad con impresoras térmicas
+        $mpdf->showImageErrors = true;
+        $mpdf->simpleTables = true;
+        $mpdf->packTableData = true;
+
+        // Vista de la factura
+        $html = view('invoices.order2', [
             'order' => $order,
             'date' => now()->format('d/m/Y'),
             'logo' => public_path('logo.png')
-        ]);
+        ])->render();
 
-        $pdf->setPaper('a4', 'portrait');
-        $pdf->setOption('isHtml5ParserEnabled', true);
-        $pdf->setOption('isRemoteEnabled', true);
 
-        // Agregar headers explícitos
-        return $pdf->stream("factura_{$order->order_number}.pdf", [
-            'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'inline; filename="factura_' . $order->order_number . '.pdf"'
-        ]);
+        $mpdf->WriteHTML($html);
+
+        // Generar PDF
+        $mpdf->Output("factura_{$order->order_number}.pdf", \Mpdf\Output\Destination::INLINE);
     }
 
     public function generateInvoice2($id)
@@ -94,24 +112,18 @@ class OrderController extends Controller
         $defaultFontConfig = (new FontVariables())->getDefaults();
         $fontData = $defaultFontConfig['fontdata'];
 
-        $mpdf = new Mpdf([
+        $mpdf = new \Mpdf\Mpdf([
             'mode' => 'utf-8',
-            //'format' => [100, 148], // Tamaño pequeño (como media hoja A5)
-            'margin_left' => 8,
-            'margin_right' => 100,
-            'margin_top' => 8,
-            'margin_bottom' => 8,
-            /*'fontDir' => array_merge($fontDirs, [
-                base_path('public/fonts'), // Si necesitas fuentes adicionales
-            ]),
-            'fontdata' => $fontData + [
-                'inter' => [
-                    'R' => 'Inter-Regular.ttf',
-                    'B' => 'Inter-Bold.ttf',
-                ]
-            ],
-            'default_font' => 'inter',*/
-            'tempDir' => storage_path('app/mpdf/temp'), // Directorio temporal
+            //'format' => [150, 297], // Ancho 150mm, alto automático (como A4)
+            'margin_left' => 5,
+            'margin_right' => 5,
+            'margin_top' => 10,
+            'margin_bottom' => 10,
+            'margin_header' => 2,
+            'margin_footer' => 5,
+            'default_font_size' => 8,
+            'default_font' => 'dejavusans',
+            'orientation' => 'P'
         ]);
 
         // Vista de la factura
