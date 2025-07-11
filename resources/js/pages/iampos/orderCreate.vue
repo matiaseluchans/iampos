@@ -1,24 +1,15 @@
 <template> 
   <VForm :key="keyOrderForm" ref="orderForm" v-model="validOrder">
-    <!-- Sección Cliente -->
-    <VRow class="">
-      <VCol cols="12" sm="12" md="12">
-        <VCard >
-          <div class="v-card-item"> 
-            <div class="v-card-item__content">
-              <div class="v-card-title"><h5 class="text-h5"><VAvatar   icon="ri-user-line" class="text-info mr-2" variant="tonal"/>Cliente</h5></div> 
-            </div>
-            <div class="v-card-item__append">
-              <span class="text-primary cursor-pointer">
-                <VBtn @click="openCustomerDialog" :color="$cv('principal')" title="nuevo cliente">
-                  <VIcon icon="ri-user-add-line" class="mr-2" />
-                </VBtn>
-              </span>
-            </div>
-          </div> 
-          <VCardText class="mb-0 pb-0">
-            <VRow class="mb-0 pb-0">
-              <VCol cols="12" md="4" class="mb-0 pb-0" >
+   
+    <VRow>
+      <VCol cols="12" sm="6" md="6">
+        <VCard>
+          <VCardText class="mb-0 pb-2">
+              <VRow class="mb-0 pb-0">
+                <VCol cols="1" md="1" sm="1"  class="mb-0 pt-3 d-none d-sm-flex">
+                  <VAvatar icon="ri-user-line" class="text-info mr-2" variant="tonal" size="40"/> 
+                </VCol>
+                <VCol cols="9" sm="9" md="8" class="mb-0 pt-4 ml-3" >
                 <VAutocomplete
                   v-model="order.customer_id"
                   :items="customers"
@@ -28,15 +19,13 @@
                   :rules="[(v) => !!v || 'Cliente es requerido']"
                   clearable
                   @update:model-value="onCustomerChange"
-                  style="min-height: 90px;font-size:40px"
+                   
                   density="compact"
-                  class="cliente mb-0 pb-0"
-              
-                >
+                  >
                   <template v-slot:item="{ props, item }">
                     <v-sheet border="info md"> 
                     <VListItem v-bind="props">
-                      <!--<VListItemTitle>{{ item.raw.address }}</VListItemTitle>-->
+                   
                       <VListItemSubtitle class="text-caption"><strong>localidad:</strong>{{ item.raw.locality_id}} - <strong>telefono:</strong>{{ item.raw.telephone }}</VListItemSubtitle>
                    
                     </VListItem>
@@ -44,46 +33,88 @@
                   </template>
                 </VAutocomplete>
               </VCol>
-              <VCol cols="12" md="8" v-if="selectedCustomer" class="mb-0 pb-0">
+              <!--<VCol cols="12" md="6" v-if="selectedCustomer" class="mb-0 pb-0">
                     <VAlert type="info" variant="tonal" class="mb-0">
                       <strong>Dirección:</strong> {{ selectedCustomer.address }} 
                       <strong>Teléfono:</strong> {{ selectedCustomer.telephone }} 
                       <strong>Cliente:</strong> {{ selectedCustomer.name ?? "-"}} 
                       <strong>Email:</strong> {{ selectedCustomer.email ??"-"}} 
                     </VAlert>
-                  </VCol>
+              </VCol>-->
+              <VCol cols="auto" class="mb-0">
+                <VBtn @click="openCustomerDialog" :color="$cv('principal')" title="nuevo cliente">
+                  <VIcon icon="ri-user-add-line" class="mr" />
+                </VBtn>
+              </VCol>
             </VRow>
-            <VRow> 
-              <!-- Información del cliente seleccionado -->
-              <!--<VCol cols="12" md="12" v-if="selectedCustomer">
+            <!--<VRow> 
+          
+              <VCol cols="12" md="12" v-if="selectedCustomer">
                 <VAlert type="info" variant="tonal">
                   <strong>Dirección:</strong> {{ selectedCustomer.address }} 
                   <strong>Teléfono:</strong> {{ selectedCustomer.telephone }} 
                   <strong>Cliente:</strong> {{ selectedCustomer.name ?? "-"}} 
                   <strong>Email:</strong> {{ selectedCustomer.email ??"-"}} 
                 </VAlert>
-              </VCol>-->
-            </VRow>
+              </VCol>
+            </VRow>-->
           </VCardText>
         </VCard>
       </VCol>
 
-       
+      <VCol cols="12" sm="6" md="6">
+        <VCard>
+          <VCardText>
+            <VRow>
+              <VCol cols="1" md="1" class="mb-0 pb-0 pt-2 d-none d-sm-flex" >
+                <VAvatar icon="ri-map-pin-line" class="text-info mr-2" variant="tonal"/> 
+              </VCol>
+              <VCol cols="1" md="1" class="mb-0 pt-5 ml-1">
+                <VSwitch
+                  v-model="order.shipping"
+                  :true-value="1"
+                  :false-value="0"
+                  color="primary"
+                  hide-details 
+                  title="Activar o Inactivar" 
+                  @click="toggleShipping(order)"
+                />
+              </VCol>
+              <VCol cols="8" sm="8" md="8" class="mb-0 pt-3">
+                <VTextField
+                  v-model="order.shipping_address"
+                  label="Dirección de Entrega"
+                  :rules="[(v) => !!v || 'Dirección de entrega es requerida']"
+                  :disabled="!order.shipping_address_status"
+                  />
+              </VCol>
+              <VCol cols="auto" md="auto" class="mb-0" >
+                <VBtn
+                @click="useCustomerAddress"
+                :color="$cv('principal')"
+                title="Usar del cliente"
+              >
+                <VIcon icon="ri-refresh-line" class="mr-2" />
+              </VBtn>
+              </VCol>
+               
+            </VRow>
+          </VCardText>
+        </VCard>
+      </VCol>
     </VRow>
-    <!-- Sección Productos -->
     <VRow>
       <VCol cols="12" sm="12" md="12">
         <VCard> 
-          <div class="v-card-item"> 
-            <div class="v-card-item__content">
-              <div class="v-card-title"><h5 class="text-h5"><VAvatar   icon="ri-shopping-cart-line" class="text-info mr-2" variant="tonal"/>Productos</h5></div> 
-            </div> 
-          </div> 
-          <VCardText>
+          <VCardText  class="mb-0 pb-3">
             <!-- Agregar Producto -->
-            <VRow class="">
+            <VRow class="mb-0 pb-0">
+              <VCol cols="auto" md="1" class="mb-0 pb-0 pt-2  d-none d-sm-flex" >
+                <VAvatar icon="ri-shopping-cart-line" class="text-info mr-2" variant="tonal" /> 
+              </VCol>
               
-              <VCol cols="12" md="5" xs="11">
+              
+              <VCol cols="8" md="5"  >
                 <VAutocomplete
                   v-model="newItem.product_id"
                   :items="products"
@@ -113,7 +144,7 @@
                   </template>
                 </VAutocomplete>
               </VCol>
-              <VCol cols="12" md="1" xs="1" >
+              <VCol cols="4" md="1" >
                 <VTextField
                   v-model="newItem.quantity"
                   label="Cant"
@@ -122,12 +153,12 @@
                   :rules="[
                     (v) => !!v || 'Cantidad requerida',
                     (v) => v > 0 || 'Debe ser mayor a 0',
-                    (v) => v <= getProductStock(newItem.product_id) || 'Stock insuficiente',
+                    (v) => v <= getProductStock(newItem.product_id) || 'insuficiente',
                   ]"
                   density="compact"
                 />
               </VCol>
-              <VCol cols="12" md="2" xs="6">
+              <VCol cols="6" md="2" >
                 <VTextField
                   v-model="newItem.unit_price"
                   label="Precio Unitario"
@@ -141,7 +172,7 @@
                   density="compact"
                 />
               </VCol>
-              <VCol cols="12" md="2" xs="6">
+              <VCol cols="6" md="2" >
                 <VTextField
                   :model-value="calculateItemTotal()"
                   label="Total"
@@ -158,20 +189,18 @@
                 </VBtn>
               </VCol>
             </VRow>
-            <br>
-
-            <!-- Lista de Productos Agregados -->
-            <VRow>
+             
+            <VRow class="my-0">
               <VCol cols="12" sm="12" md="9">
                 <VCard> 
                   <div class="v-card-item"> 
                     <div class="v-card-item__content">
                       <div class="v-card-title"><h5 class="text-h5">
-                        <VAvatar icon="ri-calculator-line" class="text-info mr-2" variant="tonal"/>Productos agregados</h5></div> 
+                        <VAvatar icon="ri-luggage-cart-line" class="text-info mr-2" variant="tonal"/>Productos agregados</h5></div> 
                     </div> 
                   </div> 
                   <VCardText>
-                    <div style="min-height: 300px;max-height: 280px; overflow-y: auto;">
+                    <div style="min-height: 280px;max-height: 270px; overflow-y: auto;">
                       <VDataTable
                         :headers="itemHeaders"
                         :items="order.items"
@@ -242,6 +271,7 @@
                           prefix="$"
                           @input="calculateTotals"
                           density="compact"
+                          class="number-end"
                         />
                       </VCol>
                       <VCol cols="12" md="12">
@@ -253,6 +283,7 @@
                           prefix="$"
                           @input="calculateTotals"
                           density="compact"
+                          class="number-end"
                         />
                       </VCol>
                     </VRow>
@@ -264,7 +295,9 @@
                           label="Subtotal" 
                           readonly
                           variant="outlined"
-                          density="compact"
+                          density="compact" 
+                          class="custom-bg-gray number-end"
+                         
                         />
                       </VCol>
                       <VCol cols="12" md="12">
@@ -274,6 +307,7 @@
                           readonly
                           variant="outlined"
                           density="compact"
+                          class="custom-bg-gray number-end"
                         >
                         <template #input="{ props }">
                           <input
@@ -290,8 +324,8 @@
                           label="Total Final"
                           readonly
                           variant="outlined"
-                          class="text-h6"
-                          density="compact"
+                          class="text-h6 custom-bg-gray number-end"
+                          density="compact" 
                           
                         />
                       </VCol>
@@ -308,39 +342,9 @@
     <VRow class="">
        
 
-      <VCol cols="12" sm="12" md="6">
-        <!-- Sección Dirección de Entrega -->
-        <VCard>
-          <div class="v-card-item">
-            <div class="v-card-item__content">
-              <div class="v-card-title"><h5 class="text-h5">
-                <VAvatar   icon="ri-map-pin-line" class="text-info mr-2" variant="tonal"/>Dirección de Entrega</h5></div> 
-            </div>
-            <div class="v-card-item__append"><span class="text-primary cursor-pointer">
-              <VBtn
-                @click="useCustomerAddress"
-                :color="$cv('principal')"
-                title="Usar del cliente"
-              >
-                <VIcon icon="ri-refresh-line" class="mr-2" />
-              </VBtn></span>
-            </div>
-          </div> 
-          <VCardText>
-            <VRow>
-              <VCol cols="12" md="12">
-                <VTextarea
-                  v-model="order.shipping_address"
-                  label="Dirección de Entrega"
-                  :rules="[(v) => !!v || 'Dirección de entrega es requerida']"
-                  rows="2"/>
-              </VCol>
-            </VRow>
-          </VCardText>
-        </VCard>
-      </VCol>
+      
 
-      <VCol cols="12" sm="12"  md="6">
+      <VCol cols="12" sm="12"  md="12">
         <VCard>          
           <div class="v-card-item"> 
             <div class="v-card-item__content">
@@ -452,7 +456,7 @@
         <VToolbarTitle>¿Registrar Pago?</VToolbarTitle>
       </VToolbar>
       <VCardText>
-        <VAlert type="success" class="mb-4">
+        <VAlert type="success" class="mb-4 mt-4">
           ¡Orden creada exitosamente!<br />
           <strong>Número de Orden:</strong> {{ createdOrder?.order?.order_number }}<br />
           <strong>Total:</strong> {{ formatCurrency(createdOrder?.order?.total_amount) }}
@@ -461,8 +465,8 @@
       </VCardText>
       <VCardActions>
         <VSpacer />
-        <VBtn variant="outlined" @click="finishOrder"> No, Finalizar </VBtn>
-        <VBtn color="success" @click="openPaymentForm"> Sí, Registrar Pago </VBtn>
+        <VBtn variant="outlined" color="success" @click="finishOrder"> No, Finalizar </VBtn>
+        <VBtn class="bg-success" color="white" @click="openPaymentForm"> Sí, Registrar Pago </VBtn>
       </VCardActions>
     </VCard>
   </VDialog>
@@ -476,54 +480,59 @@
       </VToolbar>
       <VForm ref="paymentForm" v-model="validPayment">
         <VCardText>
-          <VContainer>
-            <VRow>
-              <VCol cols="12">
-                <VAlert type="info" class="mb-4">
-                  <strong>Total de la Orden:</strong>
-                  {{ formatCurrency(createdOrder?.order?.total_amount) }}<br />
-                  <strong>Total Pagado:</strong> {{ formatCurrency(totalPaid) }}<br />
-                  <strong>Saldo Pendiente:</strong> {{ formatCurrency(pendingAmount) }}
-                </VAlert>
-              </VCol>
-
-              <!--
-              <VCol cols="12" sm="6">
-                <VTextField
-                  v-model="payment.amount"
-                  label="Monto del Pago"
-                  type="number"
-                  step="0.01"
-                  prefix="$"
-                  :rules="[
-                    (v) => !!v || 'Monto es requerido',
-                    (v) => v > 0 || 'Debe ser mayor a 0',
-                    (v) => v <= pendingAmount || 'No puede ser mayor al saldo pendiente',
-                  ]"
-                  density="compact"
-                />
-              </VCol>
-              <VCol cols="12" sm="6">
-                <VAutocomplete
-                  v-model="payment.payment_method_id"
-                  :items="paymentMethods"
-                  item-title="name"
-                  item-value="id"
-                  label="Método de Pago"
-                  :rules="[(v) => !!v || 'Método de pago es requerido']"
-                />
-              </VCol>
-              <VCol cols="12">
-                <VTextarea v-model="payment.notes" label="Notas del Pago" rows="2" density="compact" />
-              </VCol>
-              -->
-            </VRow>
+         
+            
             
             <!-- aca debe ir la linea de pagos -->
             <VRow class="justify-center">                
               <VCol cols="12" md="12" sm="12">
-                <VCard title="Pagos">                        
-                  <VCardText>               
+                <VCard>     
+                  <div class="v-card-item"> 
+                    <div class="v-card-item__content">
+                      <div class="v-card-title">
+                        <h5 class="text-h5">
+                        <VAvatar icon="ri-money-dollar-circle-line" class="text-success mr-2" variant="tonal"/>Pagos
+                        </h5>
+                        </div> 
+                    </div> 
+                  </div>                    
+                  <VCardText>     
+                    <VRow>
+              <VCol cols="12">
+                <VAlert type="success" variant="tonal" class="mb-4" :icon="false">
+                  <VRow>
+                    <VCol cols="12" sm="9" class=" text-end text-h4 text-success">
+                      Total de la Orden: 
+                    </VCol>
+
+                      <VCol cols="12" sm="3" class=" text-end text-h4 text-success">
+                        {{ formatCurrency(createdOrder?.order?.total_amount) }}
+                      </VCol>
+                  </VRow>
+                  <VRow>
+                    <VCol cols="12" sm="9" class=" text-end pt-0 text-h4 text-success">
+                      Total Pagado:
+                    </VCol>
+
+                      <VCol cols="12" sm="3" class=" text-end pt-0 text-h4 text-success">
+                        {{ formatCurrency(totalPaid) }}
+                      </VCol>
+                  </VRow>
+                  <VRow>
+                    <VCol cols="12" sm="9" class=" text-end pt-0 text-h4 text-success">
+                     Saldo Pendiente:
+                    </VCol>
+
+                      <VCol cols="12" sm="3" class=" text-end pt-0  text-h4 text-success">
+                        {{ formatCurrency(pendingAmount) }}
+                      </VCol>
+                  </VRow>
+                   
+                </VAlert>
+              </VCol>
+
+           
+            </VRow>          
                     <PaymentsRow                        
                           ref="paymentsRow"
                           modulo="pagos"                          
@@ -533,12 +542,12 @@
                 </VCard>               
               </VCol>
             </VRow>
-          </VContainer>
+    
         </VCardText>
         <VCardActions>
           <VSpacer />
-          <VBtn variant="outlined" @click="closePaymentForm"> Cancelar </VBtn>
-          <VBtn color="success" @click="savePayment" :loading="savingPayment">
+          <VBtn variant="outlined" color="success" @click="closePaymentForm"> Cancelar </VBtn>
+          <VBtn class="bg-success" color="white" @click="savePayment" :loading="savingPayment">
             Registrar Pago
           </VBtn>
         </VCardActions>
@@ -595,6 +604,8 @@ export default {
         total_amount: 0,
         notes: "",
         items: [],
+        shipping:0,
+        shipping_address_status:false
       },
 
       // New item being added
@@ -632,11 +643,12 @@ export default {
 
       // Table headers
       itemHeaders: [
+        { title: "", key: "actions", width: "25px", sortable: false },
         { title: "Producto", key: "product_name", width: "300px" },
         { title: "Cantidad", key: "quantity", width: "80px" },
         { title: "Precio Unit.", key: "unit_price", width: "150px" },
         { title: "Total", key: "total_price", width: "150px", align: "end" },
-        { title: "Acciones", key: "actions", width: "100px", sortable: false },
+       
       ],
       localities: [],
       keyPayments: 0,
@@ -1046,6 +1058,12 @@ export default {
       this.snackbarColor = color;
       this.snackbar = true;
     },
+
+    toggleShipping(order){
+      console.log(order.shipping);
+      order.shipping_address_status = !order.shipping_address_status;
+    }
+
   },
 };
 </script>
@@ -1082,10 +1100,18 @@ tbody{
   height: 43px !important;
 }
 
+
 .cliente .v-autocomplete__selection {
-    font-size: 23px;
+    /*font-size: 23px;
     font-weight: bold;
     margin-top: 10px;
-    margin-bottom: -10px;
+    margin-bottom: -10px;*/
+}
+.custom-bg-gray .v-field__overlay {
+  background-color: #ddd !important;
+  
+}
+.number-end .v-field__input{
+  text-align: end !important;
 }
 </style>

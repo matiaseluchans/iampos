@@ -9,7 +9,7 @@ export const routes = [
         path: '/dashboard',
         component: () => import('@/pages/dashboard.vue'),
         meta: { requiresAuth: true,
-          allowedTenants: ['*'],
+          
           allowedRoles: ['*']
           
          }
@@ -18,7 +18,7 @@ export const routes = [
         path: 'order-create',
         component: () => import('@/pages/iampos/orderCreate.vue'),
         meta: { requiresAuth: true,
-          allowedTenants: ['*'],  
+            
           allowedRoles: ['*'] 
         }
       },
@@ -26,7 +26,7 @@ export const routes = [
         path: 'order-list',
         component: () => import('@/pages/iampos/orderList.vue'),
         meta: { requiresAuth: true, 
-          allowedTenants: [2,3], // Solo tenant
+         
           allowedRoles: ['*'] 
         }
       },      
@@ -34,8 +34,8 @@ export const routes = [
         path: 'customers',
         component: () => import('@/pages/iampos/customers.vue'),
         meta: { requiresAuth: true,
-          allowedTenants: [2,3],  
-          allowedRoles: ['admin'] 
+ 
+          allowedRoles: ['superadmin','bebidas-admin','petshop-admin'] 
         }
       }, 
       {
@@ -72,7 +72,6 @@ export const routes = [
         path: 'tenants',
         component: () => import('@/pages/iampos/tenants.vue'),
         meta: { requiresAuth: true ,
-          allowedTenants: [1,2], // Solo para superadmin
           allowedRoles: ['superadmin']
         }
       }, 
@@ -81,7 +80,7 @@ export const routes = [
         path: 'users',
         component: () => import('@/pages/iampos/users.vue'),
         meta: { requiresAuth: true,
-          allowedTenants: ['1'], // Solo para superadmin
+          
           allowedRoles: ['superadmin']
         }
       },

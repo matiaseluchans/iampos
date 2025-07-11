@@ -80,7 +80,7 @@ class TenantUserSeeder extends Seeder
             // Crear roles para el tenant
             $adminRole = Role::updateOrCreate(
                 [
-                    'name' => 'admin',
+                    'name' => $tenantData['slug'] . '-admin',
                     'tenant_id' => $tenant->id
                 ],
                 ['description' => 'Administrador del tenant']
@@ -88,7 +88,7 @@ class TenantUserSeeder extends Seeder
 
             $userRole = Role::updateOrCreate(
                 [
-                    'name' => 'user',
+                    'name' => $tenantData['slug'] . '-user',
                     'tenant_id' => $tenant->id
                 ],
                 ['description' => 'Usuario básico del tenant']

@@ -18,10 +18,10 @@ function hasAccess(to, user) {
   const userRoles = user?.data?.roles || []
   
   // Verificar tenant
-  const allowedTenants = to.meta.allowedTenants || ['*']
+  /*const allowedTenants = to.meta.allowedTenants || ['*']
   if (allowedTenants[0] !== '*' && !allowedTenants.includes(tenantId)) {
     return false
-  }
+  }*/
   
   // Verificar roles
   const allowedRoles = to.meta.allowedRoles || ['*']

@@ -20,7 +20,7 @@
 					<template v-slot:[`item.payment_method_id`]="{ item }" > 
 						<div class="d-flex justify-center">																				
 						<VAutocomplete
-							class="custom-input mx-auto"
+							class="mx-auto"
 							:items="paymentMethods"
 							item-value="id"
 							item-title="name"
@@ -30,13 +30,13 @@
 							return-object
 							density="compact"
 							hide-details
-							style="max-width: 250px;"
+							style="max-width: 350px;"
 						></VAutocomplete>
 						</div>
 					</template>
 					<template v-slot:[`item.amount`]="{ item }">																		       					
 						<VTextField 
-							class="text-left text-sm custom-input"
+							class="text-left"
 							v-model="item.amount"
 							:label="item.amount ? '' : 'Importe'"
 							:rules="[$rulesRequerido, $rulesNumericos]"
@@ -92,10 +92,11 @@
 			payments: [],			
 			route: "payments",       
 			headers: [				
+        { title: "", key: "actions", align: "center"   },
 				{ title: "Id", key: "index", align: " d-none" },
 				{ title: "Metodo de pago", key: "payment_method_id", align: "center" },
 				{ title: "Importe", key: "amount", align: "center"  },				
-				{ title: "", key: "actions", align: "center"   },
+				
 			],						
 			keyTablePayments: 0,			
 		}),

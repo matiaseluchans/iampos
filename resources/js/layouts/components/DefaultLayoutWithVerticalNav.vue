@@ -71,9 +71,9 @@ const userPermissions = computed(() => store.getters.userPermissions)
             <span class="text-caption">{{ currentUser.data.tenant.name }} | {{ currentUser.data.roles[0] }}</span>
           </VChip>
         </div>
-        <IconBtn class="me-2">
+        <!--<IconBtn class="me-2">
           <VIcon icon="ri-notification-line" />
-        </IconBtn>
+        </IconBtn>-->
 
         <NavbarThemeSwitcher class="me-2" />
        

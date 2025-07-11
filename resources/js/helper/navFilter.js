@@ -46,50 +46,7 @@ function findRouteByPath(routes, path) {
     }
     return null
   }
-
-/*
-function hasAccess(route, user) {
-    if (!route.meta) return true
-
-    const tenantId = user?.data?.tenant?.id
-    const userRoles = user?.data?.roles || []
-
-
-
-
-    console.log("------");
-
-    // Verificar tenant
-    const allowedTenants = route.meta.allowedTenants || ['*']
-
-    console.log(route.path);
-    console.log(route.meta.allowedTenants);
-    console.log(allowedTenants.includes(tenantId));
-
-    if(!route.meta.allowedTenants)
-    {
-        return true
-    } 
-    else if (allowedTenants[0] !== '*' && !allowedTenants.includes(tenantId)) {
-        return false
-    }
-
-    // Verificar roles
-    const allowedRoles = route.meta.allowedRoles || ['*']
-    console.log(route.meta.allowedRoles);
-    console.log(userRoles.some(role => allowedRoles.includes(role)));
-    console.log("------");
-
-    if(!route.meta.allowedRoles)
-    {
-        return true
-    } 
-    else if (allowedRoles[0] !== '*' && !userRoles.some(role => allowedRoles.includes(role))) {
-        return false
-    }
-
-  return true
-}*/
+ 
 
 function hasAccess(route, user) {
     if (!route.meta) return true
@@ -98,10 +55,10 @@ function hasAccess(route, user) {
     const userRoles = user?.data?.roles || []
   
     // Verificar tenant
-    const allowedTenants = route.meta.allowedTenants?.map(String) || ['*']
+    /*const allowedTenants = route.meta.allowedTenants?.map(String) || ['*']
     if (allowedTenants[0] !== '*' && !allowedTenants.includes(tenantId)) {
       return false
-    }
+    }*/
   
     // Verificar roles
     const allowedRoles = route.meta.allowedRoles || ['*']
