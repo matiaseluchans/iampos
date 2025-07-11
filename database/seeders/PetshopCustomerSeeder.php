@@ -26,5 +26,18 @@ class PetshopCustomerSeeder extends Seeder
                 'deleted_by'        => 1,
             ]);
         }
+
+        $customers[] = [
+                'address' => 'General',
+                'email' => 'general@mail.com',
+                'firstname' => 'General',
+                'lastname' => 'General',
+                'tenant_id' => 3,
+                'active' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+        ];
+
+        DB::table('customers')->insert($customers);
     }
 }

@@ -146,17 +146,27 @@ class DrinkCustomerSeeder extends Seeder
 
             $customers[] = [
                 'address' => $address,
-                /*'telephone' => $phone,
-                'email' => $email,
-                'firstname' => $firstName,
-                'lastname' => $lastName,
-                'companyname' => $companyName,*/
+                'email' => null,
+                'firstname' => null,
+                'lastname' => null,
+                'companyname' => null,                
                 'tenant_id' => 2,
                 'active' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
             ];
         }
+        $customers[] = [
+                'address' => 'General',                
+                'email' => 'general@mail.com',
+                'firstname' => 'General',
+                'lastname' => 'General',
+                'companyname' => null,
+                'tenant_id' => 2,
+                'active' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+        ];
 
         DB::table('customers')->insert($customers);
     }
