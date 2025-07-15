@@ -135,8 +135,8 @@
                         <IconBtn
                         size="small"
                         class="my-1"
-                        title="Ver Factura"
-                        @click="showFactura2(item)"
+                        title="Remito"
+                        
                       >
                         <VIcon icon="ri-file-pdf-2-line" />
                       </IconBtn>
@@ -150,7 +150,7 @@
                         <IconBtn
                         size="small"
                         class="my-1"
-                        title="Ver Factura"                        
+                        title="Comanda"                        
                       >
                         <VIcon icon="ri-file-pdf-2-line" />
                       </IconBtn>
@@ -747,6 +747,7 @@ export default {
         const url = window.URL.createObjectURL(blob, { oneTimeOnly: true });
         const link = document.createElement("a");
         link.target = "_blank";
+        //link.download = `Factura_${item.order_number}.pdf`;
 
         link.href = url;
 
