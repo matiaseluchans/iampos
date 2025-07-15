@@ -132,35 +132,7 @@ export const routes = [
         path: 'about',
         component: () => import('@/pages/about.vue'),
       },
-      /*
-      {
-        path: 'companies',
-        component: () => import('@/pages/companies.vue'),
-      },
-      {
-        path: 'clasificaciones',
-        component: () => import('@/pages/clasificaciones.vue'),
-        meta: { requiresAuth: true }
-      },
-      {
-        path: 'estados',
-        component: () => import('@/pages/estados.vue'),
-        meta: { requiresAuth: true }
-      },
-      {
-        path: 'funciones',
-        component: () => import('@/pages/funciones.vue'),
-        meta: { requiresAuth: true }
-      },*/
-      {
-        path: 'partes',
-        component: () => import('@/pages/partes.vue'),
-      },
-      {
-        path: 'partes_status',
-        component: () => import('@/pages/partes_status.vue'),
-        props: { status: 'Recibidos' }         
-      },
+      
     ],
   },
   {

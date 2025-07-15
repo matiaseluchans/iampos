@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends ApiController
 {
@@ -250,6 +251,16 @@ class UserController extends ApiController
         try {
             $roles = Role::where('active', true)->get(['id', 'name']);
             return $this->successResponse($roles);
+        } catch (\Exception $e) {
+            report($e);
+            return $this->errorResponse($e);
+        }
+    }
+
+    public function getListUsers()
+    {
+        try {                        
+            return $this->successResponse($this->model::where('tenant_id', Auth::user()->tenant_id)->get());            
         } catch (\Exception $e) {
             report($e);
             return $this->errorResponse($e);

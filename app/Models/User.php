@@ -69,4 +69,11 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Tenant::class);
     }
+
+    public function hasAdminRole()
+    {
+        return $this->roles()
+                    ->where('name', 'like', '%-admin%')
+                    ->exists();
+    }
 }

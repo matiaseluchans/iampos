@@ -72,14 +72,24 @@ class OrderRepository extends BaseRepository
             }
             
             // Creación de la instancia del modelo 'order'
-            $model = new $this->model;                 
+            $model = new $this->model;   
+            $sellerId = '';
+            $sellerName = '';            
+            if (!$user->roles()->where('name', 'like', '%-admin%')->exists()) {
+                $sellerId = $user->id;
+                $sellerName = $user->name;
+            }
+            else{
+                $sellerId = $form['seller_id']['id'];
+                $sellerName = $form['seller_id']['name'];
+            }
 
             $model->fill([                
                 'order_date'=>Carbon::now(),                
                 'customer_id' => $form['customer_id'],
                 //'customer_details', //ver de guardar los datos del cliente
                 'shipping_address' => $form['shipping_address'],
-                //'shipping' => $form['shipping'],
+                'shipping' => isset($form['shipping'])?$form['shipping']:0,
                 'status_id' => 1,
                 'order_type_id' => 1,
                 //'shipping_status_id' => 1,
@@ -92,6 +102,8 @@ class OrderRepository extends BaseRepository
                 'total_profit' => ($form['total_profit'])??0,
                 //'payment_status_id' => 1,
                 'notes' => $form['notes'],
+                'seller_id' => $sellerId,
+                'seller_name' => $sellerName,
             ]);
 
             $model->save();            

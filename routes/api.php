@@ -77,6 +77,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::apiResource('users', App\Http\Controllers\UserController::class);
     Route::get('users/tenants', [App\Http\Controllers\UserController::class, 'getTenants']);
     Route::get('users/roles', [App\Http\Controllers\UserController::class, 'getRoles']);
+    Route::get('users-list', [App\Http\Controllers\UserController::class, 'getListUsers']);
+    
     Route::patch('users/{user}/toggle-active', [App\Http\Controllers\UserController::class, 'toggleActive']);
 
 

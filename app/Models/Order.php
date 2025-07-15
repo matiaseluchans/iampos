@@ -30,6 +30,8 @@ class Order extends Model
         'total_cost',
         'total_profit',        
         'notes',
+        'seller_id',
+        'seller_name',
         'tenant_id',
         'created_by',
         'last_modified_by',

@@ -8,7 +8,7 @@ export default {
     Vue.config.globalProperties.can = function ( value) {
       return true;
     }
-    Vue.config.globalProperties.is = function(role) {
+    Vue.config.globalProperties.$is = function(role) {
       // Obtener roles del store (ajusta según tu estructura)
       const userRoles = this.$store.getters.currentUser.data.roles || [];
       

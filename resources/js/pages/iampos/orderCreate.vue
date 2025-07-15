@@ -2,7 +2,7 @@
   <VForm :key="keyOrderForm" ref="orderForm" v-model="validOrder">
    
     <VRow>
-      <VCol cols="12" sm="6" md="6">
+      <VCol cols="12" :sm="(!isAdmin)?'6':'4'" :md="(!isAdmin)?'6':'4'">
         <VCard>
           <VCardText class="mb-0 pb-2">
               <VRow class="mb-0 pb-0">
@@ -32,37 +32,19 @@
                     </v-sheet>
                   </template>
                 </VAutocomplete>
-              </VCol>
-              <!--<VCol cols="12" md="6" v-if="selectedCustomer" class="mb-0 pb-0">
-                    <VAlert type="info" variant="tonal" class="mb-0">
-                      <strong>Dirección:</strong> {{ selectedCustomer.address }} 
-                      <strong>Teléfono:</strong> {{ selectedCustomer.telephone }} 
-                      <strong>Cliente:</strong> {{ selectedCustomer.name ?? "-"}} 
-                      <strong>Email:</strong> {{ selectedCustomer.email ??"-"}} 
-                    </VAlert>
-              </VCol>-->
+              </VCol>              
               <VCol cols="auto" class="mb-0">
                 <VBtn @click="openCustomerDialog" :color="$cv('principal')" title="nuevo cliente">
                   <VIcon icon="ri-user-add-line" class="mr" />
                 </VBtn>
               </VCol>
             </VRow>
-            <!--<VRow> 
-          
-              <VCol cols="12" md="12" v-if="selectedCustomer">
-                <VAlert type="info" variant="tonal">
-                  <strong>Dirección:</strong> {{ selectedCustomer.address }} 
-                  <strong>Teléfono:</strong> {{ selectedCustomer.telephone }} 
-                  <strong>Cliente:</strong> {{ selectedCustomer.name ?? "-"}} 
-                  <strong>Email:</strong> {{ selectedCustomer.email ??"-"}} 
-                </VAlert>
-              </VCol>
-            </VRow>-->
+            
           </VCardText>
         </VCard>
       </VCol>
 
-      <VCol cols="12" sm="6" md="6">
+      <VCol cols="12" :sm="(!isAdmin)?'6':'4'" :md="(!isAdmin)?'6':'4'">
         <VCard>
           <VCardText>
             <VRow>
@@ -99,6 +81,32 @@
               </VCol>
                
             </VRow>
+          </VCardText>
+        </VCard>
+      </VCol>
+
+      <VCol cols="12" v-if="isAdmin" sm="4" md="4">
+        <VCard>
+          <VCardText class="mb-0 pb-2">
+              <VRow class="mb-0 pb-0">
+                <VCol cols="1" md="1" sm="1"  class="mb-0 pt-3 d-none d-sm-flex">
+                  <VAvatar icon="ri-user-line" class="text-error mr-2" variant="tonal" size="40"/> 
+                </VCol>
+                <VCol cols="9" sm="9" md="8" class="mb-0 pt-4 ml-3" >
+                <VAutocomplete
+                  v-model="order.seller_id"
+                  :items="sellers"
+                  item-title="name"
+                  item-value="id"
+                  label="Seleccionar Vendedor"
+                  :rules="[(v) => !!v || 'Vendedor es requerido']"
+                  clearable                                     
+                  density="compact"
+                  return-object
+                  >                  
+                </VAutocomplete>
+              </VCol>                            
+            </VRow>            
           </VCardText>
         </VCard>
       </VCol>
@@ -601,6 +609,7 @@ export default {
       customers: [],
       products: [],
       stock: [],
+      sellers: [],
       //paymentMethods: [],
 
       // Order data
@@ -663,6 +672,7 @@ export default {
       keyPayments: 0,
       change:0,
       totalPaid:0,
+      isAdmin: false,
     };
   },
 
@@ -706,24 +716,29 @@ export default {
     },
     async loadData() {
       try {
+        this.isAdmin = this.$is(["bebidas-admin", "petshop-admin"]);
+        
         const [
           customersRes,
           productsRes,
-          stockRes,
-      //    paymentMethodsRes,
+          stockRes,                
           localitiesRes,
         ] = await Promise.all([
           this.$axios.get(this.$routes["customers"]),
           this.$axios.get(this.$routes["products"]),
-          this.$axios.get(this.$routes["stocks"]),
-    //      this.$axios.get(this.$routes["paymentMethods"]),
+          this.$axios.get(this.$routes["stocks"]),                    
           this.$axios.get(this.$routes["localities"]),
         ]);
 
+        if(this.isAdmin){
+          const usersRes = await this.$axios.get(this.$routes["usersList"]);
+
+          this.sellers = usersRes.data.data || usersRes.data; 
+        }
+
         this.customers = customersRes.data.data || customersRes.data;
         this.products = productsRes.data.data || productsRes.data;
-        this.stock = stockRes.data.data || stockRes.data;        
-        //this.paymentMethods = paymentMethodsRes.data.data || paymentMethodsRes.data;        
+        this.stock = stockRes.data.data || stockRes.data;         
         this.localities = localitiesRes.data.data || localitiesRes.data;
       } catch (error) {
         console.error("Error loading data:", error);

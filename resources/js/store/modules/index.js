@@ -39,6 +39,6 @@ export default createStore({
     userPermissions: state => {
       if (!state.user?.roles) return []
       return state.user.roles.flatMap(role => role.permissions.map(p => p.name))
-    }
+    }    
   }
 })
