@@ -76,7 +76,7 @@
                   :false-value="0"
                   color="primary"
                   hide-details 
-                  title="Activar o Inactivar" 
+                  title="Requiere Envío" 
                   @click="toggleShipping(order)"
                 />
               </VCol>
@@ -527,7 +527,15 @@
                         {{ formatCurrency(pendingAmount) }}
                       </VCol>
                   </VRow>
-                   
+                   <VRow>
+                    <VCol cols="12" sm="9" class=" text-end pt-0 text-h4 text-success">
+                     Vuelto:
+                    </VCol>
+
+                      <VCol cols="12" sm="3" class=" text-end pt-0  text-h4 text-success">
+                        {{ formatCurrency(change) }}
+                      </VCol>
+                  </VRow>
                 </VAlert>
               </VCol>
 
@@ -537,6 +545,7 @@
                           ref="paymentsRow"
                           modulo="pagos"                          
                           :key="keyPayments"
+                          @update-total="updateTotal"
                     ></PaymentsRow>
                   </VCardText>
                 </VCard>               
@@ -652,6 +661,8 @@ export default {
       ],
       localities: [],
       keyPayments: 0,
+      change:0,
+      totalPaid:0,
     };
   },
 
@@ -677,17 +688,11 @@ export default {
       );
     },
 
-    totalPaid() {
-      return this.orderPayments.reduce(
-        (sum, payment) => sum + parseFloat(payment.amount),
-        0
-      );
-    },
+    
 
-    pendingAmount() {
-      
-      return this.createdOrder ? this.createdOrder.order.total_amount - this.totalPaid : 0;
-    },
+    pendingAmount() {      
+      return this.createdOrder ? (this.totalPaid<this.createdOrder.order.total_amount)? this.createdOrder.order.total_amount - this.totalPaid : 0:0;
+    },   
   },
 
   async created() {
@@ -695,6 +700,10 @@ export default {
   },
 
   methods: {
+    updateTotal(nuevoTotal) {      
+      this.totalPaid = nuevoTotal
+      this.change = (this.totalPaid>this.createdOrder.order.total_amount)? this.totalPaid - this.createdOrder.order.total_amount:0;
+    },
     async loadData() {
       try {
         const [
@@ -894,7 +903,7 @@ export default {
     // Payment methods
     openPaymentForm() {
       this.paymentDialog = false;
-      this.payment.amount = this.pendingAmount;
+      
       this.paymentFormDialog = true;
     },
 
@@ -943,9 +952,9 @@ export default {
 
       const paymentMethod = new Set();
       const total = payments.reduce((acc, payment) => acc + parseFloat(payment.amount), 0);
-      if (total > this.pendingAmount) {
+      /*if (total > this.pendingAmount) {        
         return "El total excede el saldo pendiente";
-      }
+      }*/
 
       for (const payment of payments) {                
         if((!payment.amount)||(!payment.payment_method_id)){

@@ -80,7 +80,7 @@ class PaymentRepository extends BaseRepository
             // Obtener el total de la orden
             $order = Order::findOrFail($orderId);
             // Verificar si se pagó completamente            
-            if ((float) $totalPagado == (float) $order->total_amount) {  
+            if ((float) $totalPagado >= (float) $order->total_amount) {  
                 $statusCode = StatusEnum::PAID;
             }
             else{

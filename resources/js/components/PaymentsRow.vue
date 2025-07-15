@@ -1,5 +1,6 @@
 <template>
 	<!-- <VCard> -->
+
 		<VRow v-if="!payments.length" dense align="center">
 			<VCol cols="12" md="12" sm="12">
 				<v-btn small color="primary" @click="add" dark>
@@ -42,7 +43,9 @@
 							:rules="[$rulesRequerido, $rulesNumericos]"
 							required							
 							density="compact"
-							hide-details																				
+							hide-details
+							
+  							@keypress="onlyNumberInput"																				
 						></VTextField>
 					</template>
 					<template #item.actions="{ item }">
@@ -86,13 +89,14 @@
 			modulo: String,
 			records: { type: Array, default(){return []} },
 		},
+		emits: ['update-total'],
 		data: () => ({
 			showFooter: false,
 			paymentMethods: [],					
 			payments: [],			
 			route: "payments",       
 			headers: [				
-        { title: "", key: "actions", align: "center"   },
+        		{ title: "", key: "actions", align: "center"   },
 				{ title: "Id", key: "index", align: " d-none" },
 				{ title: "Metodo de pago", key: "payment_method_id", align: "center" },
 				{ title: "Importe", key: "amount", align: "center"  },				
@@ -100,6 +104,17 @@
 			],						
 			keyTablePayments: 0,			
 		}),
+		computed: {
+			totalLocal() {
+				console.log(this.payments.reduce((sum, item) => sum + Number(item.amount || 0), 0));
+			return this.payments.reduce((sum, item) => sum + Number(item.amount || 0), 0)
+			}
+		},
+		watch: {
+			totalLocal(newVal) {
+			this.$emit('update-total', newVal)
+			}
+		},
 		created() {			
 			this.loadData();		
 			if(this.records.length>0){
@@ -109,7 +124,14 @@
 				this.add();
 			}			
 		},
-		methods: {												
+		methods: {	
+			onlyNumberInput(event){
+				const char = String.fromCharCode(event.keyCode);
+				// Permitir solo números y punto decimal
+				if (!/[0-9.]/.test(char)) {
+					event.preventDefault();
+				}
+			},											
 			add() {
 				var i = this.payments.length;
 				this.payments.push({

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->dateTime('order_date');
-            $table->string('order_number', 50)->unique();
+            $table->string('order_number', 50);
             $table->foreignId('customer_id')->nullable()->constrained('customers')->onDelete('set null');
             $table->text('customer_details')->nullable();
             $table->text('shipping_address')->nullable();                        
@@ -43,6 +43,8 @@ return new class extends Migration
             $table->foreign('tenant_id')->references('id')->on('tenants')->onDelete('cascade');
             $table->index('customer_id');
             $table->index('status_id');
+            $table->index(['order_number', 'tenant_id']); // para búsquedas rápidas
+            $table->unique(['order_number', 'tenant_id']);
         });
     }
 

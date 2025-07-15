@@ -48,18 +48,27 @@ class Order extends Model
         static::addGlobalScope(new TenantScope);
         static::creating(function ($order) {
             if (empty($order->order_number)) {
-                $order->order_number = self::generateOrderNumber();
+                $order->order_number = self::generateOrderNumber($order->tenant_id);
             }
         });
     }
 
-    public static function generateOrderNumber()
+    public static function generateOrderNumber($tenantId)
     {
-        $prefix = 'ORD-';
-        $random = strtoupper(Str::random(6));
-        $timestamp = now()->format('YmdHis');
+        
+        // Obtener el último número para el tenant
+        $lastOrder = self::where('tenant_id', $tenantId)
+            ->orderBy('order_number', 'desc')
+            ->lockForUpdate() // evita conflictos en concurrencia
+            ->first();
+//dd($lastOrder);
+        // Si no hay órdenes previas, empezamos en 1
+        $nextNumber = $lastOrder
+            ? intval($lastOrder->order_number) + 1
+            : 1;
 
-        return $prefix . $timestamp . '-' . $random;
+        // Convertir el número a string de 10 dígitos con ceros a la izquierda
+        return str_pad($nextNumber, 10, '0', STR_PAD_LEFT);
     }
 
     // Relaciones

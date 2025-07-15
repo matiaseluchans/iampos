@@ -32,6 +32,28 @@
                     clearable
                   />
                 </VCol>                
+                <VCol cols="12" sm="6" class="pl-0 pt-20 py-2">
+                  <VAutocomplete
+                    v-model="selectedStatus"
+                    :items="statuses"
+                    item-title="name"
+                    item-value="id"
+                    label="Estado"
+                    clearable
+                  />
+                </VCol>                
+              </VRow>
+              <VRow>
+                <VCol cols="12" sm="6" class="pl-0 pt-20 py-2">
+                  <!--
+                  <VDatePicker
+                    v-model="dateRange"
+                    label="Rango de fechas"
+                    type="range"
+                    color="primary"                    
+                  />
+                  -->
+                </VCol>
               </VRow>
             </VCardText>
           </VCard>
@@ -60,29 +82,6 @@
         <template #item.customer.firstname="{ item }">
           <span v-if="item.customer.firstname">{{ item.customer.firstname+' '+item.customer.lastname }}</span>          
         </template>
-<!--
-        <template #item.quantity_products="{ item }">
-          <div class="d-flex align-center gap-2">
-            <VChip
-              :color="getStatusColor(item)"
-              density="comfortable"
-            >
-              {{ item.quantity_products }}
-            </VChip>            
-          </div>
-        </template>        
-
-        <template #item.order_type.name="{ item }">
-          <div class="d-flex align-center gap-2">
-            <VChip
-              :color="getStatusColor(item)"
-              density="comfortable"
-            >
-              {{ item.order_type.name }}
-            </VChip>            
-          </div>
-        </template>        
--->
         <template #item.total_cost="{ item }">                      
           <div class="text-right text-error">
             <strong>${{ formatCurrency(item.total_cost) }}</strong>
@@ -233,13 +232,19 @@
 export default {
   data() {
     return {
+      dateRange: {
+        start: null,         // o '2025-07-01'
+        end: null,           // o '2025-07-10'
+      },
       loading: false,
       search: '',
       orders: [],
       stock: [],
       products: [],
       warehouses: [],
+      statuses:[],
       selectedCustomer: null,
+      selectedStatus: null,
       selectedWarehouse: null,
       selectedStockItem: null,
       stockFilter: null,
@@ -339,6 +344,9 @@ export default {
       if (this.selectedCustomer) {
         filtered = filtered.filter(item => item.customer?.id === this.selectedCustomer);
       }
+      if (this.selectedStatus) {
+        filtered = filtered.filter(item => item.status?.id === this.selectedStatus);
+      }
       
       // Filtrar por depósito seleccionado
       if (this.selectedWarehouse) {
@@ -351,6 +359,16 @@ export default {
       } else if (this.stockFilter === 'empty') {
         filtered = filtered.filter(item => item.quantity <= 0);
       }
+
+      /*if(this.dateRange){
+        filtered = filtered.filter(order => {
+          const date = order.order_date // asumiendo que tenés un campo 'date'
+          const { start, end } = this.dateRange.value
+          return (!start || date >= start) && (!end || date <= end)
+        });
+      }*/
+
+      
       
       // Filtrar por término de búsqueda
       /*if (this.search) {
@@ -426,13 +444,16 @@ export default {
           this.$axios.get(this.$routes["warehouses"])
         ])*/
 
-        const [ordersRes, customersRes] = await Promise.all([
+        const [ordersRes, customersRes, statusesRes] = await Promise.all([
           this.$axios.get(this.$routes["orders"]),          
           this.$axios.get(this.$routes["customers"]),          
+          this.$axios.get(this.$routes["statuses"]), 
         ])
         
         this.orders = ordersRes.data.data;       
-        this.customers = customersRes.data.data;       
+        this.customers = customersRes.data.data;
+        this.statuses = statusesRes.data.data;
+               
 
         /*this.products = productsRes.data.data
         this.warehouses = warehousesRes.data.data*/
