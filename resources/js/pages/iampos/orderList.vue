@@ -19,19 +19,18 @@
                     label="Buscar en Ordenes"
                   />
                 </VCol>
-                
-              </VRow>
-              <VRow>
                 <VCol cols="12" sm="6" class="pl-0 pt-20 py-2">
                   <VAutocomplete
                     v-model="selectedCustomer"
                     :items="customers"
-                    item-title="firstname"
+                    :item-title="(firstname)?'firstname':'address'"
                     item-value="id"
                     label="Clientes"
                     clearable
                   />
                 </VCol>                
+              </VRow>
+              <VRow>                                
                 <VCol cols="12" sm="6" class="pl-0 pt-20 py-2">
                   <VAutocomplete
                     v-model="selectedStatus"
@@ -42,16 +41,13 @@
                     clearable
                   />
                 </VCol>                
-              </VRow>
-              <VRow>
                 <VCol cols="12" sm="6" class="pl-0 pt-20 py-2">
+                  <DateRangeField v-model="dateRange" />
                   <!--
-                  <VDatePicker
-                    v-model="dateRange"
-                    label="Rango de fechas"
-                    type="range"
-                    color="primary"                    
-                  />
+                  <div class="mt-4">
+                    <strong>Rango seleccionado:</strong>
+                    <pre>{{ dateRange }}</pre>
+                  </div>
                   -->
                 </VCol>
               </VRow>
@@ -163,14 +159,15 @@
                         <IconBtn
                           size="small"
                           class="my-1"
-                          title="Registrar movimiento"
+                          title="Cambiar el estado de la orden"
                           @click="openMovementDialog(item)"
                         >
-                          <VIcon icon="ri-arrow-up-down-line" />
+                          <VIcon icon="ri-swap-box-line" />
                         </IconBtn>
                       </VListItemTitle>                                              
                   </VListItemContent>
                 </VListItem>
+                
               </VList>
             </VMenu>
           </div>
@@ -214,6 +211,153 @@
           </VCardText>
         </VCard>
       </v-dialog>
+
+      <v-dialog v-model="movementDialog" max-width="45%">
+        <VCard>
+          <v-toolbar color="primary">
+            <v-btn
+              icon="ri-close-line"
+              color="white"
+              @click="closeMovementDialog"
+            />
+            <v-toolbar-title>{{ movementFormTitle }}</v-toolbar-title>
+            <v-spacer />
+          </v-toolbar>
+          <VForm ref="movementForm" v-model="validMovement">
+            <VCardText>
+              <VContainer>
+                <!-- Sección de información del cliente -->
+                <VCard class="mb-6" color="grey-lighten-4">
+                  <VCardTitle class="d-flex align-center">
+                    <VIcon icon="mdi-account-circle" class="me-2" />
+                    <span>Información del Cliente</span>
+                  </VCardTitle>
+                  <VDivider />
+                  <VCardText>
+                    <VRow>
+                      <VCol cols="12" md="4">
+                        <div class="info-field">
+                          <div class="text-caption text-grey-darken-2">Nombre</div>
+                          <span class="text-body-1 font-weight-bold">
+                            {{ selectedOrder.customer.firstname }} {{ selectedOrder.customer.lastname }}
+                          </span>
+                        </div>
+                      </VCol>
+                      
+                      <VCol cols="12" md="4">
+                        <div class="info-field">
+                          <div class="text-caption text-grey-darken-2">Dirección</div>
+                          <span class="text-body-1 font-weight-bold">
+                            {{ selectedOrder.customer.address }}
+                          </span>
+                        </div>
+                      </VCol>
+                      
+                      <VCol cols="12" md="4">
+                        <div class="info-field">
+                          <div class="text-caption text-grey-darken-2">Contacto</div>
+                          <span class="text-body-1 font-weight-bold">
+                            {{ selectedOrder.customer.telephone || 'Sin teléfono' }}
+                            <template v-if="selectedOrder.customer.email">
+                              <br>{{ selectedOrder.customer.email }}
+                            </template>
+                          </span>
+                        </div>
+                      </VCol>
+                    </VRow>
+                  </VCardText>
+                </VCard>
+
+                <!-- Sección de información de la orden -->
+                <VCard class="mb-6" color="primary-lighten-5">
+                  <VCardTitle class="d-flex align-center">
+                    <VIcon icon="mdi-package-variant-closed" class="me-2" />
+                    <span>Detalles de la Orden</span>
+                  </VCardTitle>
+                  <VDivider />
+                  <VCardText>
+                    <VRow>
+                      <VCol cols="12" md="3" class="d-flex align-center">
+                        <div class="info-field">
+                          <div class="text-caption text-primary">Número de Orden</div>
+                          <span class="text-h6 font-weight-bold">{{ selectedOrder.order_number }}</span>
+                        </div>
+                      </VCol>
+                      
+                      <VCol cols="12" md="3" class="d-flex align-center">
+                        <div class="info-field">
+                          <div class="text-caption text-primary">Fecha</div>
+                          <span class="text-h6 font-weight-bold">
+                            {{ formatDate(selectedOrder.order_date) }}
+                          </span>
+                        </div>
+                      </VCol>
+                      
+                      <VCol cols="12" md="2" class="d-flex align-center">
+                        <div class="info-field">
+                          <div class="text-caption text-primary">Estado Actual</div>
+                          <VChip :color="getStatusColor(selectedOrder)" class="font-weight-bold">
+                            {{ selectedOrder.status.name }}
+                          </VChip>
+                        </div>
+                      </VCol>
+                      
+                      <VCol cols="12" md="2" class="d-flex align-center">
+                        <div class="info-field">
+                          <div class="text-caption text-primary">Importe Total</div>
+                          <span class="text-h6 font-weight-bold text-success">
+                            {{ formatCurrency(selectedOrder.total_amount) }}
+                          </span>
+                        </div>
+                      </VCol>
+                      
+                      <VCol cols="12" md="2" class="d-flex align-center">
+                        <div class="info-field">
+                          <div class="text-caption text-primary">Productos</div>
+                          <span class="text-h6 font-weight-bold">
+                            {{ selectedOrder.quantity_products }} <small class="text-caption">items</small>
+                          </span>
+                        </div>
+                      </VCol>
+                    </VRow>
+                  </VCardText>
+                </VCard>
+
+                <!-- Selector de estado -->
+                <VRow>
+                  <VCol cols="12" sm="12">
+                    <VAutocomplete
+                      v-model="movement.status_id"
+                      :items="statuses"
+                      item-title="name"
+                      item-value="id"
+                      label="Seleccionar nuevo estado"
+                      :rules="[validateStatusChange]"
+                      variant="outlined"
+                      class="mt-2"
+                    />
+                  </VCol>
+                </VRow>
+              </VContainer>
+            </VCardText>
+            
+            <VCardActions>
+              <VSpacer />
+              <VBtn variant="outlined" color="secondary" @click="closeMovementDialog">
+                Cancelar
+              </VBtn>
+              <VBtn 
+                color="primary"
+                @click="saveMovement"
+                :loading="savingMovement"
+                :disabled="!validMovement"
+              >
+                Actualizar Estado
+              </VBtn>
+            </VCardActions>
+          </VForm>
+        </VCard>
+      </v-dialog>
       
 
       <v-snackbar v-model="snackbar" :color="snackbarColor" :timeout="3000">
@@ -229,29 +373,39 @@
 </template>
 
 <script>
+import DateRangeField from '@/components/DateRangeField.vue';
+
+
 export default {
+  components: { DateRangeField },
   data() {
+   
     return {
+      selectedDate: null,
+      menu: false,      
       dateRange: {
-        start: null,         // o '2025-07-01'
-        end: null,           // o '2025-07-10'
-      },
+        start: null,
+        end: null,
+      },            
+      datesSalida: [],
       loading: false,
       search: '',
+      customers: [],
       orders: [],
       stock: [],
       products: [],
       warehouses: [],
-      statuses:[],
+      statuses: [],
       selectedCustomer: null,
       selectedStatus: null,
       selectedWarehouse: null,
-      selectedStockItem: null,
+      selectedOrder: null,
       stockFilter: null,
       
       // Dialogs      
       historyDialog: false,
       summaryDialog: false,
+      movementDialog: false,
       
       // Form validations
       validMovement: false,
@@ -305,7 +459,7 @@ export default {
       
       // Headers
       headers: [
-        
+        { title: 'Acciones', key: 'actions', sortable: false },
         { title: 'Orden', key: 'order_number'  }, 
         { title: 'Fecha', key: 'order_date'  },   
         /*{ title: 'Tipo de Orden', key: 'order_type.name', width: '250px' }, */
@@ -316,7 +470,7 @@ export default {
         { title: 'Total', key: 'total_amount', align: 'end' },
         { title: 'Envio', key: 'shipping', align: 'center' },
         { title: 'Estado', key: 'status.name' },                
-        { title: 'Acciones', key: 'actions', sortable: false },
+        
       ],
       
       historyHeaders: [
@@ -335,7 +489,7 @@ export default {
     showHeaders() {
       return this.headers
     },
-
+    
     filteredStock() {
       let filtered = this.orders;
       
@@ -360,13 +514,25 @@ export default {
         filtered = filtered.filter(item => item.quantity <= 0);
       }
 
-      /*if(this.dateRange){
-        filtered = filtered.filter(order => {
-          const date = order.order_date // asumiendo que tenés un campo 'date'
-          const { start, end } = this.dateRange.value
-          return (!start || date >= start) && (!end || date <= end)
+      if (this.dateRange && this.dateRange.start && this.dateRange.end) {
+        const startDate = this.normalizeDateToStartOfDay(this.dateRange.start).getTime();
+        const endDate = this.normalizeDateToEndOfDay(this.dateRange.end).getTime();
+        
+        
+        filtered = filtered.filter(item => {
+          const orderDate = this.parseDdMmYyyyToDate(item.order_date);
+          if (!orderDate) return false;
+
+          const orderTime = orderDate.getTime();
+          const isInRange = orderTime >= startDate && orderTime <= endDate;
+
+          // Debug opcional
+           //console.log(`Order: ${item.order_date} | Timestamp: ${orderTime} | InRange: ${isInRange}`)
+
+          return isInRange;
         });
-      }*/
+      }
+
 
       
       
@@ -387,9 +553,9 @@ export default {
     },
 
     movementFormTitle() {
-      return this.selectedStockItem 
-        ? `Registrar movimiento para ${this.selectedStockItem.product.name}`
-        : 'Registrar movimiento de stock'
+      return this.selectedOrder 
+        ? `Cambio de estado de orden ${this.selectedOrder.order_number}`
+        : 'Cambio de estado de orden'
     },
 
     quantityRules() {
@@ -411,6 +577,33 @@ export default {
   },
 
   methods: {
+    validateStatusChange(value){
+      if (!value) return 'Debe seleccionar un estado'
+      if (value === this.selectedOrder.status.id) return 'El estado seleccionado es igual al estado actual'
+      return true
+    },
+    normalizeDateToStartOfDay(date) {
+      return new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0)
+    },
+    normalizeDateToEndOfDay(date) {
+      return new Date(date.getFullYear(), date.getMonth(), date.getDate()+1, 23, 59, 59)
+    },
+    parseDdMmYyyyToDate(str) {
+      const [d, m, yAndTime] = str.split('/')
+      const [y, time] = yAndTime.split(' ')
+      const [hours, minutes, seconds] = time.split(':')
+      return new Date(
+        Number(y),
+        Number(m) - 1,
+        Number(d),
+        Number(hours),
+        Number(minutes),
+        Number(seconds)
+      )
+    },    
+    clearFechaSalida(){
+      this.datesSalida = [];
+    },
     getCustomer(customer) {
       if (!customer) return 'Cliente no disponible';
       
@@ -468,14 +661,12 @@ export default {
 
     // Movement Dialog Methods
     openMovementDialog(item) {
+      console.log(item);
       if (item) {
-        this.selectedStockItem = item
-        this.movement.product_id = item.product.id
-        this.movement.warehouse_id = item.warehouse ? item.warehouse.id : null
+        this.selectedOrder = item        
       } else {
-        this.selectedStockItem = null
-        this.movement.product_id = null
-        this.movement.warehouse_id = null
+        this.selectedOrder = null
+        
       }
       
       this.movementDialog = true
@@ -484,48 +675,28 @@ export default {
     closeMovementDialog() {
       this.movementDialog = false
       this.$refs.movementForm?.reset()
-      this.selectedStockItem = null
-      this.movement = {
-        product_id: null,
-        warehouse_id: null,
-        movement_type: 'entrada',
-        quantity: 1,
-        minimum_stock: 0,
-        maximum_stock:0,
-        notes: ''
-      }
+      /*this.$refs.movementForm?.reset()
+      this.selectedOrder = null      */
     },
 
     async saveMovement() {
       const isValid = await this.$refs.movementForm.validate()
       if (!isValid) return
       
-      this.savingMovement = true;
+      this.savingMovement = true
       try {
-        let endpoint, data;
+        let endpoint, data    
         
-        if (this.selectedStockItem) {
-          // Existing stock - record movement
-          endpoint = `${this.$routes["stocks"]}/${this.selectedStockItem.id}/movements`
-          data = {
-            movement_type: this.movement.movement_type,
-            quantity: this.movement.movement_type === 'salida' ? -Math.abs(this.movement.quantity) : Math.abs(this.movement.quantity),
-            notes: this.movement.notes
-          }
-        } else {
-          // New stock - create or update
-          endpoint = `${this.$routes["stocks"]}/create-or-update`
-          data = {
-            product_id: this.movement.product_id,
-            warehouse_id: this.movement.warehouse_id,
-            quantity: this.movement.quantity,
-            minimum_stock: this.movement.minimum_stock,
-            maximum_stock: this.movement.maximum_stock
-          }
+        // New stock - create or update
+        endpoint = `${this.$routes["orders"]}/${this.selectedOrder.id}`
+        data = {
+          data: {
+            status_id: this.movement.status_id },          
         }
         
-        await this.$axios.post(endpoint, data)
-        this.showSnackbar('Movimiento registrado correctamente', 'success')
+        
+        await this.$axios.put(endpoint, data)
+        this.showSnackbar('Estado actualizado correctamente', 'success')
         this.closeMovementDialog()
         await this.fetchData()
       } catch (error) {
@@ -778,5 +949,12 @@ export default {
 
 .text-disabled {
   color: #9E9E9E;
+}
+.info-field {
+  padding: 8px 0;
+}
+
+.v-card-title {
+  padding-bottom: 12px;
 }
 </style>

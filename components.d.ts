@@ -11,6 +11,7 @@ declare module 'vue' {
     CardStatisticsVertical: typeof import('./resources/js/@core/components/cards/CardStatisticsVertical.vue')['default']
     CardStatisticsWithImages: typeof import('./resources/js/@core/components/cards/CardStatisticsWithImages.vue')['default']
     copy: typeof import('./resources/js/components/PaymentsRow copy.vue')['default']
+    DateRangeField: typeof import('./resources/js/components/DateRangeField.vue')['default']
     ErrorHeader: typeof import('./resources/js/components/ErrorHeader.vue')['default']
     Filter: typeof import('./resources/js/components/Filter.vue')['default']
     MoreBtn: typeof import('./resources/js/@core/components/MoreBtn.vue')['default']
