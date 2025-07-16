@@ -69,8 +69,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::apiResource('statuses', App\Http\Controllers\StatusController::class);
     Route::apiResource('payment-methods', App\Http\Controllers\PaymentMethodController::class);
     Route::apiResource('orders', App\Http\Controllers\OrderController::class);
+    //reports
     Route::get('orders/invoice/{id}', [App\Http\Controllers\OrderController::class, "generateInvoice"]);
     Route::get('orders/invoice2/{id}', [App\Http\Controllers\OrderController::class, "generateInvoice2"]);
+    Route::get('orders-delivery', [App\Http\Controllers\OrderController::class, "generateDeliveryReport"]);
+    Route::get('orders-customers-delivery', [App\Http\Controllers\OrderController::class, "generateCustomerDeliveryReport"]);
 
     Route::apiResource('roles', App\Http\Controllers\RoleController::class);
 

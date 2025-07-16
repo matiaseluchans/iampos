@@ -3,7 +3,7 @@
     <VCol cols="6">
       <VTextField
         v-model="start"
-        label="Desde"
+        :label="modelLabel?modelLabel+' Desde':'Desde'"
         placeholder="dd/mm/yyyy"
         v-mask="'##/##/####'"
         :error-messages="startError"
@@ -15,7 +15,7 @@
     <VCol cols="6">
       <VTextField
         v-model="end"
-        label="Hasta"
+        :label="modelLabel?modelLabel+' Hasta':'Hasta'"
         placeholder="dd/mm/yyyy"
         v-mask="'##/##/####'"
         :error-messages="endError"
@@ -33,7 +33,10 @@ export default {
     modelValue: {
       type: Object,
       default: () => ({ start: null, end: null })
-    }
+    },
+    modelLabel: {
+      type: String, default: ()=> '',
+    },
   },
   data() {
     return {
@@ -68,8 +71,7 @@ export default {
         )   
     },
 
-    validateStart() {
-        console.log(this.start);
+    validateStart() {        
       if (this.start && !this.isValidDate(this.start)) {
         this.startError = 'Fecha inválida'
       } else {

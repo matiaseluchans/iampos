@@ -142,4 +142,14 @@ class OrderController extends Controller
         // Generar PDF
         $mpdf->Output("factura_{$order->order_number}.pdf", \Mpdf\Output\Destination::INLINE);
     }
+
+    public function generateDeliveryReport(Request $request)
+    {
+        return $this->repository->generateDeliveryReport($request);
+    }
+
+    public function generateCustomerDeliveryReport(Request $request)
+    {
+        return $this->repository->generateCustomerDeliveryReport($request);
+    }
 }

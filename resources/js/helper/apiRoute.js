@@ -21,4 +21,6 @@ export const apiRoute = Object.freeze({
   orders: "api/orders",
   payments: "api/payments",
   usersList: "api/users-list",
+  ordersDelivery: "api/orders-delivery",
+  ordersCustomersDelivery: "api/orders-customers-delivery",
 })

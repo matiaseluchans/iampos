@@ -10,11 +10,13 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 
+use Mpdf\Mpdf;
+use Mpdf\Config\ConfigVariables;
+use Mpdf\Config\FontVariables;
+
+
 class OrderRepository extends BaseRepository
-{
-
-
-    //public function __construct(Order $m, array $relations = ['customer', 'status', 'orderType', 'shippingStatus', 'paymentStatus'])
+{    
     public function __construct(Order $m, array $relations = ['customer', 'status', 'orderType'])
     {
         parent::__construct($m, $relations);
@@ -150,6 +152,185 @@ class OrderRepository extends BaseRepository
             report($e);
             return $this->errorResponse($e);
         }
+    }
+
+
+    public function generateDeliveryReport($request)
+    {                
+        $validator = Validator::make($request->all(), [
+        'start_date' => 'required|date',
+        'end_date' => 'required|date|after_or_equal:start_date',
+        ],
+        [
+        "start_date.required" => getMsg("required"),
+        "start_date.date_format" => getMsg("date_format"),
+        "end_date.required" => getMsg("required"),
+        "end_date.date_format" => getMsg("date_format"),                
+        ]);
+
+        if ($validator->fails()) {
+            $errors = implode(', ', $validator->errors()->all());
+            return $this->errorResponse(null, $errors);
+        }
+
+        $startDate = $request->input('start_date'); // Formato: Y-m-d
+        $endDate = $request->input('end_date');
+
+        $dates = Carbon::parse($startDate)->format('d/m/Y').' - '.Carbon::parse($endDate)->format('d/m/Y');
+
+        /*$orders = $this->model::whereBetween('delivery_date',[
+            Carbon::parse($startDate)->startOfDay(),
+            Carbon::parse($endDate)->endOfDay()])
+            ->join('order_items', 'orders.id', '=', 'order_items.order_id')
+            ->join('products', 'order_items.product_id', '=', 'products.id')
+            ->select([
+                'order_items.product_id',
+                'products.name', // Nombre del producto
+                DB::raw('SUM(order_items.quantity) as total_quantity')
+            ])
+            ->groupBy('order_items.product_id', 'products.name')
+            ->get();*/
+        
+        $ordersQuery = $this->model::select([
+                'order_items.product_id',
+                'products.name', // Nombre del producto
+                DB::raw('SUM(order_items.quantity) as total_quantity')])
+            ->join('order_items', 'orders.id', '=', 'order_items.order_id')
+            ->join('products', 'order_items.product_id', '=', 'products.id')
+        ->whereBetween('delivery_date',[Carbon::parse($startDate)->startOfDay(), Carbon::parse($endDate)->endOfDay()]);
+
+        if($request->input('status_id'))
+        {
+            $ordersQuery->where('status_id', $request->input('status_id'));
+        }
+        if($request->input('customers')){
+            $ordersQuery->whereIn('customer_id', $request->input('customers'));
+        }
+            
+        $orders = $ordersQuery->groupBy('order_items.product_id', 'products.name')->get();            
+        
+        $totalQuantity = $orders->sum('total_quantity'); 
+            
+        // Configuración de mPDF
+        $defaultConfig = (new ConfigVariables())->getDefaults();
+
+        $mpdf = new \Mpdf\Mpdf([
+            'mode' => 'utf-8',
+            'format' => [120, 297], // 80mm de ancho, alto automático
+            'margin_left' => 2,
+            'margin_right' => 2,
+            'margin_top' => 5,
+            'margin_bottom' => 5,
+            'margin_header' => 2,
+            'margin_footer' => 2,
+            'default_font_size' => 8,
+            'default_font' => 'Arial',
+            'orientation' => 'P'
+        ]);
+
+        // Para maximizar compatibilidad con impresoras térmicas
+        $mpdf->showImageErrors = true;
+        $mpdf->simpleTables = true;
+        $mpdf->packTableData = true;
+        
+        // Vista de la factura
+        $html = view('invoices.delivery', [
+            'dates' => $dates,
+            'orders' => $orders,
+            'total'=>$totalQuantity,
+            'date' => now()->format('d/m/Y'),
+            'logo' => public_path('logo.png')
+        ])->render();
+
+
+        $mpdf->WriteHTML($html);
+
+        // Generar PDF
+        return $mpdf->Output("orden_entrega.pdf", \Mpdf\Output\Destination::INLINE);
+    }
+
+    public function generateCustomerDeliveryReport($request)
+    {                
+        $validator = Validator::make($request->all(), [
+        'start_date' => 'required|date',
+        'end_date' => 'required|date|after_or_equal:start_date',
+        ],
+        [
+        "start_date.required" => getMsg("required"),
+        "start_date.date_format" => getMsg("date_format"),
+        "end_date.required" => getMsg("required"),
+        "end_date.date_format" => getMsg("date_format"),                
+        ]);
+
+        if ($validator->fails()) {
+            $errors = implode(', ', $validator->errors()->all());
+            return $this->errorResponse(null, $errors);
+        }
+
+        $startDate = $request->input('start_date'); // Formato: Y-m-d
+        $endDate = $request->input('end_date');
+
+        $dates = Carbon::parse($startDate)->format('d/m/Y').' - '.Carbon::parse($endDate)->format('d/m/Y');        
+
+        $ordersQuery = $this->model::select([
+                'customers.id',
+                'customers.address',
+                'order_items.product_id',
+                'products.name', // Nombre del producto
+                DB::raw('SUM(order_items.quantity) as total_quantity')])
+            ->join('customers', 'customers.id', '=', 'orders.customer_id')
+            ->join('order_items', 'orders.id', '=', 'order_items.order_id')
+            ->join('products', 'order_items.product_id', '=', 'products.id')
+        ->whereBetween('delivery_date',[Carbon::parse($startDate)->startOfDay(), Carbon::parse($endDate)->endOfDay()]);
+
+        if($request->input('status_id'))
+        {
+            $ordersQuery->where('status_id', $request->input('status_id'));
+        }
+        if($request->input('customers')){
+            $ordersQuery->whereIn('customer_id', $request->input('customers'));
+        }
+            
+        $orders = $ordersQuery->groupBy( 'customers.id', 'customers.address', 'order_items.product_id', 'products.name')->orderBy('customers.id', 'desc')->get();            
+        
+        $totalQuantity = $orders->sum('total_quantity'); 
+            
+        // Configuración de mPDF
+        $defaultConfig = (new ConfigVariables())->getDefaults();
+
+        $mpdf = new \Mpdf\Mpdf([
+            'mode' => 'utf-8',
+            'format' => [120, 297], // 80mm de ancho, alto automático
+            'margin_left' => 2,
+            'margin_right' => 2,
+            'margin_top' => 5,
+            'margin_bottom' => 5,
+            'margin_header' => 2,
+            'margin_footer' => 2,
+            'default_font_size' => 8,
+            'default_font' => 'Arial',
+            'orientation' => 'P'
+        ]);
+
+        // Para maximizar compatibilidad con impresoras térmicas
+        $mpdf->showImageErrors = true;
+        $mpdf->simpleTables = true;
+        $mpdf->packTableData = true;
+        
+        // Vista de la factura
+        $html = view('invoices.deliveryCustomers', [
+            'dates' => $dates,
+            'orders' => $orders,
+            'total'=>$totalQuantity,
+            'date' => now()->format('d/m/Y'),
+            'logo' => public_path('logo.png')
+        ])->render();
+
+
+        $mpdf->WriteHTML($html);
+
+        // Generar PDF
+        return $mpdf->Output("orden_entrega.pdf", \Mpdf\Output\Destination::INLINE);
     }
 
 }

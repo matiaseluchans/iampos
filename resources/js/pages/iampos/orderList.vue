@@ -23,11 +23,12 @@
                   <VAutocomplete
                     v-model="selectedCustomer"
                     :items="customers"
-                    :item-title="(firstname)?'firstname':'address'"
+                    :item-title="(customers.firstname)?'firstname':'address'"
                     item-value="id"
                     label="Clientes"
-                    clearable
+                    
                     multiple
+                    clearable
                   />
                 </VCol>                
               </VRow>
@@ -43,7 +44,7 @@
                   />
                 </VCol>                
                 <VCol cols="12" sm="6" class="pl-0 pt-20 py-2">
-                  <DateRangeField v-model="dateRange" />                  
+                  <DateRangeField v-model="dateRange" modelLabel='Fecha Entrega' />                  
                 </VCol>
               </VRow>
             </VCardText>
@@ -70,6 +71,9 @@
         <template #item.customer.firstname="{ item }">
           <span v-if="item.customer.firstname">{{ item.customer.firstname+' '+item.customer.lastname }}</span>          
         </template>
+        <template #item.delivery_date="{ item }">                                
+            <strong>{{ getDate(item.delivery_date) }}</strong>          
+        </template>
         <template #item.total_cost="{ item }">                      
           <div class="text-right text-error">
             <strong>{{ formatCurrency(item.total_cost) }}</strong>
@@ -81,7 +85,7 @@
           </div>
         </template>
         <template #item.customer="{ item }">                                
-            <strong>{{ getCustomer(item.customer) }}</strong>          
+          <strong>{{ getCustomer(item.customer) }}</strong>          
         </template>
         <template #item.total_amount="{ item }">                      
           <div :class=" (item.total_profit>0)? 'text-right text-success':'text-right text-error'">
@@ -89,7 +93,7 @@
           </div>
         </template>
         <template #item.shipping="{ item }">                                
-            <strong>{{ item.shipping =="1"?'Con envío':'Sin envío' }}</strong>          
+          <strong>{{ item.shipping =="1"?'Con envío':'Sin envío' }}</strong>          
         </template>
         <template #item.status.name="{ item }">    
           <div class="d-flex align-center gap-2">
@@ -101,7 +105,7 @@
             </VChip>            
           </div>                                
         </template>      
-       <!-- Actions -->
+        <!-- Actions -->
         <template #item.actions="{ item }">
           <div class="d-flex justify-center align-center gap-1">              
             <!-- Icono de hamburguesa para el menú de acciones -->
@@ -118,52 +122,44 @@
               <!-- Opciones del menú -->
               <VList>                
                 <VListItem @click="showFactura2(item)">
-                  <VListItemContent>                      
-                      <VListItemTitle>
-                        <IconBtn
-                        size="small"
-                        class="my-1"
-                        title="Remito"
-                        
-                      >
-                        <VIcon icon="ri-file-pdf-2-line" />
-                      </IconBtn>
-                      </VListItemTitle>                                              
-                  </VListItemContent>
+                  <VListItemTitle>
+                    <IconBtn
+                      size="small"
+                      class="my-1"
+                      title="Remito">
+                      <VIcon icon="ri-file-pdf-2-line" />
+                    </IconBtn>
+                  </VListItemTitle>
                 </VListItem>
                 
-                <VListItem  @click="showFactura(item)">
-                  <VListItemContent>                      
-                      <VListItemTitle>
-                        <IconBtn
-                        size="small"
-                        class="my-1"
-                        title="Comanda"                        
-                      >
-                        <VIcon icon="ri-file-pdf-2-line" />
-                      </IconBtn>
-                      </VListItemTitle>                                              
-                  </VListItemContent>
+                <VListItem @click="showFactura(item)">                  
+                  <VListItemTitle>
+                    <IconBtn
+                      size="small"
+                      class="my-1"
+                      title="Comanda">
+                      <VIcon icon="ri-file-pdf-2-line" />
+                    </IconBtn>
+                  </VListItemTitle>                  
                 </VListItem>
-                <VListItem @click="openMovementDialog(item)">
-                  <VListItemContent>                      
-                      <VListItemTitle>
-                        <IconBtn
-                          size="small"
-                          class="my-1"
-                          title="Cambiar el estado de la orden"
-                          @click="openMovementDialog(item)"
-                        >
-                          <VIcon icon="ri-swap-box-line" />
-                        </IconBtn>
-                      </VListItemTitle>                                              
-                  </VListItemContent>
+                <VListItem @click="openMovementDialog(item)">                  
+                  <VListItemTitle>
+                    <IconBtn
+                      size="small"
+                      class="my-1"
+                      title="Cambiar el estado de la orden"
+                      @click="openMovementDialog(item)">
+                      <VIcon icon="ri-swap-box-line" />
+                    </IconBtn>
+                  </VListItemTitle>                                                                
                 </VListItem>                
               </VList>
             </VMenu>
           </div>
         </template>        
-      </VDataTable>                  
+      </VDataTable>
+      
+      
 
       <VDialog v-model="movementDialog" max-width="45%">
         <VCard>
@@ -322,6 +318,14 @@
         </template>
       </v-snackbar>
     </VCardText>
+    <VCardActions class="justify-end  custom-actions"> <!-- Clase clave -->
+      <VBtn variant="outlined" color="success" @click="getDeliveryReport(1)">
+        Reporte de Entregas
+      </VBtn>
+      <VBtn variant="outlined" color="warning" @click="getDeliveryReport(2)">
+        Reporte de Entregas Cliente
+      </VBtn>
+    </VCardActions>    
   </VCard>
 </template>
 
@@ -368,9 +372,10 @@ export default {
       
       // Headers
       headers: [
-        { title: 'Acciones', key: 'actions', sortable: false },
-        { title: 'Orden', key: 'order_number'  }, 
-        { title: 'Fecha', key: 'order_date'  },           
+        { title: 'Acciones', key: 'actions', sortable: false, align: 'center' },
+        { title: 'Orden', key: 'order_number' }, 
+        { title: 'Fecha', key: 'order_date' },           
+        { title: 'Fecha Entrega', key: 'delivery_date'  },           
         { title: 'Cliente', key: 'customer' },         
         { title: 'Total', key: 'total_amount', align: 'end' },
         { title: 'Envio', key: 'shipping', align: 'center' },
@@ -391,37 +396,48 @@ export default {
     filteredStock() {
       let filtered = this.orders;      
       
-      // Filtrar por producto seleccionado
-      if (this.selectedCustomer) {
-        //console.log(this.selectedCustomer);
+      // Filtrar por producto seleccionado      
+           
+      if (this.selectedCustomer && this.selectedCustomer.length>0) {        
         filtered = filtered.filter(item => {
           const customerId = item.customer?.id
-
+            
           return customerId !== undefined && this.selectedCustomer.includes(customerId);
-        })
+        })              
       }
+      
+      
+      
+      //console.log(this.selectedCustomer);
       if (this.selectedStatus) {
         filtered = filtered.filter(item => item.status?.id === this.selectedStatus);
       }                        
 
-      if (this.dateRange && this.dateRange.start && this.dateRange.end) {
+      if (this.dateRange?.start && this.dateRange?.end) {
         const startDate = this.normalizeDateToStartOfDay(this.dateRange.start).getTime();
         const endDate = this.normalizeDateToEndOfDay(this.dateRange.end).getTime();
-        
-        
-        filtered = filtered.filter(item => {
-          const orderDate = this.parseDdMmYyyyToDate(item.order_date);
-          if (!orderDate) return false;
 
+        filtered = filtered.filter(item => {          
+         // console.log("delivery_date original:", item.delivery_date);
+
+          const orderDate = this.parseDdMmYyyyToDate(item.delivery_date);
+          
+          //console.log("orderDate parsed:", orderDate);
+
+          if (!orderDate) return false;
           const orderTime = orderDate.getTime();
+          
+          //console.log("orderTime:", orderTime);
+
           const isInRange = orderTime >= startDate && orderTime <= endDate;
 
-          // Debug opcional
-           //console.log(`Order: ${item.order_date} | Timestamp: ${orderTime} | InRange: ${isInRange}`)
+          /*console.log(
+            `Fecha: ${item.delivery_date} | Timestamp: ${orderTime} | Rango: ${startDate}-${endDate} | InRange: ${isInRange}`
+          );*/
 
-          return isInRange
-        })
-      }      
+          return isInRange;
+        });
+      }     
 
       return filtered
     },
@@ -454,19 +470,38 @@ export default {
 
       return true
     },
+    
+    // Convierte una fecha (string o Date) al inicio del día (00:00:00)
     normalizeDateToStartOfDay(date) {
-      return new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0)
-    },
-    normalizeDateToEndOfDay(date) {
-      return new Date(date.getFullYear(), date.getMonth(), date.getDate()+1, 23, 59, 59)
-    },
-    parseDdMmYyyyToDate(str) {
-      const [d, m, yAndTime] = str.split('/')
-      const [y, time] = yAndTime.split(' ')
-      const [hours, minutes, seconds] = time.split(':')
+      const d = new Date(date);
+      d.setHours(0, 0, 0, 0); // Asegura 00:00:00.000
 
-      return new Date(Number(y), Number(m) - 1, Number(d), Number(hours), Number(minutes), Number(seconds))
-    },        
+      return d;
+    },
+
+    // Convierte una fecha (string o Date) al final del día (23:59:59.999)
+    normalizeDateToEndOfDay(date) {
+      const d = new Date(date);
+      d.setHours(23, 59, 59, 999); // Asegura 23:59:59.999
+
+      return d;
+    },
+
+    // Parsea "dd/mm/yyyy" a objeto Date válido
+    parseDdMmYyyyToDate(dateString) {
+      if (!dateString) return null;
+
+      // Elimina la parte de la hora si existe (ej: "16/07/2025 00:00:00" => "16/07/2025")
+      const datePart = dateString.split(' ')[0]; 
+      const [day, month, year] = datePart.split('/').map(Number);
+
+      // Valida que day, month y year sean números válidos
+      if (isNaN(day) || isNaN(month) || isNaN(year)) return null;
+
+      // Crea la fecha en UTC para evitar problemas de zona horaria
+      return new Date(Date.UTC(year, month - 1, day)); // ¡Los meses en JS van de 0 a 11!
+    },
+        
     getCustomer(customer) {
       if (!customer) return 'Cliente no disponible'
       
@@ -569,13 +604,57 @@ export default {
     formatDate(date) {
       return new Date(date).toLocaleString()
     },
-    
+    getDate(date){      
+      const dateTime = date.toLocaleString(); // Ejemplo: "17/07/2025, 12:30:45"
+      const onlyDate = dateTime.split(' ')[0]; // Obtiene todo antes de la coma
+
+      return onlyDate; // "17/07/2025"    
+    },
     showSnackbar(text, color) {
       this.snackbarText = text
       this.snackbarColor = color
       this.snackbar = true
     },
+    async getDeliveryReport(type) {
+      try {        
+        // Mostrar loader mientras se genera el PDF
+        this.loading = true
 
+        const urlReport = (type == 1)?`${this.$routes["ordersDelivery"]}`:`${this.$routes["ordersCustomersDelivery"]}`
+
+        const params = {
+          start_date: this.dateRange.start, // Formato: YYYY-MM-DD
+          end_date: this.dateRange.end,
+          status_id: this.selectedStatus,          
+          customers: this.selectedCustomer,          
+        }
+        
+        // Llamar al endpoint de Laravel que genera el PDF
+        const response = await this.$axios.get(
+         urlReport,
+          { params,
+            responseType: 'blob',
+          },
+        )
+                 
+        var blob = new Blob([response.data], { type: "application/pdf" })
+        const url = window.URL.createObjectURL(blob, { oneTimeOnly: true })
+        const link = document.createElement("a")
+        link.target = "_blank"
+
+        link.href = url
+
+        document.body.appendChild(link);
+        link.click();
+    
+        
+      } catch (error) {
+        console.error('Error generando reporte:', error	);
+        this.showSnackbar('Error al generar la reporte', 'error');
+      } finally {
+        this.loading = false;
+      }
+    },
     async showFactura(item) {
       try {
         // Mostrar loader mientras se genera el PDF
@@ -664,5 +743,8 @@ export default {
 
 .v-card-title {
   padding-bottom: 12px;
+}
+.custom-actions {
+  padding: 8px 16px; /* Ajusta el espaciado interno si es necesario */
 }
 </style>

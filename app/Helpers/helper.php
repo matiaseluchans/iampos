@@ -222,14 +222,22 @@ function isUserAdmin()
 function formatDate($date)
 {
 
-    /*$fParte = Carbon::createFromFormat('d/m/Y H:i', $form['fecha_parte']);
-    $fHecho = Carbon::createFromFormat('d/m/Y H:i', $form['fecha_hecho']);
-    $fechaParte = $fParte->format('Y-m-d H:i:s');
-    $fechaHecho = $fHecho->format('Y-m-d H:i:s');*/
-
     if($date){
         $formattedDate = Carbon::createFromFormat('d/m/Y H:i', $date);
         return $formattedDate->format('Y-m-d H:i:s');
+    }
+
+    return null;
+    
+}
+
+function formatDateInverse($date)
+{
+
+    if($date){
+        dd($date);
+        $formattedDate = Carbon::createFromFormat('Y-m-d H:i:s', $date);
+        return $formattedDate->format('d/m/Y');
     }
 
     return null;
