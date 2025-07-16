@@ -347,12 +347,8 @@
       </VCol>
     </VRow>
     
-    <VRow class="">
-       
-
-      
-
-      <VCol cols="12" sm="12"  md="12">
+    <VRow>           
+      <VCol cols="12" sm="6"  md="6">
         <VCard>          
           <div class="v-card-item"> 
             <div class="v-card-item__content">
@@ -362,6 +358,27 @@
           </div> 
           <VCardText>
             <VTextarea v-model="order.notes" label="Notas de la orden" rows="2" />
+          </VCardText>
+        </VCard>
+      </VCol>
+      <VCol cols="12" sm="6"  md="6">
+        <VCard>          
+          <div class="v-card-item"> 
+            <div class="v-card-item__content">
+              <div class="v-card-title"><h5 class="text-h5">
+                <VAvatar   icon="ri-truck-line" class="text-info mr-2" variant="tonal"/>Fecha de Entrega</h5></div> 
+            </div> 
+          </div> 
+          <VCardText>
+            <VTextField
+              v-model="order.delivery_date"
+              label="Fecha de Entrega"
+              placeholder="dd/mm/yyyy"
+              v-mask="'##/##/####'"              
+              clearable
+              @focus="setDate(order.delivery_date)"
+              :disabled="!order.shipping_address_status"
+            />
           </VCardText>
         </VCard>
       </VCol>
@@ -583,8 +600,8 @@
 
 <script>
 import { VAvatar, VCardItem, VTextField } from "vuetify/lib/components/index.mjs";
-
 import PaymentsRow from "@/components/PaymentsRow.vue";
+import { mapGetters } from 'vuex';
 
 export default {
   data() {
@@ -677,6 +694,9 @@ export default {
   },
 
   computed: {
+    ...mapGetters({
+      userIsAdmin: 'isAdmin',  // Mapea `isAdmin` del store a `userIsAdmin` en el componente
+    }),
     selectedCustomer() {
       return this.customers.find((c) => c.id === this.order.customer_id);
     },
@@ -710,14 +730,21 @@ export default {
   },
 
   methods: {
+    setDate(value){
+      if(value) return
+      let tomorrow = this.getDateTimeTomorrow()
+
+      this.order.delivery_date = tomorrow
+    },  
     updateTotal(nuevoTotal) {      
       this.totalPaid = nuevoTotal
       this.change = (this.totalPaid>this.createdOrder.order.total_amount)? this.totalPaid - this.createdOrder.order.total_amount:0;
     },
     async loadData() {
       try {
-        this.isAdmin = this.$is(["bebidas-admin", "petshop-admin"]);
-        
+        //this.isAdmin = this.$is(["bebidas-admin", "petshop-admin"]);
+        this.isAdmin = this.userIsAdmin;
+
         const [
           customersRes,
           productsRes,

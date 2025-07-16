@@ -47,7 +47,7 @@ router.beforeEach(async (to, from, next) => {
 
   const currentUser = store.getters.currentUser
   
-  console.log(currentUser);
+  //console.log(currentUser);
   // Lógica de redirección
   if (requiresAuth && !store.getters.isAuthenticated) {
     next('/login')

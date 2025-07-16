@@ -15,6 +15,7 @@ class Order extends Model
 
     protected $fillable = [
         'order_date',
+        'delivery_date',
         'order_number',
         'customer_id',
         'customer_details',
@@ -40,6 +41,7 @@ class Order extends Model
 
     protected $casts = [
         'order_date' => 'datetime:d/m/Y H:i:s',
+        'delivery_date' => 'datetime:d/m/Y H:i:s',
         'created_at' => 'datetime:d/m/Y H:i:s',
         'updated_at' => 'datetime:d/m/Y H:i:s',
         'deleted_at' => 'datetime:d/m/Y H:i:s',

@@ -3,6 +3,7 @@ import { VBtn } from 'vuetify/components/VBtn'
 import defaults from './defaults'
 import { icons } from './icons'
 import { themes } from './theme'
+import { es } from 'vuetify/locale'
 
 // Styles
 import '@core-scss/template/libs/vuetify/index.scss'
@@ -19,6 +20,10 @@ export default function (app) {
       defaultTheme: 'light',
       themes,
       
+    },
+    locale: {
+      locale: 'es',
+      messages: { es },
     },
   })
 

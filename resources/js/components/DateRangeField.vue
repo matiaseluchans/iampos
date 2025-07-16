@@ -1,7 +1,7 @@
 <template>
-  <v-row dense>
-    <v-col cols="6">
-      <v-text-field
+  <VRow dense>
+    <VCol cols="6">
+      <VTextField
         v-model="start"
         label="Desde"
         placeholder="dd/mm/yyyy"
@@ -10,10 +10,10 @@
         @blur="validateStart"
         clearable
       />
-    </v-col>
+    </VCol>
 
-    <v-col cols="6">
-      <v-text-field
+    <VCol cols="6">
+      <VTextField
         v-model="end"
         label="Hasta"
         placeholder="dd/mm/yyyy"
@@ -22,8 +22,8 @@
         @blur="validateEnd"
         clearable
       />
-    </v-col>
-  </v-row>
+    </VCol>
+  </VRow>
 </template>
 
 <script>

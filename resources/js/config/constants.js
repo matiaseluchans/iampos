@@ -1,0 +1,1 @@
+export const ADMIN_ROLES = ["bebidas-admin", "petshop-admin", "super-admin"]

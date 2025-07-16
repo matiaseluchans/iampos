@@ -376,6 +376,24 @@ export default {
       return fechaHoraFormateada;
     }
 
+    Vue.config.globalProperties.getDateTimeTomorrow = function() {
+      const tomorrow = new Date();
+      
+      tomorrow.setDate(tomorrow.getDate() + 1);
+    
+      // Obtener los componentes de fecha y hora
+      const dia = tomorrow.getDate().toString().padStart(2, '0');
+      const mes = (tomorrow.getMonth() + 1).toString().padStart(2, '0');
+      const año = tomorrow.getFullYear();
+      const horas = tomorrow.getHours().toString().padStart(2, '0');
+      const minutos = tomorrow.getMinutes().toString().padStart(2, '0');
+    
+      // Formatear la fecha y hora en el formato deseado
+      const fechaHoraFormateada = `${dia}/${mes}/${año} ${horas}:${minutos}`;
+    
+      return fechaHoraFormateada;
+    }
+
     Vue.config.globalProperties.$formatDateDb= function (date) {
       if (!date) return null;
 

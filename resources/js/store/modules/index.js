@@ -1,6 +1,9 @@
 // store/index.js
 import { createStore } from 'vuex'
 
+//const ADMIN_ROLES = ["bebidas-admin", "petshop-admin", "super-admin"]
+import { ADMIN_ROLES } from '@/config/constants';
+
 export default createStore({
   state: {
     user: null,
@@ -38,7 +41,15 @@ export default createStore({
     currentUser: state => state.user,
     userPermissions: state => {
       if (!state.user?.roles) return []
+
       return state.user.roles.flatMap(role => role.permissions.map(p => p.name))
-    }    
+    },
+
+    isAdmin: state => {            
+      if (!state.user?.data.roles) return false
+      const userRoles = state.user.data.roles
+
+      return ADMIN_ROLES.some(r => userRoles.includes(r))
+    },
   }
 })

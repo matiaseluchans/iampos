@@ -83,24 +83,23 @@ class OrderRepository extends BaseRepository
                 $sellerId = $form['seller_id']['id'];
                 $sellerName = $form['seller_id']['name'];
             }
-
+//dd($form['delivery_date']);
             $model->fill([                
                 'order_date'=>Carbon::now(),                
+                'delivery_date' => isset($form['delivery_date'])?  Carbon::createFromFormat('d/m/Y', $form['delivery_date'])->format('Y-m-d') :null,
                 'customer_id' => $form['customer_id'],
                 //'customer_details', //ver de guardar los datos del cliente
                 'shipping_address' => $form['shipping_address'],
                 'shipping' => isset($form['shipping'])?$form['shipping']:0,
                 'status_id' => 1,
-                'order_type_id' => 1,
-                //'shipping_status_id' => 1,
+                'order_type_id' => 1,                
                 'quantity_products' => $form['quantity_products'],
                 'subtotal' => $form['subtotal'],
                 'tax_amount' => $form['tax_amount'],
                 'discount_amount' => $form['discount_amount'],
                 'total_amount' => $form['total_amount'],
                 'total_cost' => $form['total_cost'],
-                'total_profit' => ($form['total_profit'])??0,
-                //'payment_status_id' => 1,
+                'total_profit' => ($form['total_profit'])??0,                
                 'notes' => $form['notes'],
                 'seller_id' => $sellerId,
                 'seller_name' => $sellerName,
