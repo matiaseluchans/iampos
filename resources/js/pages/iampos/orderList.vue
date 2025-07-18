@@ -71,6 +71,16 @@
         <template #item.customer.firstname="{ item }">
           <span v-if="item.customer.firstname">{{ item.customer.firstname+' '+item.customer.lastname }}</span>          
         </template>
+        <template #item.order_date="{ item }">
+          <div class="d-flex flex-column">
+            <span class="font-weight-medium">
+              {{ formatDateGrid(item.order_date.split(' ')[0]) }}
+            </span>
+            <small class="text-disabled">
+              {{ item.order_date.split(' ')[1] || '' }}
+            </small>
+          </div>
+        </template>
         <template #item.delivery_date="{ item }">                                
             <strong>{{ getDate(item.delivery_date) }}</strong>          
         </template>
@@ -374,8 +384,8 @@ export default {
       headers: [
         { title: 'Acciones', key: 'actions', sortable: false, align: 'center' },
         { title: 'Orden', key: 'order_number' }, 
-        { title: 'Fecha', key: 'order_date' },           
-        { title: 'Fecha Entrega', key: 'delivery_date'  },           
+        { title: 'Fecha', key: 'order_date', align: 'center' },           
+        { title: 'Fecha Entrega', key: 'delivery_date', align: 'center'  },           
         { title: 'Cliente', key: 'customer' },         
         { title: 'Total', key: 'total_amount', align: 'end' },
         { title: 'Envio', key: 'shipping', align: 'center' },
@@ -603,6 +613,11 @@ export default {
 
     formatDate(date) {
       return new Date(date).toLocaleString()
+    },
+    formatDateGrid(dateStr){
+      if (!dateStr) return ''
+      const [date, time] = dateStr.split(' ')
+      return `${date} ${time || ''}`
     },
     getDate(date){      
       const dateTime = date.toLocaleString(); // Ejemplo: "17/07/2025, 12:30:45"

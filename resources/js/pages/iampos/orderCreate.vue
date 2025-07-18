@@ -153,18 +153,25 @@
                 </VAutocomplete>
               </VCol>
               <VCol cols="4" md="1" >
-                <VTextField
-                  v-model="newItem.quantity"
-                  label="Cant"
-                  type="number"
-                  min="1"
-                  :rules="[
-                    (v) => !!v || 'Cantidad requerida',
-                    (v) => v > 0 || 'Debe ser mayor a 0',
-                    (v) => v <= getProductStock(newItem.product_id) || 'insuficiente',
-                  ]"
-                  density="compact"
-                />
+                <div>
+                  <VTextField
+                    v-model="newItem.quantity"
+                    label="Cant"
+                    type="number"
+                    min="1"
+                    :rules="[
+                      (v) => !!v || 'Cantidad requerida',
+                      (v) => v > 0 || 'Debe ser mayor a 0',
+                    ]"
+                    density="compact"
+                  />
+                  <div v-if="showStockWarning(newItem.product_id, newItem.quantity)" class="text-warning">
+                    <small>Stock insuficiente</small>
+                  </div>
+                  <div class="text-caption">
+                    Stock disponible: {{ getProductStock(newItem.product_id) }}
+                  </div>
+                </div>
               </VCol>
               <VCol cols="6" md="2" >
                 <VTextField
@@ -705,8 +712,8 @@ export default {
       return (
         this.newItem.product_id &&
         this.newItem.quantity > 0 &&
-        this.newItem.unit_price > 0 &&
-        this.newItem.quantity <= this.getProductStock(this.newItem.product_id)
+        this.newItem.unit_price > 0 /*&&
+        this.newItem.quantity <= this.getProductStock(this.newItem.product_id)*/
       );
     },
 
@@ -804,6 +811,9 @@ export default {
       return stockItem
         ? parseFloat(stockItem.quantity) - parseFloat(stockItem.reserved_quantity)
         : 0;
+    },
+    showStockWarning(productId, quantity) {
+      return quantity > this.getProductStock(productId);
     },
 
     calculateItemTotal() {

@@ -60,7 +60,7 @@ class OrderRepository extends BaseRepository
 
                 return $this->errorResponse(null, implode(', ', $errors));
             }           
-
+            /* comento validacion de stock
             foreach ($items as $item) {
                 $stock = Stock::where('product_id', $item['product_id'])->first();
                 
@@ -68,7 +68,7 @@ class OrderRepository extends BaseRepository
                     $errors[] = "No hay suficiente stock para el item ID {$item['product_id']}";
                 }
             }
-
+            */            
             if (count($errors)) {
                 return $this->errorResponse(null, implode(', ', $errors));
             }
@@ -130,13 +130,13 @@ class OrderRepository extends BaseRepository
                 //tengo q descontar del stock las cantidades de los items
                 $ids = collect($items)->pluck('product_id')->toArray();
 
-                //creo un update masivo
+                //creo un update masivo                
                 $sql = "UPDATE stocks SET quantity = CASE product_id ";
                 foreach ($items as $item) {
-                    $sql .= "WHEN {$item['product_id']} THEN quantity - {$item['quantity']} ";
+                    $sql .= "WHEN {$item['product_id']} THEN GREATEST(0, quantity - {$item['quantity']}) ";
                 }
                 $sql .= "END WHERE product_id IN (" . implode(',', $ids) . ")";
-                
+
                 DB::statement($sql);                
             }
             // Confirmar la transacción
