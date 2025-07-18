@@ -697,8 +697,7 @@ export default {
       },
 
       // Created order and payments
-      createdOrder: null,
-      orderPayments: [],
+      createdOrder: null,      
 
       // Snackbar
       snackbar: false,
@@ -716,8 +715,8 @@ export default {
       ],
       localities: [],
       keyPayments: 0,
-      change:0,
-      totalPaid:0,
+      change: 0,
+      totalPaid: 0,
       isAdmin: false,
     };
   },
@@ -765,8 +764,8 @@ export default {
 
       this.order.delivery_date = tomorrow
     },  
-    updateTotal(nuevoTotal) {      
-      this.totalPaid = nuevoTotal
+    updateTotal(newTotal) {      
+      this.totalPaid = newTotal
       this.change = (this.totalPaid>this.createdOrder.order.total_amount)? this.totalPaid - this.createdOrder.order.total_amount:0;
     },
     async loadData() {

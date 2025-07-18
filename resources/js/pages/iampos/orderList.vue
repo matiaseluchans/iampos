@@ -162,6 +162,20 @@
                       <VIcon icon="ri-swap-box-line" />
                     </IconBtn>Estado
                   </VListItemTitle>                                                                
+                </VListItem>
+                <VListItem 
+                  v-if="!isPaid(item)"
+                  @click="openPaymentForm(item)"
+                >
+                  <VListItemTitle>
+                    <IconBtn
+                      size="small"
+                      class="my-1"
+                      title="Registrar Pago"
+                      @click="openPaymentForm(item)">
+                      <VIcon icon="ri-swap-box-line" />
+                    </IconBtn>Registrar Pago
+                  </VListItemTitle>                                                                
                 </VListItem>                
               </VList>
             </VMenu>
@@ -318,6 +332,95 @@
         </VCard>
       </VDialog>
       
+      <!-- Dialog Registrar pagos -->
+      <VDialog v-model="paymentFormDialog" max-width="1000px">
+        <VCard>
+          <VToolbar color="success">
+            <VBtn icon="ri-close-line" color="white" @click="closePaymentForm" />
+            <VToolbarTitle>Registrar Pago</VToolbarTitle>
+          </VToolbar>
+          <VForm ref="paymentForm" v-model="validPayment">
+            <VCardText>                                            
+              <!-- aca debe ir la linea de pagos -->
+              <VRow class="justify-center">                
+                <VCol cols="12" md="12" sm="12">
+                  <VCard>     
+                    <div class="v-card-item"> 
+                      <div class="v-card-item__content">
+                        <div class="v-card-title">
+                          <h5 class="text-h5">
+                            <VAvatar icon="ri-money-dollar-circle-line" class="text-success mr-2" variant="tonal"/>Pagos
+                          </h5>
+                        </div> 
+                      </div> 
+                    </div>                    
+                    <VCardText>     
+                      <VRow>
+                        <VCol cols="12">
+                          <VAlert type="success" variant="tonal" class="mb-4" :icon="false">
+                            <VRow>
+                              <VCol cols="12" sm="9" class=" text-end text-h5 text-success">
+                                Total de la Orden: 
+                              </VCol>
+                              <VCol cols="12" sm="3" class=" text-end text-h5 text-success">
+                                {{ formatCurrency(createdOrder?.order?.total_amount) }}
+                              </VCol>
+                            </VRow>
+                            <VRow>
+                              <VCol cols="12" sm="9" class=" text-end pt-0 text-h5 text-success">
+                                Total Pagado:
+                              </VCol>
+                              <VCol cols="12" sm="3" class=" text-end pt-0 text-h5 text-success">
+                                {{ formatCurrency(totalPaid) }}
+                              </VCol>
+                            </VRow>
+                            <VRow class="pb-2">
+                              <VCol cols="12" sm="9" class=" text-end pt-0 text-h5 text-success">
+                                Saldo Pendiente:
+                              </VCol>
+
+                              <VCol cols="12" sm="3" class=" text-end pt-0  text-h5 text-success">
+                                {{ formatCurrency(pendingAmount) }}
+                              </VCol>
+                            </VRow>                            
+                            <VDivider 
+                              :thickness="3" 
+                              color="success" 
+                            />                            
+                            <VRow class="pt-4">
+                              <VCol cols="12" sm="9" class=" text-end pt-0 text-h5 text-success">
+                                Vuelto:
+                              </VCol>
+
+                              <VCol cols="12" sm="3" class=" text-end pt-0  text-h5 text-success">
+                                {{ formatCurrency(change) }}
+                              </VCol>
+                            </VRow>
+                          </VAlert>
+                        </VCol>
+                      </VRow>
+                      <PaymentsRow                        
+                        ref="paymentsRow"
+                        :key="keyPayments"
+                        modulo="pagos"                        
+                        @update-total="updateTotal"
+                      />
+                    </VCardText>
+                  </VCard>               
+                </VCol>
+              </VRow>
+            </VCardText>
+            <VCardActions>
+              <VSpacer />
+              <VBtn variant="outlined" color="success" @click="closePaymentForm"> Cancelar </VBtn>
+              <VBtn class="bg-success" color="white" @click="savePayment" :loading="savingPayment">
+                Registrar Pago
+              </VBtn>
+            </VCardActions>
+          </VForm>
+        </VCard>
+      </VDialog>
+      
 
       <v-snackbar v-model="snackbar" :color="snackbarColor" :timeout="3000">
         {{ snackbarText }}
@@ -347,6 +450,18 @@ export default {
   components: { DateRangeField },
   data() {   
     return {
+      keyPayments: 1,
+      validPayment: false,
+      savingPayment: false,
+      change: 0,
+      totalPaid: 0,
+      
+      // Payment data
+      payment: {
+        amount: 0,
+        payment_method_id: null,
+        notes: "",
+      },
       selectedDate: null,      
       dateRange: {
         start: null,
@@ -362,7 +477,8 @@ export default {
       selectedOrder: null,            
 
       // Dialogs            
-      movementDialog: false,
+      movementDialog: false,      
+      paymentFormDialog: false,
       
       // Form validations
       validMovement: false,      
@@ -392,6 +508,7 @@ export default {
         { title: 'Estado', key: 'status.name' },                        
       ],            
       isAdmin: false,
+      createdOrder: { order: {} },      
     }
   },
 
@@ -414,10 +531,8 @@ export default {
             
           return customerId !== undefined && this.selectedCustomer.includes(customerId);
         })              
-      }
-      
-      
-      
+      }            
+
       //console.log(this.selectedCustomer);
       if (this.selectedStatus) {
         filtered = filtered.filter(item => item.status?.id === this.selectedStatus);
@@ -447,9 +562,14 @@ export default {
 
           return isInRange;
         });
-      }     
+      }      
 
       return filtered
+    },
+
+    pendingAmount()
+    {      
+      return this.createdOrder ? (this.totalPaid<this.createdOrder.order.total_amount)? this.createdOrder.order.total_amount - this.totalPaid : 0:0
     },
 
     movementFormTitle() {
@@ -471,6 +591,72 @@ export default {
   },
 
   methods: {
+
+    // Payment methods
+    openPaymentForm(item) {
+      this.keyPayments=+1
+      this.createdOrder.order = item        
+      this.paymentFormDialog = true
+    },
+    closePaymentForm() {
+      this.createdOrder.order = {}
+      this.paymentFormDialog = false      
+    },
+    updateTotal(newTotal) {      
+      this.totalPaid = newTotal
+      this.change = (this.totalPaid>this.createdOrder.order.total_amount)? this.totalPaid - this.createdOrder.order.total_amount:0
+    },
+    async  validatePayments(payments) {                        
+      if(payments.length<=0){
+        return "Debe incluir al menos una modalidad de pago";        
+      }
+
+      const paymentMethod = new Set();
+      const total = payments.reduce((acc, payment) => acc + parseFloat(payment.amount), 0);
+      /*if (total > this.pendingAmount) {        
+        return "El total excede el saldo pendiente";
+      }*/
+
+      for (const payment of payments) {                
+        if((!payment.amount)||(!payment.payment_method_id)){
+          return "Verifique la informacion de los pagos";
+        }
+        // 1. Verificar paymentMethod duplicados
+        if (paymentMethod.has(payment.payment_method_id.id)) {
+          return 'Ha seleccionado mas de una vez el mismo metodo de pago. Metodo de pago: '+payment.payment_method_id.name;          
+        }
+        paymentMethod.add(payment.payment_method_id.id);        
+      }       
+      
+      return true
+    },
+    async savePayment() {      
+      const isValid = await this.validatePayments(this.$refs.paymentsRow.payments);      
+          
+      if (isValid !== true) return this.showSnackbar(isValid, "error");
+
+      this.savingPayment = true
+      try {
+        const paymentData = {
+          //...this.payment,
+          order_id: this.createdOrder.order.id,
+          payments: this.$refs.paymentsRow.payments,
+        }
+
+        const response = await this.$axios.post(this.$routes["payments"], paymentData);        
+        if(response.status == 201){
+          this.showSnackbar("Pago registrado exitosamente", "success");     
+          this.closePaymentForm();
+          this.fetchData();
+        }        
+      } catch (error) {
+        console.error("Error saving payment:", error);
+        this.showSnackbar("Error al registrar el pago", "error");
+      } finally {
+        this.savingPayment = false
+      }
+    },
+    //end payments methods
     checkAdmin() {
       this.isAdmin = this.userIsAdmin      
     },
@@ -549,8 +735,7 @@ export default {
     },
 
     // Movement Dialog Methods
-    openMovementDialog(item) {
-      console.log(item)
+    openMovementDialog(item) {      
       if (item) {
         this.selectedOrder = item        
       } else {
@@ -608,7 +793,13 @@ export default {
       };
       
       return statusColorMap[item.status.code] || 'error';
-    },        
+    },  
+    
+    isPaid(item) {
+      const paids = [this.$statusOrders.PAID, this.$statusOrders.COMPLETED]
+      
+      return paids.includes(item.status.code)            
+    },  
     
 
     formatDate(date) {
