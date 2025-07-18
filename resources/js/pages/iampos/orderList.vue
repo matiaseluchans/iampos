@@ -795,8 +795,13 @@ export default {
       return statusColorMap[item.status.code] || 'error';
     },  
     
-    isPaid(item) {
-      const paids = [this.$statusOrders.PAID, this.$statusOrders.COMPLETED]
+    isPaid(item) {             
+      const paids = [this.$statusOrders.PAID, 
+        this.$statusOrders.COMPLETED, 
+        this.$statusOrders.REJECTED,
+        this.$statusOrders.CANCEL,
+        this.$statusOrders.REFUND,
+        this.$statusOrders.RETURNED]
       
       return paids.includes(item.status.code)            
     },  
