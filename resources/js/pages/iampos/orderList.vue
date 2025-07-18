@@ -138,7 +138,7 @@
                       class="my-1"
                       title="Remito">
                       <VIcon icon="ri-file-pdf-2-line" />
-                    </IconBtn>
+                    </IconBtn>Remito 2
                   </VListItemTitle>
                 </VListItem>
                 
@@ -149,7 +149,7 @@
                       class="my-1"
                       title="Comanda">
                       <VIcon icon="ri-file-pdf-2-line" />
-                    </IconBtn>
+                    </IconBtn>Remito
                   </VListItemTitle>                  
                 </VListItem>
                 <VListItem @click="openMovementDialog(item)">                  
@@ -160,7 +160,7 @@
                       title="Cambiar el estado de la orden"
                       @click="openMovementDialog(item)">
                       <VIcon icon="ri-swap-box-line" />
-                    </IconBtn>
+                    </IconBtn>Estado
                   </VListItemTitle>                                                                
                 </VListItem>                
               </VList>

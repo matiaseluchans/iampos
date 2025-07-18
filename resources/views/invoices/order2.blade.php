@@ -249,11 +249,11 @@
             <img class="logo" src="data:image/png;base64,{{ base64_encode(file_get_contents($logo)) }}" />
             @endif
             <div class="company-info">
-                <div class="company-name">Matias Eluchans SRL</div>
+                <div class="company-name">{{$order->tenant->name}}</div>
                 <div class="company-details">
-                    <div>Sargento Cabral 2005, Ramos Mejía</div>
-                    <div>CUIT: 30-12345678-9</div>
-                    <div>Tel: (011) 1234-5678</div>
+                    <div>{{$order->tenant->address}}</div>
+                    <div>CUIT: XX-XXXXXXXX-X</div>
+                    <div>Tel: {{$order->tenant->telephone}}</div>
                 </div>
             </div>
 
@@ -342,10 +342,19 @@
             </div>
             @endif
 
-            <div class="total-row grand-total">
-                <span class="total-label">TOTAL:</span>
-                <span class="total-value">${{ number_format($order->total_amount, 2, ',', '.') }}</span>
-            </div>
+
+            <table>
+                <tr>
+                    <td class="total-row grand-total">
+                        <span class="total-label">TOTAL:</span>
+                    </td>
+                    <td class="total-row grand-total total-value">
+                        ${{ number_format($order->total_amount, 2, ',', '.') }}
+                    </td>
+                </tr>
+            </table>
+
+
         </div>
 
         <!-- Notas -->

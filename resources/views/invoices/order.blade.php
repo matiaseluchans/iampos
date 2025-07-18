@@ -101,9 +101,9 @@
 
 <body>
     <div class="header">
-        <div class="company-name">MATIAS ELUCHANS SRL</div>
-        <div>Sargento Cabral 2005, Ramos Mejía</div>
-        <div>CUIT: 30-12345678-9 | Tel: (011) 1234-5678</div>
+        <div class="company-name">{{ $order->tenant->name}}</div>
+        <div>{{$order->tenant->address}}</div>
+        <div>CUIT: XX-XXXXXXXX-X | Tel: {{$order->tenant->telephone}}</div>
     </div>
 
     <div class="document-info">

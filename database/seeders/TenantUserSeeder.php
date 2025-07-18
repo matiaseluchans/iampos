@@ -57,13 +57,19 @@ class TenantUserSeeder extends Seeder
         $tenants = [
             [
                 "id" => 2,
-                "slug" => "bedidas",
-                "name" => "Bebidas"
+                "slug" => "bebidas",
+                "name" => "Bebidas R.L",
+                "address" => "Coronel Acha 785 R. Mejia",
+                "telephone" => "1165897555",
+                "email" => "ventasbebidas@bebidas.com"
             ],
             [
                 "id" => 3,
                 "slug" => "petshop",
-                "name" => "pet shop"
+                "name" => "pet shop Droopy",
+                "address" => "Av. Eva Peron 98 R. Mejia",
+                "telephone" => "1165897555",
+                "email" => "ventas@droopy.com"
             ]
         ];
 
@@ -73,7 +79,10 @@ class TenantUserSeeder extends Seeder
                 ['id' => $tenantData['id']],
                 [
                     'slug' => $tenantData['slug'],
-                    'name' => $tenantData['name']
+                    'name' => $tenantData['name'],
+                    'address' => $tenantData['address'],
+                    'telephone' => $tenantData['telephone'],
+                    'email' => $tenantData['email']
                 ]
             );
 
