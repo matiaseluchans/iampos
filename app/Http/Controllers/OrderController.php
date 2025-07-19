@@ -52,13 +52,14 @@ class OrderController extends Controller
         return $this->repository->changestatus($request, $id);
     }
 
-    public function generateInvoice($id)
+    public function generateRemitoComanda($id)
     {
+
 
         $order = Order::with([
             'customer',
             'items',
-            //'shippingStatus'
+            'payment'
         ])->findOrFail($id);
 
         // Configuración de mPDF
@@ -84,7 +85,7 @@ class OrderController extends Controller
         $mpdf->packTableData = true;
 
         // Vista de la factura
-        $html = view('invoices.order2', [
+        $html = view('invoices.remitoComanda', [
             'order' => $order,
             'date' => now()->format('d/m/Y'),
             'logo' => public_path('logo.png')
@@ -94,15 +95,15 @@ class OrderController extends Controller
         $mpdf->WriteHTML($html);
 
         // Generar PDF
-        $mpdf->Output("factura_{$order->order_number}.pdf", \Mpdf\Output\Destination::INLINE);
+        $mpdf->Output("remito_{$order->order_number}.pdf", \Mpdf\Output\Destination::INLINE);
     }
 
-    public function generateInvoice2($id)
+    public function generateRemito($id)
     {
         $order = Order::with([
             'customer',
             'items',
-            //'shippingStatus'
+            'payment'
         ])->findOrFail($id);
 
         // Configuración de mPDF
@@ -127,20 +128,17 @@ class OrderController extends Controller
         ]);
 
         // Vista de la factura
-        $html = view('invoices.order2', [
+        $html = view('invoices.remito', [
             'order' => $order,
             'date' => now()->format('d/m/Y'),
             'logo' => public_path('logo.png')
         ])->render();
 
-        // Añadir CSS directamente (opcional)
-        //$stylesheet = file_get_contents(public_path('css/invoice.css'));
-        //$mpdf->WriteHTML($stylesheet, \Mpdf\HTMLParserMode::HEADER_CSS);
 
         $mpdf->WriteHTML($html);
 
         // Generar PDF
-        $mpdf->Output("factura_{$order->order_number}.pdf", \Mpdf\Output\Destination::INLINE);
+        $mpdf->Output("remito_{$order->order_number}.pdf", \Mpdf\Output\Destination::INLINE);
     }
 
     public function generateDeliveryReport(Request $request)

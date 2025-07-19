@@ -55,16 +55,23 @@
             <!-- avatar -->                                        
         
             <div class="d-flex flex-column text-start">
-              <span class="d-block font-weight-medium text-high-emphasis text-truncate">{{ item.order_number }}</span>              
-              <small>PRODUCTOS: {{ item.quantity_products }}</small>
-              <div class="d-flex align-left gap-2">
+            
+                 <span class="d-block font-weight-medium text-high-emphasis text-truncate">{{ item.order_number }}
+                
+                </span>     
+                <small>Cant: {{ item.quantity_products }}</small>
+                 
+              
+                       
+              
+              <!--<div class="d-flex align-left gap-2">
                 <VChip
                   color="primary"
                   density="comfortable"
                 >
                   {{ item.order_type.name }}
-                </VChip>            
-              </div>
+                </VChip>           
+              </div> -->
             </div>            
           </div>
         </template>
@@ -81,8 +88,14 @@
             </small>
           </div>
         </template>
-        <template #item.delivery_date="{ item }">                                
-            <strong>{{ getDate(item.delivery_date) }}</strong>          
+        <template #item.delivery_date="{ item }">
+          <VRow v-if="item.shipping">
+            <VCol cols="12" md="3" class="d-flex align-center">
+              <VAvatar title="con envio" icon="ri-truck-line" class="text-info mr-2" variant="tonal"  size="40"/>
+            </VCol>
+            <VCol cols="12" md="3" class="d-flex align-center"><strong >{{ getDate(item.delivery_date) }}</strong>
+            </VCol>
+          </VRow>
         </template>
         <template #item.total_cost="{ item }">                      
           <div class="text-right text-error">
@@ -102,9 +115,9 @@
             <strong>{{ formatCurrency(item.total_amount) }}</strong>
           </div>
         </template>
-        <template #item.shipping="{ item }">                                
+        <!--<template #item.shipping="{ item }">                                
           <strong>{{ item.shipping =="1"?'Con envío':'Sin envío' }}</strong>          
-        </template>
+        </template>-->
         <template #item.status.name="{ item }">    
           <div class="d-flex align-center gap-2">
             <VChip
@@ -131,25 +144,25 @@
 
               <!-- Opciones del menú -->
               <VList>                
-                <VListItem @click="showFactura2(item)">
+                <VListItem @click="showRemito(item)">
                   <VListItemTitle>
                     <IconBtn
                       size="small"
                       class="my-1"
                       title="Remito">
                       <VIcon icon="ri-file-pdf-2-line" />
-                    </IconBtn>Remito 2
+                    </IconBtn>Remito
                   </VListItemTitle>
                 </VListItem>
                 
-                <VListItem @click="showFactura(item)">                  
+                <VListItem @click="showRemitoComanda(item)">                  
                   <VListItemTitle>
                     <IconBtn
                       size="small"
                       class="my-1"
                       title="Comanda">
                       <VIcon icon="ri-file-pdf-2-line" />
-                    </IconBtn>Remito
+                    </IconBtn>Comanda
                   </VListItemTitle>                  
                 </VListItem>
                 <VListItem @click="openMovementDialog(item)">                  
@@ -504,7 +517,7 @@ export default {
         { title: 'Fecha Entrega', key: 'delivery_date', align: 'center'  },           
         { title: 'Cliente', key: 'customer' },         
         { title: 'Total', key: 'total_amount', align: 'end' },
-        { title: 'Envio', key: 'shipping', align: 'center' },
+         
         { title: 'Estado', key: 'status.name' },                        
       ],            
       isAdmin: false,
@@ -866,14 +879,14 @@ export default {
         this.loading = false;
       }
     },
-    async showFactura(item) {
+    async showRemito(item) {
       try {
         // Mostrar loader mientras se genera el PDF
         this.loading = true;
         
         // Llamar al endpoint de Laravel que genera el PDF
         const response = await this.$axios.get(
-          `${this.$routes["orders"]}/invoice/${item.id}`,
+          `${this.$routes["orders"]}/remito/${item.id}`,
           { 
             responseType: 'blob' 
           }
@@ -898,14 +911,14 @@ export default {
         this.loading = false;
       }
     },
-    async showFactura2(item) {
+    async showRemitoComanda(item) {
       try {
         // Mostrar loader mientras se genera el PDF
         this.loading = true;
         
         // Llamar al endpoint de Laravel que genera el PDF
         const response = await this.$axios.get(
-          `${this.$routes["orders"]}/invoice2/${item.id}`,
+          `${this.$routes["orders"]}/remito-comanda/${item.id}`,
           { 
             responseType: 'blob' 
           }

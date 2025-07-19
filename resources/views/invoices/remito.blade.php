@@ -173,11 +173,13 @@
             width: 60mm;
             float: right;
             margin-top: 3mm;
+            margin-left: 60mm;
         }
 
         .total-row {
             overflow: hidden;
             margin-bottom: 1mm;
+            border-bottom: 0px;
         }
 
         .total-label {
@@ -189,6 +191,7 @@
             float: right;
             width: 20mm;
             text-align: right;
+            border-bottom: 0px;
         }
 
         .subtotal {
@@ -204,8 +207,8 @@
             font-weight: bold;
             border-top: 1px solid #1976d2;
             border-bottom: 1px solid #1976d2;
-            padding: 1mm 0;
-            margin: 2mm 0;
+            padding: 2mm 0;
+            margin: 3mm 0;
         }
 
         .notes {
@@ -272,23 +275,22 @@
             <div class="client-details">
                 <div class="detail-item"><span class="detail-label">Dirección:</span> {{ $order->customer->address }}</div>
                 <div class="detail-item"><span class="detail-label">Teléfono:</span> {{ $order->customer->telephone }}</div>
-                <div class="detail-item"><span class="detail-label">CUIT/DNI:</span> {{ $order->customer->tax_id ?? 'No especificado' }}</div>
             </div>
         </div>
 
         <!-- Métodos de pago y envío -->
         <div class="payment-section">
             <div class="payment-method">
-                <div class="section-title">MÉTODO DE PAGO</div>
-                <div class="detail-item"><span class="detail-label">Forma:</span> {{ $order->paymentMethod->name ?? 'No especificado' }}</div>
-                <div class="detail-item"><span class="detail-label">Vencimiento:</span> {{ $order->due_date ?? 'A convenir' }}</div>
+                <div class="section-title">ESTADO DE PAGO</div>
+                <div class="detail-item"><span class="detail-label">Estado:</span> {{ $order->status->name ?? 'No especificado' }}</div>
+
             </div>
 
             <div class="shipping-method">
-                <div class="section-title">DATOS DE ENVÍO</div>
-                <div class="detail-item"><span class="detail-label">Método:</span> {{ $order->shippingMethod->name ?? 'No especificado' }}</div>
-                @if($order->shipping_cost > 0)
-                <div class="detail-item"><span class="detail-label">Costo:</span> ${{ number_format($order->shipping_cost, 2, ',', '.') }}</div>
+                <div class="section-title">ESTADO ENVÍO</div>
+                <div class="detail-item"><span class="detail-label">Estado:</span> {{ $order->shipping ==0 ? 'Sin Envio': 'Con Envio' }}</div>
+                @if($order->shipping ==1)
+                <div class="detail-item"><span class="detail-label">Fecha Envio:</span>{{ $order->delivery_date->format('d/m/Y')  }}</div>
                 @endif
             </div>
         </div>
@@ -317,45 +319,56 @@
         </table>
 
         <!-- Totales -->
-        <div class="totals">
-            <div class="total-row subtotal">
-                <span class="total-label">Subtotal:</span>
-                <span class="total-value">${{ number_format($order->subtotal, 2, ',', '.') }}</span>
-            </div>
+        <table class="totals">
+            <tr>
+                <td class="total-row subtotal">
+                    <span class="total-label">Subtotal:</span>
+                </td>
+                <td class="total-value subtotal">${{ number_format($order->subtotal, 2, ',', '.') }}</td>
+            </tr>
 
             @if($order->discount > 0)
-            <div class="total-row">
-                <span class="total-label">Descuento:</span>
-                <span class="total-value">-${{ number_format($order->discount, 2, ',', '.') }}</span>
-            </div>
+            <tr>
+                <td class="total-row">
+                    <span class="total-label">Descuento:</span>
+                </td>
+                <td class="total-value">-${{ number_format($order->discount, 2, ',', '.') }}</td>
+            </tr>
             @endif
 
-            <div class="total-row taxes">
-                <span class="total-label">IVA (21%):</span>
-                <span class="total-value">${{ number_format($order->tax_amount, 2, ',', '.') }}</span>
-            </div>
+
+            <tr>
+                <td class="total-row taxes">
+                    <span class="total-label">IVA (21%):</span>
+                </td>
+                <td class="total-value">${{ number_format($order->tax_amount, 2, ',', '.') }}</td>
+
+            </tr>
+
 
             @if($order->shipping_cost > 0)
-            <div class="total-row">
-                <span class="total-label">Envío:</span>
-                <span class="total-value">${{ number_format($order->shipping_cost, 2, ',', '.') }}</span>
-            </div>
+            <tr>
+                <td class="total-row">
+                    <span class="total-label">Envío:</span>
+                </td>
+                <td class="total-value">${{ number_format($order->shipping_cost, 2, ',', '.') }}</td>
+            </tr>
             @endif
 
 
-            <table>
-                <tr>
-                    <td class="total-row grand-total">
-                        <span class="total-label">TOTAL:</span>
-                    </td>
-                    <td class="total-row grand-total total-value">
-                        ${{ number_format($order->total_amount, 2, ',', '.') }}
-                    </td>
-                </tr>
-            </table>
+
+            <tr class="">
+                <td class="grand-total" style="padding-left: 2mm;">
+                    <span class=" total-label">TOTAL:</span>
+                </td>
+                <td class="grand-total" style="text-align: right;padding-right:2mm">
+                    ${{ number_format($order->total_amount, 2, ',', '.') }}
+                </td>
+            </tr>
+        </table>
 
 
-        </div>
+
 
         <!-- Notas -->
         <div class="notes">

@@ -16,14 +16,14 @@ use Mpdf\Config\FontVariables;
 
 
 class OrderRepository extends BaseRepository
-{    
-    public function __construct(Order $m, array $relations = ['customer', 'status', 'orderType'])
+{
+    public function __construct(Order $m, array $relations = ['customer', 'status', 'orderType', 'payment'])
     {
         parent::__construct($m, $relations);
     }
 
     public function save($request)
-    {       
+    {
         DB::beginTransaction();
 
         try {
@@ -31,15 +31,15 @@ class OrderRepository extends BaseRepository
             $user = Auth::user();
             // Datos del formulario
             $formRequest = $request->all();
-            
+
             $form = $formRequest;
             $items = $formRequest['items'];
             $errors = [];
             // Validación de los datos generales del pedido
-            $validator = Validator::make($request->all(), [                
-                'customer_id' => 'required',                
+            $validator = Validator::make($request->all(), [
+                'customer_id' => 'required',
             ], [
-                "customer_id.required" => getMsg("required"),                
+                "customer_id.required" => getMsg("required"),
             ]);
 
             // Validación de los ítems del pedido
@@ -59,7 +59,7 @@ class OrderRepository extends BaseRepository
                 );
 
                 return $this->errorResponse(null, implode(', ', $errors));
-            }           
+            }
             /* comento validacion de stock
             foreach ($items as $item) {
                 $stock = Stock::where('product_id', $item['product_id'])->first();
@@ -68,49 +68,48 @@ class OrderRepository extends BaseRepository
                     $errors[] = "No hay suficiente stock para el item ID {$item['product_id']}";
                 }
             }
-            */            
+            */
             if (count($errors)) {
                 return $this->errorResponse(null, implode(', ', $errors));
             }
-            
+
             // Creación de la instancia del modelo 'order'
-            $model = new $this->model;   
+            $model = new $this->model;
             $sellerId = '';
-            $sellerName = '';            
+            $sellerName = '';
             if (!$user->roles()->where('name', 'like', '%-admin%')->exists()) {
                 $sellerId = $user->id;
                 $sellerName = $user->name;
-            }
-            else{
+            } else {
                 $sellerId = $form['seller_id']['id'];
                 $sellerName = $form['seller_id']['name'];
             }
-//dd($form['delivery_date']);
-            $model->fill([                
-                'order_date'=>Carbon::now(),                
-                'delivery_date' => isset($form['delivery_date'])?  Carbon::createFromFormat('d/m/Y', $form['delivery_date'])->format('Y-m-d') :null,
+            //dd($form['delivery_date']);
+            $model->fill([
+                'order_date' => Carbon::now(),
+                'delivery_date' => isset($form['delivery_date']) ?  Carbon::createFromFormat('d/m/Y', $form['delivery_date'])->format('Y-m-d') : null,
                 'customer_id' => $form['customer_id'],
                 //'customer_details', //ver de guardar los datos del cliente
                 'shipping_address' => $form['shipping_address'],
-                'shipping' => isset($form['shipping'])?$form['shipping']:0,
+                'shipping' => isset($form['shipping']) ? $form['shipping'] : 0,
                 'status_id' => 1,
-                'order_type_id' => 1,                
+                'order_type_id' => 1,
                 'quantity_products' => $form['quantity_products'],
                 'subtotal' => $form['subtotal'],
                 'tax_amount' => $form['tax_amount'],
                 'discount_amount' => $form['discount_amount'],
                 'total_amount' => $form['total_amount'],
                 'total_cost' => $form['total_cost'],
-                'total_profit' => ($form['total_profit'])??0,                
+                'total_profit' => ($form['total_profit']) ?? 0,
                 'notes' => $form['notes'],
                 'seller_id' => $sellerId,
                 'seller_name' => $sellerName,
             ]);
 
-            $model->save();            
+            $model->save();
 
             // Registro de items con inserción masiva
-            if (!empty($items)) {              
+            if (!empty($items)) {
                 $data = array_map(function ($item) use ($model, $user) {
                     return [
                         'order_id' => $model->id,
@@ -118,11 +117,11 @@ class OrderRepository extends BaseRepository
                         'quantity' => $item['quantity'],
                         'unit_price' => $item['unit_price'],
                         'unit_cost_price' => $item['unit_cost_price'],
-                        'total_profit' => $item['total_profit']??0,
+                        'total_profit' => $item['total_profit'] ?? 0,
                         'total_price' => $item['total_price'],
                         'tenant_id' => $user->tenant_id,
                         'created_by' => $user->id,
-                        'created_at' => now(),                        
+                        'created_at' => now(),
                     ];
                 }, $items);
                 OrderItem::insert($data);
@@ -137,14 +136,14 @@ class OrderRepository extends BaseRepository
                 }
                 $sql .= "END WHERE product_id IN (" . implode(',', $ids) . ")";
 
-                DB::statement($sql);                
+                DB::statement($sql);
             }
             // Confirmar la transacción
             DB::commit();
             $this->cacheForget();
 
             return $this->successResponseCreate([
-                'order' => $model,                
+                'order' => $model,
                 'items' => OrderItem::where('order_id', $model->id)->get(),
             ]);
         } catch (\Exception $e) {
@@ -156,17 +155,20 @@ class OrderRepository extends BaseRepository
 
 
     public function generateDeliveryReport($request)
-    {                
-        $validator = Validator::make($request->all(), [
-        'start_date' => 'required|date',
-        'end_date' => 'required|date|after_or_equal:start_date',
-        ],
-        [
-        "start_date.required" => getMsg("required"),
-        "start_date.date_format" => getMsg("date_format"),
-        "end_date.required" => getMsg("required"),
-        "end_date.date_format" => getMsg("date_format"),                
-        ]);
+    {
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'start_date' => 'required|date',
+                'end_date' => 'required|date|after_or_equal:start_date',
+            ],
+            [
+                "start_date.required" => getMsg("required"),
+                "start_date.date_format" => getMsg("date_format"),
+                "end_date.required" => getMsg("required"),
+                "end_date.date_format" => getMsg("date_format"),
+            ]
+        );
 
         if ($validator->fails()) {
             $errors = implode(', ', $validator->errors()->all());
@@ -176,7 +178,7 @@ class OrderRepository extends BaseRepository
         $startDate = $request->input('start_date'); // Formato: Y-m-d
         $endDate = $request->input('end_date');
 
-        $dates = Carbon::parse($startDate)->format('d/m/Y').' - '.Carbon::parse($endDate)->format('d/m/Y');
+        $dates = Carbon::parse($startDate)->format('d/m/Y') . ' - ' . Carbon::parse($endDate)->format('d/m/Y');
 
         /*$orders = $this->model::whereBetween('delivery_date',[
             Carbon::parse($startDate)->startOfDay(),
@@ -190,27 +192,27 @@ class OrderRepository extends BaseRepository
             ])
             ->groupBy('order_items.product_id', 'products.name')
             ->get();*/
-        
+
         $ordersQuery = $this->model::select([
-                'order_items.product_id',
-                'products.name', // Nombre del producto
-                DB::raw('SUM(order_items.quantity) as total_quantity')])
+            'order_items.product_id',
+            'products.name', // Nombre del producto
+            DB::raw('SUM(order_items.quantity) as total_quantity')
+        ])
             ->join('order_items', 'orders.id', '=', 'order_items.order_id')
             ->join('products', 'order_items.product_id', '=', 'products.id')
-        ->whereBetween('delivery_date',[Carbon::parse($startDate)->startOfDay(), Carbon::parse($endDate)->endOfDay()]);
+            ->whereBetween('delivery_date', [Carbon::parse($startDate)->startOfDay(), Carbon::parse($endDate)->endOfDay()]);
 
-        if($request->input('status_id'))
-        {
+        if ($request->input('status_id')) {
             $ordersQuery->where('status_id', $request->input('status_id'));
         }
-        if($request->input('customers')){
+        if ($request->input('customers')) {
             $ordersQuery->whereIn('customer_id', $request->input('customers'));
         }
-            
-        $orders = $ordersQuery->groupBy('order_items.product_id', 'products.name')->get();            
-        
-        $totalQuantity = $orders->sum('total_quantity'); 
-            
+
+        $orders = $ordersQuery->groupBy('order_items.product_id', 'products.name')->get();
+
+        $totalQuantity = $orders->sum('total_quantity');
+
         // Configuración de mPDF
         $defaultConfig = (new ConfigVariables())->getDefaults();
 
@@ -232,12 +234,12 @@ class OrderRepository extends BaseRepository
         $mpdf->showImageErrors = true;
         $mpdf->simpleTables = true;
         $mpdf->packTableData = true;
-        
+
         // Vista de la factura
         $html = view('invoices.delivery', [
             'dates' => $dates,
             'orders' => $orders,
-            'total'=>$totalQuantity,
+            'total' => $totalQuantity,
             'date' => now()->format('d/m/Y'),
             'logo' => public_path('logo.png')
         ])->render();
@@ -250,17 +252,20 @@ class OrderRepository extends BaseRepository
     }
 
     public function generateCustomerDeliveryReport($request)
-    {                
-        $validator = Validator::make($request->all(), [
-        'start_date' => 'required|date',
-        'end_date' => 'required|date|after_or_equal:start_date',
-        ],
-        [
-        "start_date.required" => getMsg("required"),
-        "start_date.date_format" => getMsg("date_format"),
-        "end_date.required" => getMsg("required"),
-        "end_date.date_format" => getMsg("date_format"),                
-        ]);
+    {
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'start_date' => 'required|date',
+                'end_date' => 'required|date|after_or_equal:start_date',
+            ],
+            [
+                "start_date.required" => getMsg("required"),
+                "start_date.date_format" => getMsg("date_format"),
+                "end_date.required" => getMsg("required"),
+                "end_date.date_format" => getMsg("date_format"),
+            ]
+        );
 
         if ($validator->fails()) {
             $errors = implode(', ', $validator->errors()->all());
@@ -270,31 +275,31 @@ class OrderRepository extends BaseRepository
         $startDate = $request->input('start_date'); // Formato: Y-m-d
         $endDate = $request->input('end_date');
 
-        $dates = Carbon::parse($startDate)->format('d/m/Y').' - '.Carbon::parse($endDate)->format('d/m/Y');        
+        $dates = Carbon::parse($startDate)->format('d/m/Y') . ' - ' . Carbon::parse($endDate)->format('d/m/Y');
 
         $ordersQuery = $this->model::select([
-                'customers.id',
-                'customers.address',
-                'order_items.product_id',
-                'products.name', // Nombre del producto
-                DB::raw('SUM(order_items.quantity) as total_quantity')])
+            'customers.id',
+            'customers.address',
+            'order_items.product_id',
+            'products.name', // Nombre del producto
+            DB::raw('SUM(order_items.quantity) as total_quantity')
+        ])
             ->join('customers', 'customers.id', '=', 'orders.customer_id')
             ->join('order_items', 'orders.id', '=', 'order_items.order_id')
             ->join('products', 'order_items.product_id', '=', 'products.id')
-        ->whereBetween('delivery_date',[Carbon::parse($startDate)->startOfDay(), Carbon::parse($endDate)->endOfDay()]);
+            ->whereBetween('delivery_date', [Carbon::parse($startDate)->startOfDay(), Carbon::parse($endDate)->endOfDay()]);
 
-        if($request->input('status_id'))
-        {
+        if ($request->input('status_id')) {
             $ordersQuery->where('status_id', $request->input('status_id'));
         }
-        if($request->input('customers')){
+        if ($request->input('customers')) {
             $ordersQuery->whereIn('customer_id', $request->input('customers'));
         }
-            
-        $orders = $ordersQuery->groupBy( 'customers.id', 'customers.address', 'order_items.product_id', 'products.name')->orderBy('customers.id', 'desc')->get();            
-        
-        $totalQuantity = $orders->sum('total_quantity'); 
-            
+
+        $orders = $ordersQuery->groupBy('customers.id', 'customers.address', 'order_items.product_id', 'products.name')->orderBy('customers.id', 'desc')->get();
+
+        $totalQuantity = $orders->sum('total_quantity');
+
         // Configuración de mPDF
         $defaultConfig = (new ConfigVariables())->getDefaults();
 
@@ -316,12 +321,12 @@ class OrderRepository extends BaseRepository
         $mpdf->showImageErrors = true;
         $mpdf->simpleTables = true;
         $mpdf->packTableData = true;
-        
+
         // Vista de la factura
         $html = view('invoices.deliveryCustomers', [
             'dates' => $dates,
             'orders' => $orders,
-            'total'=>$totalQuantity,
+            'total' => $totalQuantity,
             'date' => now()->format('d/m/Y'),
             'logo' => public_path('logo.png')
         ])->render();
@@ -332,5 +337,4 @@ class OrderRepository extends BaseRepository
         // Generar PDF
         return $mpdf->Output("orden_entrega.pdf", \Mpdf\Output\Destination::INLINE);
     }
-
 }

@@ -8,10 +8,10 @@
         <VCard>
           <VCardText class="mb-0 pb-2">
             <VRow class="mb-0 pb-0" >
-                <VCol  v-if="isAdmin" cols="1" md="1" sm="1"  class="mb-0 pt-3 d-none d-sm-flex">
+                <VCol  v-if="isAdminBebidas" cols="1" md="1" sm="1"  class="mb-0 pt-3 d-none d-sm-flex">
                   <VAvatar icon="ri-user-line" class="text-error mr-2" variant="tonal" size="40"/> 
                 </VCol>
-                <VCol  v-if="isAdmin" cols="9" sm="9" md="8" class="mb-0 pt-4 ml-3" >
+                <VCol  v-if="isAdminBebidas" cols="9" sm="9" md="8" class="mb-0 pt-4 ml-3" >
                 <VAutocomplete
                   v-model="order.seller_id"
                   :items="sellers"
@@ -25,7 +25,7 @@
                  />
               </VCol>                            
             </VRow>            
-              <VRow class="mb-0" :class="isAdmin? 'pb-0':'py-8'">
+              <VRow class="mb-0" :class="isAdminBebidas? 'pb-0':'py-8'">
                 <VCol cols="1" md="1" sm="1"  class="mb-0 pt-0 d-none d-sm-flex">
                   <VAvatar icon="ri-user-line" class="text-info mr-2" variant="tonal" size="40"/> 
                 </VCol>
@@ -377,7 +377,7 @@
     </VRow>
     
     <VRow>           
-      <VCol cols="12" sm="6"  md="6">
+      <VCol cols="12" sm="12"  md="12">
         <VCard>          
           <div class="v-card-item"> 
             <div class="v-card-item__content">
@@ -386,7 +386,7 @@
             </div> 
           </div> 
           <VCardText>
-            <VTextarea v-model="order.notes" label="Notas de la orden" rows="2" />
+            <VTextarea v-model="order.notes" label="Notas de la orden" rows="2" style="height:80px" />
           </VCardText>
         </VCard>
       </VCol>
@@ -399,8 +399,11 @@
     <!-- Botones de Acción -->
     <VRow>
       <VCol cols="12" class="text-center">
-        <VBtn color="secondary" variant="outlined" class="mr-4" @click="$router.go(-1)">
+        <VBtn color="primary" variant="outlined" class="mr-4" @click="$router.go(-1)">
           Cancelar
+        </VBtn>
+        <VBtn color="primary"  class="mr-4" @click="$router.push({'path':'order-list'})">
+          Ordenes
         </VBtn>
         <VBtn
           color="primary"
@@ -717,13 +720,13 @@ export default {
       keyPayments: 0,
       change: 0,
       totalPaid: 0,
-      isAdmin: false,
+      isAdmibBebidas: false,
     };
   },
 
   computed: {
     ...mapGetters({
-      userIsAdmin: 'isAdmin',  // Mapea `isAdmin` del store a `userIsAdmin` en el componente
+      //userIsAdmin: 'isAdmin',  // Mapea `isAdmin` del store a `userIsAdmin` en el componente
     }),
     selectedCustomer() {
       return this.customers.find((c) => c.id === this.order.customer_id);
@@ -770,8 +773,8 @@ export default {
     },
     async loadData() {
       try {
-        //this.isAdmin = this.$is(["bebidas-admin", "petshop-admin"]);
-        this.isAdmin = this.userIsAdmin;
+        this.isAdminBebidas = this.$is(["bebidas-admin"]);
+        //this.isAdmin = this.userIsAdmin;
 
         const [
           customersRes,
@@ -785,7 +788,7 @@ export default {
           this.$axios.get(this.$routes["localities"]),
         ]);
 
-        if(this.isAdmin){
+        if(this.isAdminBebidas){
           const usersRes = await this.$axios.get(this.$routes["usersList"]);
 
           this.sellers = usersRes.data.data || usersRes.data; 
@@ -795,7 +798,14 @@ export default {
         this.products = productsRes.data.data || productsRes.data;
         this.stock = stockRes.data.data || stockRes.data;         
         this.localities = localitiesRes.data.data || localitiesRes.data;
-        this.setDate(this.order.delivery_date);
+
+        if(this.$is("bebidas-admin") || this.$is("bebidas-user")) 
+        {
+          this.order.shipping=1
+        }
+          this.setDate(this.order.delivery_date);
+
+        
       } catch (error) {
         console.error("Error loading data:", error);
         this.showSnackbar("Error al cargar los datos", "error");

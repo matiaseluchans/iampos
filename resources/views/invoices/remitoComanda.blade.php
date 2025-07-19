@@ -65,8 +65,12 @@
 
         .totals {
             margin-top: 3mm;
-            border-top: 1px dashed #000;
+
             padding-top: 2mm;
+
+            width: 60mm;
+            float: right;
+            margin-left: 60mm;
         }
 
         .total-row {
@@ -114,7 +118,7 @@
     <div class="client-info">
         <div class="client-name">CLIENTE: {{ $order->customer->name ?? 'CONSUMIDOR FINAL' }}</div>
         <div>DIRECCIÓN: {{ $order->customer->address }}</div>
-        <div>TEL: {{ $order->customer->telephone }} | CUIT/DNI: {{ $order->customer->tax_id ?? '--' }}</div>
+        <div>TEL: {{ $order->customer->telephone }}</div>
     </div>
 
     <table>
@@ -136,39 +140,62 @@
         </tbody>
     </table>
 
-    <div class="totals">
-        <div class="total-row">
-            <span>SUBTOTAL:</span>
-            <span>${{ number_format($order->subtotal, 2, ',', '.') }}</span>
-        </div>
-        @if($order->discount > 0)
-        <div class="total-row">
-            <span>DESCUENTO:</span>
-            <span>-${{ number_format($order->discount, 2, ',', '.') }}</span>
-        </div>
-        @endif
-        <div class="total-row">
-            <span>IVA (21%):</span>
-            <span>${{ number_format($order->tax_amount, 2, ',', '.') }}</span>
-        </div>
-        @if($order->shipping_cost > 0)
-        <div class="total-row">
-            <span>ENVÍO:</span>
-            <span>${{ number_format($order->shipping_cost, 2, ',', '.') }}</span>
-        </div>
-        @endif
-        <div class="total-row grand-total">
-            <span>TOTAL:</span>
-            <span>${{ number_format($order->total_amount, 2, ',', '.') }}</span>
-        </div>
-    </div>
+    <div style="border-top: 1px dashed #000;"></div>
 
-    <div style="margin: 3mm 0; font-size: 8px;">
-        <div><strong>MÉTODO PAGO:</strong> {{ $order->paymentMethod->name ?? 'NO ESPECIFICADO' }}</div>
-        <div><strong>ENVÍO:</strong> {{ $order->shippingMethod->name ?? 'NO ESPECIFICADO' }}</div>
-        @if($order->notes)
-        <div><strong>NOTAS:</strong> {{ $order->notes }}</div>
+    <table class="totals">
+        <tr>
+            <td class="total-row subtotal">
+                <span class="total-label">Subtotal:</span>
+            </td>
+            <td class="total-value subtotal" style="text-align: right;">${{ number_format($order->subtotal, 2, ',', '.') }}</td>
+        </tr>
+
+        @if($order->discount > 0)
+        <tr>
+            <td class="total-row">
+                <span class="total-label">Descuento:</span>
+            </td>
+            <td class="total-value" style="text-align: right;">-${{ number_format($order->discount, 2, ',', '.') }}</td>
+        </tr>
         @endif
+
+
+        <tr>
+            <td class="total-row taxes">
+                <span class="total-label">IVA (21%):</span>
+            </td>
+            <td class="total-value" style="text-align: right;">${{ number_format($order->tax_amount, 2, ',', '.') }}</td>
+
+        </tr>
+
+
+        @if($order->shipping_cost > 0)
+        <tr>
+            <td class="total-row">
+                <span class="total-label">Envío:</span>
+            </td>
+            <td class="total-value" style="text-align: right;">${{ number_format($order->shipping_cost, 2, ',', '.') }}</td>
+        </tr>
+        @endif
+
+
+
+        <tr class="">
+            <td class="grand-total" style="">
+                <span class=" total-label">TOTAL:</span>
+            </td>
+            <td class="grand-total" style="text-align: right">
+                ${{ number_format($order->total_amount, 2, ',', '.') }}
+            </td>
+        </tr>
+    </table>
+    <div style="margin: 3mm 0; font-size: 8px;">
+        <div><strong>ESTADO DE PAGO:</strong> {{ $order->status->name ?? 'No especificado' }}</div>
+        <div><strong>ESTADO DE ENVÍO:</strong> {{ $order->shipping ==0 ? 'Sin Envio': 'Con Envio' }}</div>
+        @if($order->shipping ==1)
+        <div><strong>Fecha Envio:</strong> {{ $order->delivery_date->format('d/m/Y')  }}</div>
+        @endif
+
     </div>
 
     <div class="footer">

@@ -70,8 +70,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::apiResource('payment-methods', App\Http\Controllers\PaymentMethodController::class);
     Route::apiResource('orders', App\Http\Controllers\OrderController::class);
     //reports
-    Route::get('orders/invoice/{id}', [App\Http\Controllers\OrderController::class, "generateInvoice"]);
-    Route::get('orders/invoice2/{id}', [App\Http\Controllers\OrderController::class, "generateInvoice2"]);
+    Route::get('orders/remito/{id}', [App\Http\Controllers\OrderController::class, "generateRemito"]);
+    Route::get('orders/remito-comanda/{id}', [App\Http\Controllers\OrderController::class, "generateRemitoComanda"]);
     Route::get('orders-delivery', [App\Http\Controllers\OrderController::class, "generateDeliveryReport"]);
     Route::get('orders-customers-delivery', [App\Http\Controllers\OrderController::class, "generateCustomerDeliveryReport"]);
 
@@ -81,7 +81,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('users/tenants', [App\Http\Controllers\UserController::class, 'getTenants']);
     Route::get('users/roles', [App\Http\Controllers\UserController::class, 'getRoles']);
     Route::get('users-list', [App\Http\Controllers\UserController::class, 'getListUsers']);
-    
+
     Route::patch('users/{user}/toggle-active', [App\Http\Controllers\UserController::class, 'toggleActive']);
 
 

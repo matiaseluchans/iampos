@@ -633,9 +633,9 @@ export default {
         /*{ title: 'Disponible', key: 'available', width: '120px' },
         { title: 'Reservado', key: 'reserved_quantity', width: '120px' },*/
         { title: 'Mín', key: 'minimum_stock', width: '80px' },
-        { title: 'Nivel min', key: 'stock_level_min', width: '150px' },
-        { title: 'Máx', key: 'maximum_stock', width: '50px' },
-        { title: 'Nivel Max', key: 'stock_level', width: '150px' }
+        //{ title: 'Nivel min', key: 'stock_level_min', width: '150px' },
+        //{ title: 'Máx', key: 'maximum_stock', width: '50px' },
+        //{ title: 'Nivel Max', key: 'stock_level', width: '150px' }
       ],
       
       historyHeaders: [

@@ -22,14 +22,14 @@ class Order extends Model
         'shipping',
         'shipping_address',
         'status_id',
-        'order_type_id',        
+        'order_type_id',
         'quantity_products',
         'subtotal',
         'tax_amount',
         'discount_amount',
         'total_amount',
         'total_cost',
-        'total_profit',        
+        'total_profit',
         'notes',
         'seller_id',
         'seller_name',
@@ -59,13 +59,13 @@ class Order extends Model
 
     public static function generateOrderNumber($tenantId)
     {
-        
+
         // Obtener el último número para el tenant
         $lastOrder = self::where('tenant_id', $tenantId)
             ->orderBy('order_number', 'desc')
             ->lockForUpdate() // evita conflictos en concurrencia
             ->first();
-//dd($lastOrder);
+        //dd($lastOrder);
         // Si no hay órdenes previas, empezamos en 1
         $nextNumber = $lastOrder
             ? intval($lastOrder->order_number) + 1
@@ -89,7 +89,7 @@ class Order extends Model
     public function orderType()
     {
         return $this->belongsTo(OrderType::class);
-    }    
+    }
 
     public function items()
     {
@@ -102,5 +102,10 @@ class Order extends Model
     public function tenant()
     {
         return $this->belongsTo(Tenant::class);
+    }
+
+    public function payment()
+    {
+        return $this->hasMany(Payment::class);
     }
 }
