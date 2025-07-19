@@ -47,128 +47,211 @@ const authThemeMask = computed(() => {
 
 const isPasswordVisible = ref(false);
 
-// Efecto de partículas
-const particles = ref([]);
-const maxParticles = 230;
-
-// Generar partículas aleatorias
-const generateParticles = () => {
-  particles.value = [];
-  for (let i = 0; i < maxParticles; i++) {
-    particles.value.push({
-      id: i,
-      x: Math.random() * 100,
-      y: Math.random() * 100,
-      size: Math.random() * 50 + 2,
-      speed: Math.random() * 0.5 + 0.1,
-      opacity: Math.random() * 0.5 + 0.3,
-      delay: Math.random() * 5
-    });
-  }
-};
-
-onMounted(() => {
-  generateParticles();
+const logoColor = computed(() => {
+  return vuetifyTheme.global.name.value === "light" ? "#ff0000" : "#00ff00";
 });
 
-// Color corporativo
+// Modern gradient colors
+const gradientColors = computed(() => {
+  return vuetifyTheme.global.name.value === "light"
+    ? "linear-gradient(135deg, #9090E0 0%, #042990 100%)"
+    : "linear-gradient(135deg, #9E95F5 0%, #B8B1FF 100%)";
+});
+
+// Color personalizado - azul corporativo #042990
 const primaryColor = ref("#042990");
-const secondaryColor = ref("#9090E0");
+
+// Estilo para el logo
+const logoStyle = computed(() => ({
+  color: primaryColor.value,
+}));
+
+// Estilo para el botón
+const buttonStyle = computed(() => ({
+  background: primaryColor.value,
+  "--hover-color": "#1a43b5", // Color más claro para hover
+}));
 </script>
 
 <template>
-  <div class="auth-wrapper">
-    <!-- Partículas de fondo animadas -->
-    <div class="particles-container">
-      <div 
-        v-for="particle in particles" 
-        :key="particle.id"
-        class="particle"
-        :style="{
-          left: `${particle.x}%`,
-          top: `${particle.y}%`,
-          width: `${particle.size}px`,
-          height: `${particle.size}px`,
-          opacity: particle.opacity,
-          animation: `float ${particle.speed * 10}s ease-in-out infinite ${particle.delay}s`,
-          background: `radial-gradient(circle, ${secondaryColor} 0%, ${primaryColor} 100%)`
-        }"
-      ></div>
-    </div>
-
-    <!-- Tarjeta de login con efecto hover 3D -->
-    <div class="card-container">
-      <VCard class="auth-card">
-        <!-- Logo con efecto de flotación -->
-        <VCardItem class="justify-center logo-container">
-          <div class="logo-animation">
-            <img class="logo-wrapper" :src="logo" alt="Logo">
+  <!-- eslint-disable vue/no-v-html -->
+  <!--
+  <div class="auth-wrapper d-flex align-center justify-center pa-4">
+    <VCard class="auth-card pa-4 pt-7" max-width="448">
+      <VCardItem class="justify-center">
+        <template #prepend>
+          <div class="d-flex" >
+            <div v-html="logo" :style="{ color: logoColor }"/>
           </div>
-        </VCardItem>
+        </template>
 
-        <VCardText class="text-center pt-2">
-          <h5 class="text-h5 font-weight-semibold mb-1">Bienvenido! 👋🏻</h5>
-          <p class="mb-0">Por favor inicie sesión para comenzar</p>
-        </VCardText>
+        <VCardTitle class="font-weight-semibold text-2xl text-uppercase">
+          IAMPOS
+        </VCardTitle>
+      </VCardItem>
 
-        <VCardText>
-          <VForm @submit.prevent="handleLogin">
-            <VRow>
-              <!-- email -->
-              <VCol cols="12">
-                <VTextField
-                  v-model="form.email"
-                  label="Email"
-                  type="email"
-                  prepend-inner-icon="ri-mail-line"
-                  variant="outlined"
-                  color="primary"
-                  rounded="lg"
-                  class="input-field"
-                />
-              </VCol>
+      <VCardText class="pt-2">
+        <h5 class="text-h5 font-weight-semibold mb-1">Bienvenido! 👋🏻</h5>
+        <p class="mb-0">Por favor inicie sesión para comenzar la aventura</p>
+      </VCardText>
 
-              <!-- password -->
-              <VCol cols="12">
-                <VTextField
-                  v-model="form.password"
-                  label="Contraseña"
-                  placeholder="············"
-                  :type="isPasswordVisible ? 'text' : 'password'"
-                  prepend-inner-icon="ri-lock-line"
-                  :append-inner-icon="isPasswordVisible ? 'ri-eye-off-line' : 'ri-eye-line'"
-                  @click:append-inner="isPasswordVisible = !isPasswordVisible"
-                  variant="outlined"
-                  color="primary"
-                  rounded="lg"
-                  class="input-field"
-                />
+      <VCardText>
+        <VForm @submit.prevent="handleLogin">
+          <VRow>
+           
+            <VCol cols="12">
+              <VTextField v-model="form.email" label="Email" type="email" />
+            </VCol>
 
-                <!-- Botón con efecto de onda al hacer hover -->
-                <VBtn
-                  block
-                  type="submit"
-                  :loading="isLoading"
-                  rounded="lg"
-                  size="large"
-                  class="mt-6 login-btn"
-                >
-                  <span>Iniciar Sesión</span>
-                  <div class="wave"></div>
-                </VBtn>
-              </VCol>
-            </VRow>
-          </VForm>
-        </VCardText>
-      </VCard>
-    </div>
+ 
+            <VCol cols="12">
+              <VTextField
+                v-model="form.password"
+                label="Password"
+                placeholder="············"
+                :type="isPasswordVisible ? 'text' : 'password'"
+                :append-inner-icon="isPasswordVisible ? 'ri-eye-off-line' : 'ri-eye-line'"
+                @click:append-inner="isPasswordVisible = !isPasswordVisible"
+              />
 
-    <!-- Fondo degradado animado -->
-    <div class="auth-background"></div>
+    
+              <div class="d-flex align-center justify-space-between flex-wrap mt-1 mb-4">
+                <VCheckbox v-model="form.remember" label="Remember me" />
+
+                <a class="ms-2 mb-1" href="javascript:void(0)"> Forgot Password? </a>
+              </div> 
+ 
+              <br>
+              <VBtn block type="submit"  :loading="isLoading" > Login </VBtn>
+            </VCol>
+
+             <VCol cols="12" class="text-center text-base">
+              <span>New on our platform?</span>
+              <RouterLink class="text-primary ms-2" to="/register">
+                Create an account
+              </RouterLink>
+            </VCol>
+
+            <VCol cols="12" class="d-flex align-center">
+              <VDivider />
+              <span class="mx-4">or</span>
+              <VDivider />
+            </VCol>
+
+ 
+            <VCol cols="12" class="text-center">
+              <AuthProvider />
+            </VCol> 
+          </VRow>
+        </VForm>
+      </VCardText>
+    </VCard>
+<!--
+    <VImg
+      class="auth-footer-start-tree d-none d-md-block"
+      :src="authV1Tree"
+      :width="250"
+    />
+
+    <VImg
+      :src="authV1Tree2"
+      class="auth-footer-end-tree d-none d-md-block"
+      :width="350"
+    />
+   
+    <VImg class="auth-footer-mask d-none d-md-block" :src="authThemeMask" />
+  </div> 
+  -->
+  <div class="auth-wrapper">
+    <VCard class="auth-card">
+      <VCardItem class="justify-center logo-container">
+        <div class="d-flex align-center">
+                
+
+          <!--<div class="logo-wrapper" v-html="logo" :style="{ color: logoColor }"></div>-->
+          
+          <img class="logo-wrapper"  :src="logo"> </img>
+          
+          <!--<VCardTitle class="font-weight-semibold text-2xl text-uppercase ml-3">
+            IAMPOS
+          </VCardTitle>-->
+        </div>
+        
+      </VCardItem>
+
+      <VCardText class="text-center pt-2">
+        <h5 class="text-h5 font-weight-semibold mb-1">Bienvenido! 👋🏻</h5>
+        <p class="mb-0">Por favor inicie sesión para comenzar</p>
+      </VCardText>
+
+      <VCardText>
+        <VForm @submit.prevent="handleLogin">
+          <VRow>
+            <!-- email -->
+
+            <VCol cols="12">
+              <VTextField
+                v-model="form.email"
+                label="Email"
+                type="email"
+                prepend-inner-icon="ri-mail-line"
+                variant="outlined"
+                color="primary"
+                rounded="lg"
+              />
+            </VCol>
+
+            <!-- password -->
+            <VCol cols="12">
+              <VTextField
+                v-model="form.password"
+                label="Contraseña"
+                placeholder="············"
+                :type="isPasswordVisible ? 'text' : 'password'"
+                prepend-inner-icon="ri-lock-line"
+                :append-inner-icon="isPasswordVisible ? 'ri-eye-off-line' : 'ri-eye-line'"
+                @click:append-inner="isPasswordVisible = !isPasswordVisible"
+                variant="outlined"
+                color="primary"
+                rounded="lg"
+              />
+
+              <!--<div class="d-flex justify-end mt-2">
+                <a class="text-caption" href="#" style="color: inherit;">¿Olvidaste tu contraseña?</a>
+              </div>-->
+
+              <!-- login button -->
+              <VBtn
+                block
+                type="submit"
+                :loading="isLoading"
+                rounded="lg"
+                size="large"
+                class="mt-6"
+                :style="{ background: gradientColors }"
+              >
+                Iniciar Sesión
+              </VBtn>
+            </VCol>
+
+            <!--<VCol cols="12" class="text-center mt-2">
+              <span class="text-caption">¿No tienes una cuenta?</span>
+              <RouterLink class="text-caption font-weight-bold ml-2" to="/register" :style="{ color: logoColor }">
+                Regístrate
+              </RouterLink>
+            </VCol>-->
+          </VRow>
+        </VForm>
+      </VCardText>
+    </VCard>
+    <div key=""></div>
+    <!--<div class="auth-background" :style="{ background: gradientColors }"></div>-->
+    <div class="auth-background login-bg" ></div>
   </div>
 </template>
 
-<style lang="scss" scoped>
+<style lang="scss">
+/*@use "@core-scss/pages/page-auth.scss";*/
 .auth-wrapper {
   min-height: 100vh;
   display: flex;
@@ -176,112 +259,6 @@ const secondaryColor = ref("#9090E0");
   justify-content: center;
   position: relative;
   padding: 2rem;
-  overflow: hidden;
-  background-color: #f5f7ff;
-
-  .particles-container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 0;
-    pointer-events: none;
-    
-    .particle {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(1px);
-    }
-  }
-
-  .card-container {
-    perspective: 1000px;
-    z-index: 2;
-  }
-
-  .auth-card {
-    position: relative;
-    z-index: 1;
-    width: 100%;
-    max-width: 450px;
-    border-radius: 16px !important;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-    transition: transform 0.5s ease, box-shadow 0.5s ease;
-    transform-style: preserve-3d;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    
-    &:hover {
-      //transform: translateY(-5px) rotateX(2deg) rotateY(2deg);
-      box-shadow: 0 20px 50px rgba(4, 41, 144, 0.2);
-    }
-
-    .logo-container {
-      padding-top: 2rem;
-
-      .logo-animation {
-        //animation: float 6s ease-in-out infinite;
-        
-        .logo-wrapper {
-          width: 200px;
-          height: auto;
-          //filter: drop-shadow(0 5px 15px rgba(4, 41, 144, 0.2));
-        }
-      }
-    }
-
-    .input-field {
-      transition: all 0.3s ease;
-      
-      &:focus-within {
-        transform: translateY(-2px);
-        
-        :deep(.v-field__outline) {
-          color: v-bind(primaryColor) !important;
-        }
-      }
-    }
-
-    .login-btn {
-      position: relative;
-      overflow: hidden;
-      background: linear-gradient(135deg, v-bind(secondaryColor) 0%, v-bind(primaryColor) 100%);
-      box-shadow: 0 4px 15px rgba(4, 41, 144, 0.3);
-      transition: all 0.3s ease;
-      
-      span {
-        position: relative;
-        z-index: 2;
-      }
-      
-      .wave {
-        position: absolute;
-        top: -100%;
-        left: 0;
-        width: 200%;
-        height: 200%;
-        background: rgba(255, 255, 255, 0.2);
-        transform: rotate(45deg);
-        transition: all 0.5s ease;
-        z-index: 1;
-      }
-      
-      &:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 25px rgba(4, 41, 144, 0.4);
-        
-        .wave {
-          top: -50%;
-        }
-      }
-      
-      &:active {
-        transform: translateY(1px);
-      }
-    }
-  }
 
   .auth-background {
     position: absolute;
@@ -290,49 +267,88 @@ const secondaryColor = ref("#9090E0");
     width: 100%;
     height: 50%;
     z-index: 0;
-    clip-path: ellipse(70% 60% at 50% 80%);
-    background: linear-gradient(135deg, v-bind(secondaryColor) 0%, v-bind(primaryColor) 100%);
-    background-size: 200% 200%;
-    animation: gradientShift 12s ease infinite, pulse 15s ease infinite alternate;
+    clip-path: ellipse(60% 60% at 50% 70%);
+  }
+
+  .auth-card {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 450px;
+    border-radius: 16px !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+
+    .logo-container {
+      padding-top: 2rem;
+
+      .logo-wrapper {
+        width: 200px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        :deep(svg) {
+          width: 100%;
+          height: 100%;
+        }
+      }
+      .logo-illustration {
+        width: 200px;
+        height: 150px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        :deep(svg) {
+          width: 100%;
+          height: 100%;
+        }
+      }
+    }
+  }
+
+  :deep(.v-field--outlined) {
+    fieldset {
+      border-color: rgba(0, 0, 0, 0.1);
+    }
+
+    &:hover fieldset {
+      border-color: rgba(0, 0, 0, 0.3);
+    }
+  }
+
+  :deep(.v-btn) {
+    text-transform: none;
+    letter-spacing: normal;
+    box-shadow: 0 4px 12px #042990;
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px #042990;
+    }
   }
 }
 
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
+.login-bg {
+  min-height: 50vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+ 
+  /* Fondo degradado */
+  background: linear-gradient(135deg, rgb(144, 144, 224) -1%, rgb(4, 41, 144) 53%);
+  background-size: 400% 400%;
+  animation: gradientShift 12s ease infinite;
 }
+
 
 @keyframes gradientShift {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
-}
-
-@keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-  100% { transform: scale(1); }
-}
-
-@keyframes float {
-  0% {
-    transform: translateY(0) translateX(0);
-  }
-  25% {
-    transform: translateY(-5px) translateX(5px);
-  }
-  50% {
-    transform: translateY(0) translateX(0);
-  }
-  75% {
-    transform: translateY(-3px) translateX(-3px);
-  }
-  100% {
-    transform: translateY(0) translateX(0);
-  }
 }
 </style>
