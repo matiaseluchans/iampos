@@ -227,10 +227,66 @@
           <VForm ref="movementForm" v-model="validMovement">
             <VCardText>
               <VContainer>
+                 <!-- Sección de información de la orden -->
+                <VCard class="mb-6" color="primary-lighten-5">
+                  <VCardTitle class="d-flex align-center">
+                   
+                    <VAvatar icon="ri-inbox-unarchive-line" class="text-info mr-2" variant="tonal"/> 
+
+                    <span>Detalles de la Orden</span>
+                  </VCardTitle>
+                  <VDivider />
+                  <VCardText>
+                    <VRow>
+                      <VCol cols="12" md="3" class="d-flex align-center">
+                        <div class="info-field">
+                          <div class="text-caption text-primary">Número de Orden</div>
+                          <span class="text-h6 font-weight-bold">{{ selectedOrder.order_number }}</span>
+                        </div>
+                      </VCol>
+          
+                      <VCol cols="12" md="3" class="d-flex align-center">
+                        <div class="info-field">
+                          <div class="text-caption text-primary">Fecha</div>
+                          <span class="text-h6 font-weight-bold">
+                            {{  selectedOrder.order_date  }}
+                          </span>
+                        </div>
+                      </VCol>
+                      
+                      <VCol cols="12" md="2" class="d-flex align-center">
+                        <div class="info-field">
+                          <div class="text-caption text-primary">Estado Actual</div>
+                          <VChip :color="getStatusColor(selectedOrder)" class="font-weight-bold">
+                            {{ selectedOrder.status.name }}
+                          </VChip>
+                        </div>
+                      </VCol>
+                      
+                      <VCol cols="12" md="2" class="d-flex align-center">
+                        <div class="info-field">
+                          <div class="text-caption text-primary">Importe Total</div>
+                          <span class="text-h6 font-weight-bold text-success">
+                            {{ formatCurrency(selectedOrder.total_amount) }}
+                          </span>
+                        </div>
+                      </VCol>
+                      
+                      <VCol cols="12" md="2" class="d-flex align-center">
+                        <div class="info-field">
+                          <div class="text-caption text-primary">Productos</div>
+                          <span class="text-h6 font-weight-bold">
+                            {{ selectedOrder.quantity_products }} <small class="text-caption">items</small>
+                          </span>
+                        </div>
+                      </VCol>
+                    </VRow>
+                  </VCardText>
+                </VCard>
                 <!-- Sección de información del cliente -->
                 <VCard class="mb-6" color="grey-lighten-4">
                   <VCardTitle class="d-flex align-center">
-                    <VIcon icon="ri-user-line" class="me-2" />
+                    <VAvatar icon="ri-user-line" class="text-info mr-2" variant="tonal"/> 
                     <span>Información del Cliente</span>
                   </VCardTitle>
                   <VDivider />
@@ -359,7 +415,8 @@
                 Cancelar
               </VBtn>
               <VBtn 
-                color="primary"
+                color="white"
+                class="bg-primary"
                 @click="saveMovement"
                 :loading="savingMovement"
                 :disabled="!validMovement"
@@ -639,8 +696,8 @@ export default {
 
     movementFormTitle() {
       return this.selectedOrder 
-        ? `Cambio de estado de orden ${this.selectedOrder.order_number}`
-        : 'Cambio de estado de orden'
+        ? `Orden ${this.selectedOrder.order_number}`
+        : 'Orden'
     },   
   },
 
