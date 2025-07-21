@@ -35,9 +35,9 @@ onMounted(() => {
             sm="10"> 
             
           <span class="mt-0 pt-0 align-center">
-                  
-                   TAG: {{ version.tag}} - {{ version.mensaje_tag}} <br>
-                  <small>COMMIT: {{ version.commit?.slice(-7) }} - {{ version.mensaje_commit }} - AUTOR:{{ cleanAuthor(version.autor)}}</small>
+                  <small> 
+                  <strong>TAG:</strong> {{ version.tag}} - <strong>MSG:</strong>{{ version.mensaje_tag}} - <strong>AUTOR:</strong>{{ cleanAuthor(version.tag_autor)}} <br>
+                  <strong>COMMIT:</strong> {{ version.commit?.slice(-7) }} - <strong>MSG:</strong>{{ version.mensaje_commit }} - <strong>AUTOR:</strong>{{ cleanAuthor(version.commit_autor)}}</small>
           
                 </span>
           </VCol>
