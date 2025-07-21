@@ -29,6 +29,14 @@ export const routes = [
          
           allowedRoles: ['*'] 
         }
+      },
+      {
+        path: 'order-search',
+        component: () => import('@/pages/iampos/orderSearch.vue'),
+        meta: { requiresAuth: true, 
+         
+          allowedRoles: ['*'] 
+        }
       },      
       {
         path: 'customers',

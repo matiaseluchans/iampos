@@ -1,22 +1,15 @@
 <template>
-  <VCard>
-    <VCardTitle class="d-flex align-center">
-      <div>
-        <div class="text-h5">Últimas Órdenes</div>
-        <div class="text-caption text-medium-emphasis d-flex align-center mt-1">
-          <VIcon icon="ri-information-line" size="16" class="mr-1"/>
-          <span class="v-card-info-subtitle">
-            Mostrando órdenes de los últimos 60 días
-          </span>
-        </div>
-      </div>
-    </VCardTitle>
+  <VCard title="Buscador de Ordenes">
     <VCardText class="d-flex px-2">
       <VDataTable
         :headers="showHeaders"
-        :items="filteredStock"        
+        :items="orders.data || []"        
         class="text-no-wrap"
         :loading="loading"
+        :items-per-page="pagination.itemsPerPage"
+        :page="pagination.page"
+        :items-length="orders.total || 0"
+        @update:options="handlePaginationChange"
       >
         <template v-slot:top>
           <VCard flat color="white">
@@ -60,25 +53,36 @@
                 </VCol>
                 <VCol cols="12" sm="6" class="pl-0 pt-20 py-2">
                   <DateRangeField ref="dateDeliveryRange" v-model="dateRange" modelLabel='Fecha Entrega' />                  
-                </VCol>              
+                </VCol>
               </VRow>
             </VCardText>
+            <VCardActions class="justify-end">
+              <VBtn 
+                variant="outlined" 
+                color="warning" 
+                @click="reset"
+              >
+                Reset
+              </VBtn>
+              <VBtn 
+                variant="outlined"
+                color="primary"
+                @click="fetchData"
+                :loading="loading"                
+              >                
+                Buscar
+              </VBtn>
+            </VCardActions>
           </VCard>
+          
         </template>      
         <template #item.order_number="{ item }">
           <div class="d-flex align-center">                
             <!-- avatar -->                                        
         
-            <div class="d-flex flex-column text-start">
-            
-                 <span class="d-block font-weight-medium text-high-emphasis text-truncate">{{ item.order_number }}
-                
-                </span>     
-                <small>Cant: {{ item.quantity_products }}</small>
-                 
-              
-                       
-              
+            <div class="d-flex flex-column text-start">            
+              <span class="d-block font-weight-medium text-high-emphasis text-truncate">{{ item.order_number }}</span>     
+              <small>Productos: {{ item.quantity_products }}</small>                                                                    
               <!--<div class="d-flex align-left gap-2">
                 <VChip
                   color="primary"
@@ -129,10 +133,7 @@
           <div :class=" (item.total_profit>0)? 'text-right text-success':'text-right text-error'">
             <strong>{{ formatCurrency(item.total_amount) }}</strong>
           </div>
-        </template>
-        <!--<template #item.shipping="{ item }">                                
-          <strong>{{ item.shipping =="1"?'Con envío':'Sin envío' }}</strong>          
-        </template>-->
+        </template>                
         <template #item.status.name="{ item }">    
           <div class="d-flex align-center gap-2">
             <VChip
@@ -143,6 +144,7 @@
             </VChip>            
           </div>                                
         </template>      
+        
         <!-- Actions -->
         <template #item.actions="{ item }">
           <div class="d-flex justify-center align-center gap-1">              
@@ -191,6 +193,7 @@
                     </IconBtn>Estado
                   </VListItemTitle>                                                                
                 </VListItem>
+                
                 <VListItem 
                   v-if="!isPaid(item)"
                   @click="openPaymentForm(item)"
@@ -484,6 +487,7 @@
 <script>
 import DateRangeField from '@/components/DateRangeField.vue';
 import { mapGetters } from 'vuex';
+//import { debounce } from 'lodash';
 
 export default {
   components: { DateRangeField },
@@ -500,20 +504,19 @@ export default {
         amount: 0,
         payment_method_id: null,
         notes: "",
-      },
-      selectedDate: null,      
+      },      
       dateRange: {
         start: null,
         end: null,
-      }, 
+      },
       dateOrderRange: {
         start: null,
         end: null,
-      },                 
+      },                  
       loading: false,
       search: '',
       customers: [],
-      orders: [],                  
+      //orders: [],                  
       statuses: [],
       selectedCustomer: null,
       selectedStatus: null,      
@@ -551,7 +554,20 @@ export default {
         { title: 'Estado', key: 'status.name' },                        
       ],            
       isAdmin: false,
-      createdOrder: { order: {} },      
+      createdOrder: { order: {} },
+      pagination: {
+        page: 1,
+        itemsPerPage: 10,
+        sortBy: [],
+        sortDesc: [],
+      },
+      orders: {
+        data: [],
+        total: 0,
+        current_page: 1,
+        last_page: 1,
+      },
+      //searchDebounce: null, // Para el debounce de búsqueda
     }
   },
 
@@ -561,76 +577,7 @@ export default {
     }),
     showHeaders() {
       return this.headers
-    },
-    
-    filteredStock() {
-      let filtered = this.orders
-      
-      //filter numero orden           
-      if (this.search) {
-        const searchTerm = this.search.toLowerCase()
-        
-        filtered = filtered.filter(item => {
-          const orderNumber = item.order_number?.toString().toLowerCase() || ''
-
-          return orderNumber.includes(searchTerm);
-        })
-      }
-
-      //filter cliente
-      if (this.selectedCustomer && this.selectedCustomer.length>0) {        
-        filtered = filtered.filter(item => {
-          const customerId = item.customer?.id
-            
-          return customerId !== undefined && this.selectedCustomer.includes(customerId);
-        })              
-      }            
-
-      //filter estado
-      if (this.selectedStatus) {
-        filtered = filtered.filter(item => item.status?.id === this.selectedStatus);
-      }              
-
-      //filter rango de fecha de entrega
-      if (this.dateRange?.start && this.dateRange?.end) {
-        const startDate = this.normalizeDateToStartOfDay(this.dateRange.start).getTime();
-        const endDate = this.normalizeDateToEndOfDay(this.dateRange.end).getTime();
-
-        filtered = filtered.filter(item => {                   
-          const deliveryDate = this.parseDdMmYyyyToDate(item.delivery_date)                   
-          if (!deliveryDate) return false;
-          const deliveryTime = deliveryDate.getTime();                    
-          const isInRange = deliveryTime >= startDate && deliveryTime <= endDate
-
-          /*console.log(
-            `Fecha: ${item.delivery_date} | Timestamp: ${deliveryTime} | Rango: ${startDate}-${endDate} | InRange: ${isInRange}`
-          );*/
-
-          return isInRange;
-        });
-      }
-      
-      //filter rango de fecha de orden
-      if (this.dateOrderRange?.start && this.dateOrderRange?.end) {
-        const startDate = this.normalizeDateToStartOfDay(this.dateOrderRange.start).getTime();
-        const endDate = this.normalizeDateToEndOfDay(this.dateOrderRange.end).getTime();
-
-        filtered = filtered.filter(item => {                   
-          const orderDate = this.parseDdMmYyyyToDate(item.order_date)                   
-          if (!orderDate) return false;
-          const orderTime = orderDate.getTime();                    
-          const isInRange = orderTime >= startDate && orderTime <= endDate
-
-          /*console.log(
-            `Fecha: ${item.delivery_date} | Timestamp: ${orderTime} | Rango: ${startDate}-${endDate} | InRange: ${isInRange}`
-          );*/
-
-          return isInRange;
-        });
-      }
-
-      return filtered
-    },
+    },         
 
     pendingAmount()
     {      
@@ -643,6 +590,41 @@ export default {
         : 'Cambio de estado de orden'
     },   
   },
+  /*
+  watch: {
+    // Observadores para los filtros
+    search(newVal) {
+      this.pagination.page = 1; // Resetear a primera página al buscar
+      this.debouncedFetchData();
+    },
+    selectedCustomer(newVal) {
+      this.pagination.page = 1;
+      this.fetchData();
+    },
+    selectedStatus(newVal) {
+      this.pagination.page = 1;
+      this.fetchData();
+    },
+    dateRange: {
+      handler(newVal) {
+        if(newVal.start && newVal.end){
+          this.pagination.page = 1;
+          this.fetchData()
+        }
+      },
+      deep: true,
+    },
+    dateOrderRange: {
+      
+      handler(newVal) {
+        if(newVal.start && newVal.end){
+          this.pagination.page = 1;
+          this.fetchData()
+        }        
+      },
+      deep: true,
+    }
+  },*/
 
   async created() {
     this.checkAdmin()  
@@ -652,10 +634,116 @@ export default {
         { title: 'Ganancia', key: 'total_profit', align: 'end' }
       )
     }
-    await this.fetchData()
+    // Configurar debounce para la búsqueda (300ms de espera)
+    //this.debouncedFetchData = debounce(this.fetchData, 300);
+    
+    await this.loadData();    
   },
 
-  methods: {
+  methods:{
+    reset(){
+      this.selectedCustomer = null
+      this.selectedStatus = null
+      this.search = ''
+      this.pagination.page = 1
+      this.dateRange = {
+        start: null,
+        end: null,
+      }
+      this.dateOrderRange = {
+        start: null,
+        end: null,
+      }
+
+      // 2. Resetear el componente DateRangeField
+      this.$nextTick(() => {
+        if (this.$refs.dateDeliveryRange && this.$refs.dateDeliveryRange.reset) {
+          this.$refs.dateDeliveryRange.reset()
+        }
+        if (this.$refs.dateOrderRange && this.$refs.dateOrderRange.reset) {
+          this.$refs.dateOrderRange.reset()
+        }
+      })
+      this.fetchData()
+    },
+    handlePaginationChange(options) {
+      this.pagination.page = options.page;
+      this.pagination.itemsPerPage = options.itemsPerPage;
+      this.pagination.sortBy = options.sortBy;
+      this.pagination.sortDesc = options.sortDesc;
+      this.fetchData();
+    },
+
+    async fetchData() {
+      this.loading = true;
+      try {
+        console.log("this.selectedCustomer");
+        console.log(this.selectedCustomer);
+        const params = {
+          order_number: this.search || undefined,
+          customers: this.selectedCustomer || undefined,
+          status_id: this.selectedStatus || undefined,
+          page: this.pagination.page,
+          per_page: this.pagination.itemsPerPage,
+          sort_by: this.pagination.sortBy.length ? this.pagination.sortBy[0] : undefined,
+          sort_order: this.pagination.sortDesc?.length ? (this.pagination.sortDesc[0] ? 'desc' : 'asc') : undefined,
+        };
+        
+        // Añadir fechas si están definidas
+        if (this.dateRange?.start && this.dateRange?.end) {
+          params.delivery_start_date = this.dateRange.start;
+          params.delivery_end_date = this.dateRange.end;
+        }
+        // Añadir fechas si están definidas
+        if (this.dateOrderRange?.start && this.dateOrderRange?.end) {
+          params.order_start_date = this.dateOrderRange.start;
+          params.order_end_date = this.dateOrderRange.end;
+        }
+
+        
+        
+        // Eliminar parámetros undefined
+        Object.keys(params).forEach(key => params[key] === undefined && delete params[key]);
+        
+        const [ordersRes] = await Promise.all([
+          this.$axios.get(this.$routes["ordersSearch"], { params }),                    
+        ]);
+        
+        //this.orders = ordersRes.data.data; 
+        this.orders = {
+          data: ordersRes.data.data,
+          total: ordersRes.data.total,
+          current_page: ordersRes.data.current_page,
+          last_page: ordersRes.data.last_page
+        };
+        
+        // Eliminamos el filteredStock ya que ahora el filtrado lo hace el backend
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        this.showSnackbar('Error al cargar los datos', 'error');
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    async loadData() {
+      this.loading = true;
+      try {                
+        const [customersRes, statusesRes] = await Promise.all([          
+          this.$axios.get(this.$routes["customers"]),          
+          this.$axios.get(this.$routes["statuses"]), 
+        ]);
+                
+        this.customers = customersRes.data.data;
+        this.statuses = statusesRes.data.data;
+                
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        this.showSnackbar('Error al cargar los datos', 'error');
+      } finally {
+        this.loading = false;
+      }
+    },
 
     // Payment methods
     openPaymentForm(item) {
@@ -776,28 +864,7 @@ export default {
         currency: "ARS",
       }).format(value || 0)
     },    
-
-    async fetchData() {
-      this.loading = true
-      try {
-            
-        const [ordersRes, customersRes, statusesRes] = await Promise.all([
-          this.$axios.get(this.$routes["ordersLatest"]),          
-          this.$axios.get(this.$routes["customers"]),          
-          this.$axios.get(this.$routes["statuses"]), 
-        ])
-        
-        this.orders = ordersRes.data.data
-        this.customers = customersRes.data.data
-        this.statuses = statusesRes.data.data                      
- 
-      } catch (error) {
-        console.error('Error fetching data:', error)
-        this.showSnackbar('Error al cargar los datos', 'error')
-      } finally {
-        this.loading = false
-      }
-    },
+    
 
     // Movement Dialog Methods
     openMovementDialog(item) {      
@@ -847,17 +914,17 @@ export default {
     },
 
     // Utility Methods
-    getStatusColor(item) {
+    getStatusColor(item) {      
       const statusColorMap = {
         [this.$statusOrders.PENDING]: 'primary',
         [this.$statusOrders.PROCESS]: 'warning',
         [this.$statusOrders.PARTIAL_PAYMENT]: 'warning',
         [this.$statusOrders.PAID]: 'success',
         [this.$statusOrders.COMPLETED]: 'success',
-        [this.$statusOrders.APPROVED]: 'success'
-      };
+        [this.$statusOrders.APPROVED]: 'success',
+      }
       
-      return statusColorMap[item.status.code] || 'error';
+      return statusColorMap[item.status.code] || 'error'
     },  
     
     isPaid(item) {             
@@ -1022,15 +1089,5 @@ export default {
 }
 .custom-actions {
   padding: 8px 16px; /* Ajusta el espaciado interno si es necesario */
-}
-.v-card-info-subtitle {
-  font-size: 0.75rem;
-  color: rgba(var(--v-theme-on-surface), var(--v-medium-emphasis-opacity));
-  margin-top: 2px;
-}
-
-.v-card-info-subtitle.with-icon {
-  display: flex;
-  align-items: center;
 }
 </style>

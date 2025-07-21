@@ -22,6 +22,24 @@ class OrderRepository extends BaseRepository
         parent::__construct($m, $relations);
     }
 
+    public function latest()
+    {
+        try {
+            $days = config('app.orders_days');
+            $query = $this->model->query();
+            $relations = ['customer', 'status', 'orderType', 'payment'];
+            $query = $query->with($relations);
+            $query->where('created_at', '>=', now()->subDays($days));
+            
+            $query->orderBy('created_at', 'desc');
+            
+            return $this->successResponse($query->get());
+        } catch (\Exception $e) {
+            report($e);
+            return $this->errorResponse($e);
+        }
+    }
+
     public function save($request)
     {
         DB::beginTransaction();
@@ -336,5 +354,43 @@ class OrderRepository extends BaseRepository
 
         // Generar PDF
         return $mpdf->Output("orden_entrega.pdf", \Mpdf\Output\Destination::INLINE);
+    }
+
+    public function search($request)
+    {
+        try {
+            $query = $this->model->query();
+            $relations = ['customer', 'status', 'orderType', 'payment'];
+            $query = $query->with($relations);            
+
+            $deliveryStartDate = $request->input('delivery_start_date'); // Formato: Y-m-d
+            $deliveryEndDate = $request->input('delivery_end_date');
+            
+            $orderStartDate = $request->input('order_start_date'); // Formato: Y-m-d
+            $orderEndDate = $request->input('order_end_date');
+
+            if($request->input('order_number')){
+                $query->where('order_number', 'LIKE', '%'.$request->input('order_number').'%');
+            }
+            if($request->input('status_id')){
+                $query->where('status_id', $request->input('status_id'));
+            }
+            if($request->input('customers')){
+                $query->whereIn('customer_id', $request->input('customers'));
+            }
+            if($deliveryStartDate && $deliveryEndDate){
+                $query->whereBetween('delivery_date', [Carbon::parse($deliveryStartDate)->startOfDay(), Carbon::parse($deliveryEndDate)->endOfDay()]);
+            }
+            if($orderStartDate && $orderEndDate){
+                $query->whereBetween('order_date', [Carbon::parse($orderStartDate)->startOfDay(), Carbon::parse($orderEndDate)->endOfDay()]);
+            }
+            
+            $query->orderBy('created_at', 'desc');
+            
+            return $this->successResponse($query->get());
+        } catch (\Exception $e) {
+            report($e);
+            return $this->errorResponse($e);
+        }
     }
 }

@@ -1,29 +1,38 @@
 <template>
-  <VRow dense>
-    <VCol cols="6">
-      <VTextField
-        v-model="start"
-        :label="modelLabel?modelLabel+' Desde':'Desde'"
-        placeholder="dd/mm/yyyy"
-        v-mask="'##/##/####'"
-        :error-messages="startError"
-        @blur="validateStart"
-        clearable
-      />
-    </VCol>
+  <VCard variant="outlined" class="mb-4">
+    <VCardTitle class="text-subtitle-1 pa-4 pb-0">
+      {{ modelLabel || 'Rango de fechas' }}
+    </VCardTitle>
+    <VCardText class="pt-2">
+      <VRow dense>
+        <VCol cols="6">
+          <VTextField
+            v-model="start"
+            label="Desde"
+            placeholder="dd/mm/yyyy"
+            v-mask="'##/##/####'"
+            :error-messages="startError"
+            @blur="validateStart"
+            clearable
+            density="compact"
+          />
+        </VCol>
 
-    <VCol cols="6">
-      <VTextField
-        v-model="end"
-        :label="modelLabel?modelLabel+' Hasta':'Hasta'"
-        placeholder="dd/mm/yyyy"
-        v-mask="'##/##/####'"
-        :error-messages="endError"
-        @blur="validateEnd"
-        clearable
-      />
-    </VCol>
-  </VRow>
+        <VCol cols="6">
+          <VTextField
+            v-model="end"
+            label="Hasta"
+            placeholder="dd/mm/yyyy"
+            v-mask="'##/##/####'"
+            :error-messages="endError"
+            @blur="validateEnd"
+            clearable
+            density="compact"
+          />
+        </VCol>
+      </VRow>
+    </VCardText>
+  </VCard>
 </template>
 
 <script>
@@ -57,6 +66,13 @@ export default {
     }
   },
   methods: {
+    reset() {
+      this.start = null
+      this.end = null
+      this.startError = null
+      this.endError = null
+      // Cualquier otra lógica de reset necesaria
+    },
     isValidDate(str) {
         if (!/^\d{2}\/\d{2}\/\d{4}$/.test(str)) return false
 
@@ -110,3 +126,19 @@ export default {
   }
 }
 </script>
+<style scoped>
+/* Estilo para el grupo de fechas */
+.date-range-group {
+  border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+  border-radius: 6px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.date-range-group__title {
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: rgba(var(--v-theme-on-surface), var(--v-medium-emphasis-opacity));
+}
+</style>

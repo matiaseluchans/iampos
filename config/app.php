@@ -186,4 +186,6 @@ return [
         // 'Example' => App\Facades\Example::class,
     ])->toArray(),
 
+    'orders_days' =>  (int) env('DAYS_LATEST_ORDERS', 1),
+
 ];

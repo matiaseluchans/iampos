@@ -150,4 +150,14 @@ class OrderController extends Controller
     {
         return $this->repository->generateCustomerDeliveryReport($request);
     }
+
+    public function search(Request $request)
+    {
+        return $this->repository->search($request);
+    }
+    
+    public function latest(Request $request)
+    {
+        return $this->repository->latest($request);
+    }
 }

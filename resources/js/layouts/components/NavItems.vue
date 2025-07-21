@@ -38,6 +38,14 @@ const navItems = [
   {
     component: 'VerticalNavLink',
     item: {
+      title: 'Buscador Ordenes',
+      to: '/order-search',
+      icon: 'ri-search-line'
+    }
+  },
+  {
+    component: 'VerticalNavLink',
+    item: {
       title: 'Clientes',
       to: '/customers',
       icon: 'ri-group-line'
