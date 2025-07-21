@@ -6,6 +6,9 @@ use Illuminate\Support\Facades\Route;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
+use Symfony\Component\Process\Exception\ProcessFailedException;
+use Symfony\Component\Process\Process;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -113,4 +116,67 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('stocks/reports/valuation', [App\Http\Controllers\StockController::class, 'valuationReport']);
 
     Route::apiResource('payments', \App\Http\Controllers\PaymentController::class);
+});
+
+
+Route::get('/version', function () {
+    try {
+        //
+        // 1. Obtener el último tag anotado
+        //
+        $tagProcess = new Process(['git', 'for-each-ref', '--sort=-creatordate', '--format=%(refname:short)', 'refs/tags']);
+        $tagProcess->run();
+
+        if (!$tagProcess->isSuccessful()) {
+            throw new ProcessFailedException($tagProcess);
+        }
+
+        $tags = explode("\n", trim($tagProcess->getOutput()));
+        $latestTag = $tags[0] ?? null;
+
+        if (!$latestTag) {
+            return response()->json(['error' => 'No se encontró ningún tag'], 404);
+        }
+
+        // Obtener info del tag
+        $tagShowProcess = new Process(['git', 'show', $latestTag, '--no-patch']);
+        $tagShowProcess->run();
+
+        if (!$tagShowProcess->isSuccessful()) {
+            throw new ProcessFailedException($tagShowProcess);
+        }
+
+        $tagOutput = $tagShowProcess->getOutput();
+
+        preg_match('/^tag\s+(.*)$/m', $tagOutput, $tagMatch);
+        preg_match('/^Tagger:\s+(.*)$/m', $tagOutput, $authorMatch);
+        preg_match('/^Date:\s+(.*)$/m', $tagOutput, $dateMatch);
+        preg_match('/\n\n(.*?)\n\n/s', $tagOutput, $tagMessageMatch);
+
+        //
+        // 2. Obtener el último commit de la rama actual
+        //
+        $commitProcess = new Process(['git', 'log', '-1', '--pretty=format:%H%n%an <%ae>%n%ad%n%B']);
+        $commitProcess->run();
+
+        if (!$commitProcess->isSuccessful()) {
+            throw new ProcessFailedException($commitProcess);
+        }
+
+        $commitOutput = explode("\n", trim($commitProcess->getOutput()));
+
+        return response()->json([
+            'tag' => $tagMatch[1] ?? $latestTag,
+            'tag_autor' => $authorMatch[1] ?? null,
+            'tag_fecha' => $dateMatch[1] ?? null,
+            'mensaje_tag' => trim($tagMessageMatch[1] ?? ''),
+
+            'commit' => $commitOutput[0] ?? null,
+            'commit_autor' => $commitOutput[1] ?? null,
+            'commit_fecha' => $commitOutput[2] ?? null,
+            'mensaje_commit' => trim(implode("\n", array_slice($commitOutput, 3))),
+        ]);
+    } catch (ProcessFailedException $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
 });
