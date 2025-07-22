@@ -22,13 +22,17 @@
           <VCard flat color="white">
             <VCardText>
               <VRow>
-                <VCol cols="12" md="4" sm="4" class="pl-0 pt-20 py-2">
+                <VCol cols="12" md="3" sm="3" class="pl-0 pt-20 py-2">
                   <VTextField
                     v-model="search"                     
                     label="Número de Orden"
                   />
                 </VCol>
-                <VCol cols="12" md="4" sm="4" class="pl-0 pt-20 py-2">
+                <VCol 
+                  cols="12"
+                  md="3" 
+                  sm="3" 
+                  class="pl-0 pt-20 py-2">
                   <VAutocomplete
                     v-model="selectedCustomer"
                     :items="customers"
@@ -41,18 +45,32 @@
                 </VCol>
                 <VCol 
                   cols="12" 
-                  md="4"
-                  sm="4"
+                  md="3"
+                  sm="3"
                   class="pl-0 pt-20 py-2">
                   <VAutocomplete
-                    v-model="selectedStatus"
-                    :items="statuses"
+                    v-model="selectedPaymentStatus"
+                    :items="paymentStatuses"
                     item-title="name"
                     item-value="id"
-                    label="Estado"
+                    label="Estado del pago"
                     clearable
                   />
-                </VCol>                
+                </VCol>
+                <VCol 
+                  cols="12" 
+                  md="3"
+                  sm="3"
+                  class="pl-0 pt-20 py-2">
+                  <VAutocomplete
+                    v-model="selectedShipmentStatus"
+                    :items="shipmentStatuses"
+                    item-title="name"
+                    item-value="id"
+                    label="Estado del envio"
+                    clearable
+                  />
+                </VCol>
               </VRow>
               <VRow>                                                
                 <VCol cols="12" sm="6" class="pl-0 pt-20 py-2">
@@ -104,7 +122,7 @@
           </div>
         </template>
         <template #item.delivery_date="{ item }">
-          <VRow v-if="item.shipping">
+          <VRow v-if="item.shipping && item.delivery_date" class="d-flex align-center">
             <VCol cols="12" md="3" class="d-flex align-center">
               <VAvatar title="con envio" icon="ri-truck-line" class="text-info mr-2" variant="tonal"  size="40"/>
             </VCol>
@@ -133,8 +151,8 @@
         <!--<template #item.shipping="{ item }">                                
           <strong>{{ item.shipping =="1"?'Con envío':'Sin envío' }}</strong>          
         </template>-->
-        <template #item.status.name="{ item }">    
-          <div class="d-flex flex-column align-start gap-2">
+        <template #item.payment_status_id="{ item }">    
+          <div class="d-flex flex-column align-center gap-2">
             <VChip
               :color="getStatusCodeColor(item.payment_status.code)"
               prepend-icon="ri-money-dollar-circle-line"
@@ -337,89 +355,33 @@
                       </VCol>
                     </VRow>
                   </VCardText>
-                </VCard>
-
-                <!-- Sección de información de la orden -->
-                <VCard class="mb-6" color="primary-lighten-5">
-                  <VCardTitle class="d-flex align-center">
-                    <VIcon icon="ri-inbox-unarchive-line" class="me-2" />
-                    <span>Detalles de la Orden</span>
-                  </VCardTitle>
-                  <VDivider />
-                  <VCardText>
-                    <VRow>
-                      <VCol cols="12" md="3" class="d-flex align-center">
-                        <div class="info-field">
-                          <div class="text-caption text-primary">Número de Orden</div>
-                          <span class="text-h6 font-weight-bold">{{ selectedOrder.order_number }}</span>
-                        </div>
-                      </VCol>
-                      
-                      <VCol cols="12" md="3" class="d-flex align-center">
-                        <div class="info-field">                                                    
-                          <div class="text-caption text-primary">Fecha</div>
-                          <span class="text-h6 font-weight-bold">
-                            {{ (selectedOrder.order_date) }}
-                          </span>
-                          
-                          <!--
-                          <div class="d-flex flex-column">
-                            <span class="font-weight-medium">
-                              {{ formatDateGrid(selectedOrder.order_date.split(' ')[0]) }}
-                            </span>
-                            <small class="text-disabled">
-                              {{ selectedOrder.order_date.split(' ')[1] || '' }}
-                            </small>
-                          </div>
-                          -->
-                        </div>
-                      </VCol>
-                      
-                      <VCol cols="12" md="2" class="d-flex align-center">
-                        <div class="info-field">
-                          <div class="text-caption text-primary">Estado Actual</div>
-                          <VChip :color="getStatusColor(selectedOrder)" class="font-weight-bold">
-                            {{ selectedOrder.payment_status.name }}
-                          </VChip>
-                          <VChip :color="getStatusColor(selectedOrder)" class="font-weight-bold">
-                            {{ selectedOrder.shipment_status.name }}
-                          </VChip>
-                        </div>
-                      </VCol>
-                      
-                      <VCol cols="12" md="2" class="d-flex align-center">
-                        <div class="info-field">
-                          <div class="text-caption text-primary">Importe Total</div>
-                          <span class="text-h6 font-weight-bold text-success">
-                            {{ formatCurrency(selectedOrder.total_amount) }}
-                          </span>
-                        </div>
-                      </VCol>
-                      
-                      <VCol cols="12" md="2" class="d-flex align-center">
-                        <div class="info-field">
-                          <div class="text-caption text-primary">Productos</div>
-                          <span class="text-h6 font-weight-bold">
-                            {{ selectedOrder.quantity_products }} <small class="text-caption">items</small>
-                          </span>
-                        </div>
-                      </VCol>
-                    </VRow>
-                  </VCardText>
-                </VCard>
-
+                </VCard>                                
                 <!-- Selector de estado -->
                 <VRow>
-                  <VCol cols="12" sm="12">
+                  <VCol cols="12" md="6" sm="6">
                     <VAutocomplete
-                      v-model="movement.status_id"
-                      :items="statuses"
+                      v-model="movement.payment_status_id"
+                      :items="paymentStatuses"
                       item-title="name"
                       item-value="id"
-                      label="Seleccionar nuevo estado"
-                      :rules="[validateStatusChange]"
+                      label="Estado del pago"
+                      :rules="[validateStatusChange(movement.payment_status_id, 1)]"
                       variant="outlined"
                       class="mt-2"
+                      clearable
+                    />
+                  </VCol>
+                  <VCol cols="12" md="6" sm="6">
+                    <VAutocomplete
+                      v-model="movement.shipment_status_id"
+                      :items="shipmentStatuses"
+                      item-title="name"
+                      item-value="id"
+                      label="Estado de la entrega"
+                      :rules="[validateStatusChange(movement.shipment_status_id, 2)]"
+                      variant="outlined"
+                      class="mt-2"
+                      clearable
                     />
                   </VCol>
                 </VRow>
@@ -588,9 +550,11 @@ export default {
       search: '',
       customers: [],
       orders: [],                  
-      statuses: [],
+      paymentStatuses: [],
+      shipmentStatuses: [],
       selectedCustomer: null,
-      selectedStatus: null,      
+      selectedPaymentStatus: null,      
+      selectedShipmentStatus: null,      
       selectedOrder: null,            
 
       // Dialogs            
@@ -620,9 +584,8 @@ export default {
         { title: 'Fecha', key: 'order_date', align: 'center' },           
         { title: 'Fecha Entrega', key: 'delivery_date', align: 'center'  },           
         { title: 'Cliente', key: 'customer' },         
-        { title: 'Total', key: 'total_amount', align: 'end' },
-         
-        { title: 'Estado', key: 'status.name' },                        
+        { title: 'Estados', key: 'payment_status_id', align: 'center' },                        
+        { title: 'Total', key: 'total_amount', align: 'end' },                 
       ],            
       isAdmin: false,
       createdOrder: { order: {} },      
@@ -660,10 +623,14 @@ export default {
         })              
       }            
 
-      //filter estado
-      if (this.selectedStatus) {
-        filtered = filtered.filter(item => item.status?.id === this.selectedStatus);
-      }              
+      //filter estado de pago
+      if (this.selectedPaymentStatus) {
+        filtered = filtered.filter(item => item.payment_status?.id === this.selectedPaymentStatus)
+      }
+      console.log(`selectedShipmentStatus: ${this.selectedShipmentStatus}, selectedShipment: ${this.selectedShipment}`)
+      if (this.selectedShipmentStatus) {
+        filtered = filtered.filter(item => item.shipment_status?.id === this.selectedShipmentStatus)
+      }
 
       //filter rango de fecha de entrega
       if (this.dateRange?.start && this.dateRange?.end) {
@@ -799,9 +766,15 @@ export default {
     checkAdmin() {
       this.isAdmin = this.userIsAdmin      
     },
-    validateStatusChange(value){
+    validateStatusChange(value, type){
       if (!value) return 'Debe seleccionar un estado'
-      if (value === this.selectedOrder.status.id) return 'El estado seleccionado es igual al estado actual'
+      if(type==1){
+        if (value === this.selectedOrder.payment_status_id) return 'El estado de pago seleccionado es igual al estado de pago actual'
+      }
+      else{
+        if (value === this.selectedOrder.shipment_status_id) return 'El estado de envio seleccionado es igual al estado de envio actual'
+      }
+      
 
       return true
     },
@@ -855,15 +828,17 @@ export default {
       this.loading = true
       try {
             
-        const [ordersRes, customersRes, statusesRes] = await Promise.all([
+        const [ordersRes, customersRes, paymentStatusesRes, shipmentStatusesRes ] = await Promise.all([
           this.$axios.get(this.$routes["ordersLatest"]),          
           this.$axios.get(this.$routes["customers"]),          
-          this.$axios.get(this.$routes["statuses"]), 
+          this.$axios.get(this.$routes["paymentStatuses"]), 
+          this.$axios.get(this.$routes["shipmentStatuses"]), 
         ])
         
         this.orders = ordersRes.data.data
         this.customers = customersRes.data.data
-        this.statuses = statusesRes.data.data                      
+        this.paymentStatuses = paymentStatusesRes.data.data
+        this.shipmentStatuses = shipmentStatusesRes.data.data
  
       } catch (error) {
         console.error('Error fetching data:', error)
@@ -904,7 +879,8 @@ export default {
         endpoint = `${this.$routes["orders"]}/${this.selectedOrder.id}`
         data = {
           data: {
-            status_id: this.movement.status_id },          
+            payment_status_id: this.movement.payment_status_id,
+            shipment_status_id: this.movement.shipment_status_id },          
         }
         
         
@@ -980,6 +956,28 @@ export default {
     },
     async getDeliveryReport(type) {
       try {        
+        
+        // Validar rango de fechas
+        if (!this.dateRange.start || !this.dateRange.end) {
+          this.showSnackbar('Debe seleccionar un rango de fechas de entrega', 'error')
+
+          return
+        }
+        
+        // Validar estado seleccionado
+        const code = this.shipmentStatuses.find(status => status.id === this.selectedShipmentStatus)?.code
+        if (!code) {
+          this.showSnackbar('Debe seleccionar el estado de envio Pendiente para generar el reporte', 'error')
+          
+          return
+        }
+        
+        if (code != this.$statusOrders.PENDING) {
+          this.showSnackbar('Debe seleccionar el estado de envio Pendiente para generar el reporte', 'error')
+
+          return
+        }
+
         // Mostrar loader mientras se genera el PDF
         this.loading = true
 
@@ -993,8 +991,7 @@ export default {
         }
         
         // Llamar al endpoint de Laravel que genera el PDF
-        const response = await this.$axios.get(
-         urlReport,
+        const response = await this.$axios.get(urlReport,
           { params,
             responseType: 'blob',
           },

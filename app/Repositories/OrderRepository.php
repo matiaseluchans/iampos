@@ -34,7 +34,7 @@ class OrderRepository extends BaseRepository
             $query = $query->with($relations);
             $query->where('created_at', '>=', now()->subDays($days));
             
-            $query->orderBy('created_at', 'desc');
+            $query->orderBy('order_date', 'desc');
             
             return $this->successResponse($query->get());
         } catch (\Exception $e) {
@@ -377,7 +377,7 @@ class OrderRepository extends BaseRepository
     {
         try {
             $query = $this->model->query();
-            $relations = ['customer', 'status', 'orderType', 'payment'];
+            $relations = ['customer', 'status', 'paymentStatus', 'shipmentStatus', 'orderType', 'payment'];
             $query = $query->with($relations);            
 
             $deliveryStartDate = $request->input('delivery_start_date'); // Formato: Y-m-d
@@ -389,8 +389,11 @@ class OrderRepository extends BaseRepository
             if($request->input('order_number')){
                 $query->where('order_number', 'LIKE', '%'.$request->input('order_number').'%');
             }
-            if($request->input('status_id')){
-                $query->where('status_id', $request->input('status_id'));
+            if($request->input('payment_status_id')){
+                $query->where('payment_status_id', $request->input('payment_status_id'));
+            }
+            if($request->input('shipment_status_id')){
+                $query->where('shipment_status_id', $request->input('shipment_status_id'));
             }
             if($request->input('customers')){
                 $query->whereIn('customer_id', $request->input('customers'));
@@ -402,7 +405,7 @@ class OrderRepository extends BaseRepository
                 $query->whereBetween('order_date', [Carbon::parse($orderStartDate)->startOfDay(), Carbon::parse($orderEndDate)->endOfDay()]);
             }
             
-            $query->orderBy('created_at', 'desc');
+            $query->orderBy('order_date', 'desc');
             
             return $this->successResponse($query->get());
         } catch (\Exception $e) {
