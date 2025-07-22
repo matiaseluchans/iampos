@@ -17,6 +17,19 @@ const props = defineProps({
     type: Function,
     required: true,
   },
+
+  isCollapsed: {
+    type: Boolean,
+    required: true,
+  },
+  isMenuPinned: {
+    type: Boolean,
+    required: true,
+  },
+  toggleMenuPin: {
+    type: Function,
+    required: true,
+  },
 })
 
 const { mdAndDown } = useDisplay()
@@ -50,6 +63,7 @@ const handleNavScroll = evt => {
         'visible': isOverlayNavActive,
         'scrolled': isVerticalNavScrolled,
         'overlay-nav': mdAndDown,
+        'pinned': isMenuPinned,
       },
     ]"
   >
@@ -185,5 +199,9 @@ const handleNavScroll = evt => {
 
     transition: transform 0.25s ease-in-out;
   }
+}
+
+.layout-vertical-nav.pinned {
+  /*box-shadow: 0 0 0 2px rgba(var(--v-theme-primary), 0.5);*/
 }
 </style>

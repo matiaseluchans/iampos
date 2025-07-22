@@ -7,18 +7,35 @@ export default defineComponent({
     const isOverlayNavActive = ref(false)
     const isLayoutOverlayVisible = ref(false)
     const isCollapsed = ref(true) // Inicialmente colapsado
+    const isMenuPinned = ref(false) // Nuevo estado para controlar si el menú está fijado
+
     const toggleIsOverlayNavActive = useToggle(isOverlayNavActive)
     const route = useRoute()
     const { mdAndDown, lgAndUp } = useDisplay()
 
+    // Función para alternar el estado de fijado del menú
+    const toggleMenuPin = () => {
+      isMenuPinned.value = !isMenuPinned.value
+      if(isMenuPinned.value)
+      {
+        isCollapsed.value = 0
+      }
+      else
+      {
+        isCollapsed.value = 1
+      }
+    }
+
     // Colapsar automáticamente en pantallas grandes
     onMounted(() => {
-      isCollapsed.value = lgAndUp.value
+      isCollapsed.value = lgAndUp.value && !isMenuPinned.value
     })
 
     // Observar cambios en el tamaño de pantalla
     watch(lgAndUp, (newVal) => {
-      isCollapsed.value = newVal
+      if (!isMenuPinned.value) {
+        isCollapsed.value = newVal
+      }
       if (!newVal) {
         isOverlayNavActive.value = false
       }
@@ -31,19 +48,35 @@ export default defineComponent({
 
     syncRef(isOverlayNavActive, isLayoutOverlayVisible)
     
+    
     return () => {
+      // Prepara todas las props que necesitan los slots
+      const navbarSlotProps = {
+        toggleVerticalOverlayNavActive: toggleIsOverlayNavActive,
+        isMenuPinned: isMenuPinned.value, // Pasar el valor, no la ref
+        toggleMenuPin,
+      };
+
+      const navHeaderSlotProps = {
+        toggleIsOverlayNavActive,
+        isMenuPinned: isMenuPinned.value,
+        toggleMenuPin,
+      };
+
       const verticalNav = h(VerticalNav, { 
         isOverlayNavActive: isOverlayNavActive.value,
         toggleIsOverlayNavActive,
         isCollapsed: isCollapsed.value,
-        onMouseenter: () => isCollapsed.value = false,
-        onMouseleave: () => isCollapsed.value = lgAndUp.value
+        isMenuPinned: isMenuPinned.value,
+        toggleMenuPin,
+        onMouseenter: () => !isMenuPinned.value && (isCollapsed.value = false),
+        onMouseleave: () => !isMenuPinned.value && (isCollapsed.value = lgAndUp.value)
       }, {
-        'nav-header': () => slots['vertical-nav-header']?.({ toggleIsOverlayNavActive }),
+        'nav-header': () => slots['vertical-nav-header']?.(navHeaderSlotProps),
         'before-nav-items': () => slots['before-vertical-nav-items']?.(),
         'default': () => slots['vertical-nav-content']?.(),
         'after-nav-items': () => slots['after-vertical-nav-items']?.(),
-      })
+      });
 
       return h('div', {
         class: [
@@ -56,9 +89,7 @@ export default defineComponent({
         verticalNav,
         h('div', { class: 'layout-content-wrapper' }, [
           h('header', { class: ['layout-navbar navbar-blur'] }, [
-            h('div', { class: 'navbar-content-container' }, slots.navbar?.({
-              toggleVerticalOverlayNavActive: toggleIsOverlayNavActive,
-            })),
+            h('div', { class: 'navbar-content-container' }, slots.navbar?.(navbarSlotProps)),
           ]),
           h('main', { class: 'layout-page-content' }, h('div', { class: 'page-content-container' }, slots.default?.())),
           h('footer', { class: 'layout-footer' }, [
@@ -69,10 +100,10 @@ export default defineComponent({
           class: ['layout-overlay', { visible: isLayoutOverlayVisible.value }],
           onClick: () => { isLayoutOverlayVisible.value = !isLayoutOverlayVisible.value },
         }),
-      ])
-    }
+      ]);
+    };
   },
-})
+});
 </script>
 
 <style lang="scss">

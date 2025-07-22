@@ -77,3 +77,7 @@ html {
     transform: rotate(1turn);
   }
 }
+
+.logo-color-text {
+  color: #989898 !important
+}

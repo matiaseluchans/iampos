@@ -25,12 +25,16 @@ const userPermissions = computed(() => store.getters.userPermissions)
 <template>
   <VerticalNavLayout>
     <!-- 👉 navbar -->
-    <template #navbar="{ toggleVerticalOverlayNavActive }">
+    <template #navbar="{ toggleVerticalOverlayNavActive , isMenuPinned, toggleMenuPin }">
       <div class="d-flex h-100 align-center ml-6">
         <!-- 👉 Vertical nav toggle in overlay mode -->
         
         <IconBtn class="ms-n3 d-lg-none" @click="toggleVerticalOverlayNavActive(true)">
           <VIcon icon="ri-menu-line" />
+        </IconBtn>
+
+        <IconBtn class="ms-n3 d-none d-lg-flex" @click="toggleMenuPin">
+          <VIcon :icon="isMenuPinned ? 'ri-menu-fold-fill' : 'ri-menu-unfold-fill'" />
         </IconBtn>
 
         <!-- 👉 Search -->
@@ -122,7 +126,7 @@ const userPermissions = computed(() => store.getters.userPermissions)
           </g>
         </svg>
       
-        <h1 class="ml-8 font-weight-medium leading-normal text-h5 text-uppercase">
+        <h1 class="ml-8 font-weight-black leading-normal text-h5 text-uppercase logo-color-text" style="display:inline">
         IA 
         </h1>
         <svg width="20" viewBox="0 0 30 24" xmlns="http://www.w3.org/2000/svg">
@@ -140,8 +144,8 @@ const userPermissions = computed(() => store.getters.userPermissions)
               fill="#FFF" />
           </g>
         </svg>
-        <h1 class="font-weight-medium leading-normal text-h5 text-uppercase">
-        POS 
+        <h1 class="font-weight-black leading-normal text-h5 text-uppercase  logo-color-text" style="display:inline">
+         POS 
         </h1> 
         
       </RouterLink>
