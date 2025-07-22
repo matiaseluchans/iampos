@@ -186,6 +186,7 @@ console.log('Menú filtrado:', filteredNavItems.value)
 </script>
 
 <template>
+  <div class="border-t-sm mx-4" />
   <div>
     <template v-for="(navItem, index) in filteredNavItems" :key="index">
       <!-- LINKS DIRECTOS -->

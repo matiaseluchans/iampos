@@ -43,7 +43,7 @@
 
   <script>
     const loaderColor = localStorage.getItem('materio-initial-loader-bg') || '#FFFFFF'
-    const primaryColor = localStorage.getItem('materio-initial-loader-color') || '#9155FD'
+    const primaryColor = localStorage.getItem('materio-initial-loader-color') || '#042990'
 
     if (loaderColor)
       document.documentElement.style.setProperty('--initial-loader-bg', loaderColor)

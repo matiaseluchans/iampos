@@ -7,6 +7,7 @@ import Footer from "@/layouts/components/Footer.vue";
 import NavbarThemeSwitcher from "@/layouts/components/NavbarThemeSwitcher.vue";
 import UserProfile from "@/layouts/components/UserProfile.vue";
 import logo from "@images/logos/logo.png";
+import logo2 from "@images/logo.svg?raw";
 
 //import { getUser } from "../../api/auth";
 import { useStore } from 'vuex'
@@ -83,11 +84,18 @@ const userPermissions = computed(() => store.getters.userPermissions)
 
     <template #vertical-nav-header="{ toggleIsOverlayNavActive }">
       <div class="d-flex border-b-md" />
-      <VRow no-gutters class="border-b-md pb-4">
-        <VCol cols="12" xs="12"> <VImg max-height="145px" :src="logo"></VImg></VCol>
-      </VRow>
+      
 
-      <RouterLink to="/" class="app-logo app-title-wrapper">
+      <!--<VRow no-gutters class="border-b-md pb-4">
+        <VCol cols="12" xs="12"> 
+          <RouterLink to="/" class="app-logo app-title-wrapper" style="column-gap:5px; display: flex; align-items: center;">
+            <VImg style="height:25px" :src="logo"></VImg>
+          </RouterLink>
+        </VCol>
+      </VRow>-->
+      <RouterLink to="/" class="app-logo app-title-wrapper" style="column-gap:5px">
+      
+       
         <!--
         <div
           class="d-flex"
@@ -97,14 +105,36 @@ const userPermissions = computed(() => store.getters.userPermissions)
         <!--<h1 class="font-weight-medium leading-normal text-xl text-uppercase">
         &nbsp;&nbsp;IAMPOS
         </h1>-->
+        <h1 class="font-weight-medium leading-normal text-h3 text-uppercase">
+        IA 
+        </h1>
+        <svg width="30" viewBox="0 0 30 24" xmlns="http://www.w3.org/2000/svg">
+          <g fill="none" fill-rule="evenodd">
+            <path d="M30 21.392a2 2 0 0 1-3.027 1.716l-3.258-1.95a2 2 0 0 1-.973-1.716l-.001-6.7L15
+                17.178l-7.742-4.434v6.7a2 2 0 0 1-.973 1.715l-3.258 1.95A2 2 0 0 1 0 21.392V3.585l.005-.15L0 3.572a2 2 0 0
+                1 3.045-1.706L15 9.194l11.955-7.328A2 2 0 0 1 30 3.572Z" fill="var(--initial-loader-color)" />
+            <path fill="var(--initial-loader-color)" opacity=".078" d="m0 8.589 7.258 4.162v4.08z" />
+            <path fill="var(--initial-loader-color)" opacity=".078" d=" m0 8.589 7.258 4.056v2.492zm30 0-7.258
+                4.153v4.212z" />
+            <path fill="var(--initial-loader-color)" opacity=".078" d="m30 8.589-7.258 4.052v2.62z" />
+            <path d="M3.045 1.866 15 9.194v7.983L0 8.587V3.571a2 2 0 0 1 3.045-1.706Z" fill-opacity=".15" fill="
+                #FFF" />
+            <path d="M26.955 1.866 15 9.194v7.983l15-8.59V3.571a2 2 0 0 0-3.045-1.706Z" fill-opacity=".35"
+              fill="#FFF" />
+          </g>
+        </svg>
+        <h1 class="font-weight-medium leading-normal text-h3 text-uppercase">
+        POS 
+        </h1> 
       </RouterLink>
 
       <IconBtn class="d-block d-lg-none" @click="toggleIsOverlayNavActive(false)">
         <VIcon icon="ri-close-line" />
       </IconBtn>
+      
     </template>
 
-    <template #vertical-nav-content>
+    <template #vertical-nav-content >
       <NavItems />
     </template>
 

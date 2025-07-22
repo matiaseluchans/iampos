@@ -1,5 +1,5 @@
 //export const staticPrimaryColor = '#8C57FF'
-export const staticPrimaryColor = '#044299'//color principal
+export const staticPrimaryColor = '#042990'//color principal
 export const staticPrimaryDarkenColor = '#065cd7' //color hover
 export const themes = {
   light: {
