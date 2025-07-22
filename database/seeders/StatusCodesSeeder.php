@@ -38,13 +38,28 @@ class StatusCodesSeeder extends Seeder
             'Devuelto'          => 'returned',            
         ];
 
+        $tables = [
+            'payment_statuses' => 'payment_statuses',
+            'shipment_statuses' => 'shipment_statuses',
+            'statuses' => 'statuses',
+        ];
+
         foreach ($map as $name => $code) {
-            $updated = DB::table('statuses')
+            foreach ($tables as $table) {
+                $updated = DB::table($table)
+                    ->where('name', $name)
+                    ->whereNull('code')
+                    ->update(['code' => $code]);
+
+                $this->command->info("Actualizados $updated registros en '$table' con name = '$name' → code = '$code'");
+            }
+
+            /*$updated = DB::table('statuses')
             ->where('name', $name)
             ->whereNull('code')
             ->update(['code' => $code]);
 
-            $this->command->info("Actualizados $updated registros con name = '$name' → code = '$code'");
+            $this->command->info("Actualizados $updated registros con name = '$name' → code = '$code'");*/
         }
     }
 }

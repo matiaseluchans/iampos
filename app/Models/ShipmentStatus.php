@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Scopes\TenantScope;
 use App\Http\Traits\AuditModelTrait;
 
-class PaymentStatus extends Model
+class ShipmentStatus extends Model
 {
     use HasFactory, SoftDeletes, AuditModelTrait;
 
@@ -34,6 +34,6 @@ class PaymentStatus extends Model
 
     public function orders()
     {
-        return $this->hasMany(Order::class, 'payment_status_id');
+        return $this->hasMany(Order::class, 'shipment_status_id');
     }
 }

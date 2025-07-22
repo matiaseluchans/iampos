@@ -22,6 +22,8 @@ class Order extends Model
         'shipping',
         'shipping_address',
         'status_id',
+        'shipment_status_id',
+        'payment_status_id',
         'order_type_id',
         'quantity_products',
         'subtotal',
@@ -107,5 +109,15 @@ class Order extends Model
     public function payment()
     {
         return $this->hasMany(Payment::class);
+    }
+
+    public function shipmentStatus()
+    {
+        return $this->belongsTo(ShipmentStatus::class);
+    }
+
+    public function paymentStatus()
+    {
+        return $this->belongsTo(PaymentStatus::class);
     }
 }

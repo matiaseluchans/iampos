@@ -72,6 +72,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::apiResource('statuses', App\Http\Controllers\StatusController::class);
     Route::apiResource('payment-methods', App\Http\Controllers\PaymentMethodController::class);
     Route::apiResource('orders', App\Http\Controllers\OrderController::class);
+    Route::apiResource('shipment-statuses', App\Http\Controllers\ShipmentStatusController::class);
+    Route::apiResource('payment-statuses', App\Http\Controllers\PaymentStatusController::class);
     //reports
     Route::get('orders/remito/{id}', [App\Http\Controllers\OrderController::class, "generateRemito"]);
     Route::get('orders/remito-comanda/{id}', [App\Http\Controllers\OrderController::class, "generateRemitoComanda"]);

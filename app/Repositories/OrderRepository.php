@@ -4,7 +4,10 @@ namespace App\Repositories;
 
 use App\Models\Order;
 use App\Models\OrderItem;
-use App\Models\Stock;
+use App\Models\ShipmentStatus;
+use App\Models\PaymentStatus;
+use App\Enums\StatusEnum;
+
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -17,7 +20,7 @@ use Mpdf\Config\FontVariables;
 
 class OrderRepository extends BaseRepository
 {
-    public function __construct(Order $m, array $relations = ['customer', 'status', 'orderType', 'payment'])
+    public function __construct(Order $m, array $relations = ['customer', 'status', 'paymentStatus', 'shipmentStatus', 'orderType', 'payment'])
     {
         parent::__construct($m, $relations);
     }
@@ -27,7 +30,7 @@ class OrderRepository extends BaseRepository
         try {
             $days = config('app.orders_days');
             $query = $this->model->query();
-            $relations = ['customer', 'status', 'orderType', 'payment'];
+            $relations = ['customer', 'status', 'paymentStatus', 'shipmentStatus', 'orderType', 'payment'];
             $query = $query->with($relations);
             $query->where('created_at', '>=', now()->subDays($days));
             
@@ -102,7 +105,32 @@ class OrderRepository extends BaseRepository
                 $sellerId = $form['seller_id']['id'];
                 $sellerName = $form['seller_id']['name'];
             }
-            //dd($form['delivery_date']);
+            if (!isset($form['shipment_status_id'])) {
+                //si es con envio
+                if($form['shipping']){
+                    // Si no se especifica el estado de envío, se asigna el penmdiente                    
+                    $code = StatusEnum::PENDING;                                        
+                }
+                else{
+                    $code = StatusEnum::NOT_REQUIRED;
+                }
+                $shipmentStatus = ShipmentStatus::where('tenant_id', $user->tenant_id)
+                            ->where('active', true)
+                            ->where('code', $code)
+                            ->first();
+                $form['shipment_status_id'] = $shipmentStatus ? $shipmentStatus->id : null;                 
+            }
+            
+            
+            // Si no se especifica el estado de pago, se asigna el estado inicial
+            if (!isset($form['payment_status_id'])) {
+                $paymentStatus = PaymentStatus::where('tenant_id', $user->tenant_id)        
+                    ->where('active', true)
+                    ->where('code', StatusEnum::PENDING)
+                    ->first();
+                $form['payment_status_id'] = $paymentStatus ? $paymentStatus->id : null; // Asignar 0 si no se encuentra el estado
+            }
+            // Asignación de los datos al modelo
             $model->fill([
                 'order_date' => Carbon::now(),
                 'delivery_date' => isset($form['delivery_date']) ?  Carbon::createFromFormat('d/m/Y', $form['delivery_date'])->format('Y-m-d') : null,
@@ -111,6 +139,8 @@ class OrderRepository extends BaseRepository
                 'shipping_address' => $form['shipping_address'],
                 'shipping' => isset($form['shipping']) ? $form['shipping'] : 0,
                 'status_id' => 1,
+                'shipment_status_id' => $form['shipment_status_id'],
+                'payment_status_id' => $form['payment_status_id'],
                 'order_type_id' => 1,
                 'quantity_products' => $form['quantity_products'],
                 'subtotal' => $form['subtotal'],
@@ -196,20 +226,7 @@ class OrderRepository extends BaseRepository
         $startDate = $request->input('start_date'); // Formato: Y-m-d
         $endDate = $request->input('end_date');
 
-        $dates = Carbon::parse($startDate)->format('d/m/Y') . ' - ' . Carbon::parse($endDate)->format('d/m/Y');
-
-        /*$orders = $this->model::whereBetween('delivery_date',[
-            Carbon::parse($startDate)->startOfDay(),
-            Carbon::parse($endDate)->endOfDay()])
-            ->join('order_items', 'orders.id', '=', 'order_items.order_id')
-            ->join('products', 'order_items.product_id', '=', 'products.id')
-            ->select([
-                'order_items.product_id',
-                'products.name', // Nombre del producto
-                DB::raw('SUM(order_items.quantity) as total_quantity')
-            ])
-            ->groupBy('order_items.product_id', 'products.name')
-            ->get();*/
+        $dates = Carbon::parse($startDate)->format('d/m/Y') . ' - ' . Carbon::parse($endDate)->format('d/m/Y');        
 
         $ordersQuery = $this->model::select([
             'order_items.product_id',

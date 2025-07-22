@@ -134,14 +134,25 @@
           <strong>{{ item.shipping =="1"?'Con envío':'Sin envío' }}</strong>          
         </template>-->
         <template #item.status.name="{ item }">    
-          <div class="d-flex align-center gap-2">
+          <div class="d-flex flex-column align-start gap-2">
             <VChip
-              :color="getStatusColor(item)"
+              :color="getStatusCodeColor(item.payment_status.code)"
+              prepend-icon="ri-money-dollar-circle-line"
               density="comfortable"
+              class="my-1"
             >
-              {{ item.status.name }}
+              {{ item.payment_status.name }}
             </VChip>            
-          </div>                                
+            
+            <VChip
+              :color="getStatusCodeColor(item.shipment_status.code)"
+              prepend-icon="ri-truck-line"
+              density="comfortable"
+              class="my-1"
+            >
+              {{ item.shipment_status.name }}
+            </VChip>            
+          </div>              
         </template>      
         <!-- Actions -->
         <template #item.actions="{ item }">
@@ -258,7 +269,10 @@
                         <div class="info-field">
                           <div class="text-caption text-primary">Estado Actual</div>
                           <VChip :color="getStatusColor(selectedOrder)" class="font-weight-bold">
-                            {{ selectedOrder.status.name }}
+                            {{ selectedOrder.payment_status.name }}
+                          </VChip>
+                          <VChip :color="getStatusColor(selectedOrder)" class="font-weight-bold">
+                            {{ selectedOrder.shipment_status.name }}
                           </VChip>
                         </div>
                       </VCol>
@@ -365,7 +379,10 @@
                         <div class="info-field">
                           <div class="text-caption text-primary">Estado Actual</div>
                           <VChip :color="getStatusColor(selectedOrder)" class="font-weight-bold">
-                            {{ selectedOrder.status.name }}
+                            {{ selectedOrder.payment_status.name }}
+                          </VChip>
+                          <VChip :color="getStatusColor(selectedOrder)" class="font-weight-bold">
+                            {{ selectedOrder.shipment_status.name }}
                           </VChip>
                         </div>
                       </VCol>
@@ -915,6 +932,19 @@ export default {
       };
       
       return statusColorMap[item.status.code] || 'error';
+    },  
+
+    getStatusCodeColor(code) {
+      const statusColorMap = {
+        [this.$statusOrders.PENDING]: 'primary',
+        [this.$statusOrders.PROCESS]: 'warning',
+        [this.$statusOrders.PARTIAL_PAYMENT]: 'warning',
+        [this.$statusOrders.PAID]: 'success',
+        [this.$statusOrders.COMPLETED]: 'success',
+        [this.$statusOrders.APPROVED]: 'success'
+      };
+      
+      return statusColorMap[code] || 'error';
     },  
     
     isPaid(item) {             

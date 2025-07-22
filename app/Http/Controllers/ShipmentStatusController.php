@@ -3,13 +3,13 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Repositories\PaymentStatusRepository;
+use App\Repositories\ShipmentStatusRepository;
 
-class PaymentStatusController extends Controller
+class ShipmentStatusController extends Controller
 {
     private $repository;
 
-    public function __construct(PaymentStatusRepository $repository)
+    public function __construct(ShipmentStatusRepository $repository)
     {
         $this->repository = $repository;
     }
