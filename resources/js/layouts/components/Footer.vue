@@ -43,17 +43,17 @@ onMounted(() => {
           </VCol>
           <VCol
             cols="12"
-            sm="2" class="text-end"> 
+            sm="2" class="text-end pr-2"> 
           
            <!--<VImg  
                    max-height="25px"  
                    :src="logo"
                    
                    ></VImg> -->
-                   <h1 class="font-weight-medium leading-normal text-h4 text-uppercase"  style="display:inline">
+                   <h1 class="font-weight-medium leading-normal text-h5 text-uppercase"  style="display:inline">
         IA 
         </h1>
-        <svg width="25" viewBox="0 0 30 24" xmlns="http://www.w3.org/2000/svg "  style="display:inline">
+        <svg width="20" viewBox="0 0 30 24" xmlns="http://www.w3.org/2000/svg "  style="display:inline">
           <g fill="none" fill-rule="evenodd">
             <path d="M30 21.392a2 2 0 0 1-3.027 1.716l-3.258-1.95a2 2 0 0 1-.973-1.716l-.001-6.7L15
                 17.178l-7.742-4.434v6.7a2 2 0 0 1-.973 1.715l-3.258 1.95A2 2 0 0 1 0 21.392V3.585l.005-.15L0 3.572a2 2 0 0
@@ -68,7 +68,7 @@ onMounted(() => {
               fill="#FFF" />
           </g>
         </svg>
-        <h1 class="font-weight-medium leading-normal text-h4 text-uppercase" style="display:inline">
+        <h1 class="font-weight-medium leading-normal text-h5 text-uppercase" style="display:inline">
         POS 
         </h1> 
                   </VCol>
