@@ -88,7 +88,7 @@
                   v-model="order.shipping_address"
                   label="Dirección de Entrega"
                   :rules="[(v) => !!v || 'Dirección de entrega es requerida']"
-                  :disabled="!order.shipping_address_status"
+                  :disabled="!order.shipping"
                   />
               </VCol>
               <VCol cols="auto" md="auto" class="mb-0" >
@@ -119,7 +119,7 @@
                   v-mask="'##/##/####'"              
                   clearable
                   @focus="setDate(order.delivery_date)"
-                  :disabled="!order.shipping_address_status"
+                  :disabled="!order.shipping"
                 />
               </VCol>
             </VRow>
@@ -400,9 +400,11 @@
     <VRow>
       <VCol cols="12" class="text-center">
         <VBtn color="primary" variant="outlined" class="mr-4" @click="$router.go(-1)">
+          <VIcon icon="ri-close-circle-line" class="mr-2" />
           Cancelar
         </VBtn>
-        <VBtn color="primary"  class="mr-4" @click="$router.push({'path':'order-list'})">
+        <VBtn color="primary"  class="mr-4" @click="$router.push({'path':'order-search'})">
+          <VIcon icon="ri-shopping-bag-line" class="mr-2" />
           Ordenes
         </VBtn>
         <VBtn
@@ -1005,6 +1007,7 @@ export default {
       this.order = {
         customer_id: null,
         shipping_address: '',
+        delivery_date:'',
         subtotal: 0,
         tax_amount: 0,
         discount_amount: 0,

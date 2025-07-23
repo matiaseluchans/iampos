@@ -986,7 +986,7 @@ export default {
         const params = {
           start_date: this.dateRange.start, // Formato: YYYY-MM-DD
           end_date: this.dateRange.end,
-          status_id: this.selectedStatus,          
+          shipment_status_id: this.selectedShipmentStatus,
           customers: this.selectedCustomer,          
         }
         

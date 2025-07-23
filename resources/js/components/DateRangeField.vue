@@ -5,7 +5,7 @@
         <VCol cols="6">
           <VTextField
             v-model="start"
-            :label="modelLabel+' desde' || 'Desde'"
+            :label="(modelLabel)?modelLabel+' desde' : 'Desde'"
             placeholder="dd/mm/yyyy"
             v-mask="'##/##/####'"
             :error-messages="startError"
@@ -18,7 +18,7 @@
         <VCol cols="6">
           <VTextField
             v-model="end"
-            :label="modelLabel+' hasta' || 'Hasta'"
+            :label="(modelLabel)?modelLabel+' hasta' : 'Hasta'"
             placeholder="dd/mm/yyyy"
             v-mask="'##/##/####'"
             :error-messages="endError"
@@ -40,7 +40,7 @@ export default {
       default: () => ({ start: null, end: null })
     },
     modelLabel: {
-      type: String, default: ()=> '',
+      type: String, default: ()=> null,
     },
   },
   data() {

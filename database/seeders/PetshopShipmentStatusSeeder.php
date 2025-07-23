@@ -17,13 +17,13 @@ class PetshopShipmentStatusSeeder extends Seeder
             //estados de envio
             'No requiere envío',
             'Pendiente',
-            'Preparando',
+            /*'Preparando',
             'Listo para recoger',
             'Enviado',
-            'En tránsito',
+            'En tránsito',*/
             'Entregado',
-            'Entrega fallida',
-            'Devuelto',
+            //'Entrega fallida',
+            //'Devuelto',
             'Cancelado',
         ];        
         foreach ($records as $record) {

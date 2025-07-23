@@ -31,10 +31,19 @@ const navItems = [
     component: 'VerticalNavLink',
     item: {
       title: 'Ordenes',
-      to: '/order-list',
+      to: '/order-search',
       icon: 'ri-shopping-bag-line'
     }
   },
+  {
+    component: 'VerticalNavLink',
+    item: {
+      title: 'Entregas',
+      to: '/order-pending-deliveries',
+      icon: 'ri-truck-line'
+    }
+  },
+  /*
   {
     component: 'VerticalNavLink',
     item: {
@@ -43,6 +52,7 @@ const navItems = [
       icon: 'ri-search-line'
     }
   },
+  */
   {
     component: 'VerticalNavLink',
     item: {

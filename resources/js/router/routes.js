@@ -37,6 +37,14 @@ export const routes = [
          
           allowedRoles: ['*'] 
         }
+      },
+      {
+        path: 'order-pending-deliveries',
+        component: () => import('@/pages/iampos/orderDelivery.vue'),
+        meta: { requiresAuth: true, 
+         
+          allowedRoles: ['*'] 
+        }
       },      
       {
         path: 'customers',

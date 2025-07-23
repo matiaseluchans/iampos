@@ -2,16 +2,17 @@
   <VCard>
     <VCardTitle class="d-flex align-center">
       <div>
-        <div class="text-h5">Órdenes</div>
+        <div class="text-h5">Entregas Pendientes</div>
         <div class="text-caption text-medium-emphasis d-flex align-center mt-1">
           <VIcon icon="ri-information-line" size="16" class="mr-1"/>
           <span class="v-card-info-subtitle">
-            Inicialmente se muestran las órdenes de los últimos 60 días
+            Ordenes pendientes de entrega, puedes buscar por número de orden, cliente, estado de pago y fecha de entrega.
+            <!-- Ordenes con envío pendientes de entrega, puedes buscar por un período de fecha de entrega y generar los reportes. -->
           </span>
         </div>
       </div>
     </VCardTitle>
-    <VCardText class="d-flex px-2">
+    <VCardText class="d-flex px-2">      
       <VDataTable
         :headers="showHeaders"
         :items="orders.data || []"
@@ -26,7 +27,7 @@
           <VCard flat color="white">
             <VCardText>
               <VRow>
-                <VCol cols="12" md="8" sm="12" class="pl-0 pt-0">
+                <VCol cols="12" md="12" sm="12" class="pl-0 pt-0">
                   <VCard class="py-3 px-0">
                     <VCardText>
                       <VRow>
@@ -61,33 +62,6 @@
                             density="compact"                            
                           />
                           <DateRangeField
-                            class="mt-0"
-                            ref="dateOrderRange"
-                            v-model="dateOrderRange"
-                            modelLabel="Fecha Orden"                            
-                          />
-                        </VCol>
-                      </VRow>
-                    </VCardText>
-                  </VCard>
-                </VCol>
-
-                <VCol cols="12" md="4" sm="12" class="pl-0 pt-0 py-0">
-                  <VCard class="py-3 px-0">
-                    <VCardText>
-                      <VRow>
-                        <VCol cols="12" md="12" sm="12" class="pl-0 pt-0">
-                          <VAutocomplete
-                            v-model="selectedShipmentStatus"
-                            :items="shipmentStatuses"
-                            item-title="name"
-                            item-value="id"
-                            label="Estado entrega"
-                            clearable
-                            class="mt-0"
-                            density="compact"                            
-                          />
-                          <DateRangeField
                             class="mt-0 py-0"
                             ref="dateDeliveryRange"
                             v-model="dateRange"
@@ -97,7 +71,7 @@
                       </VRow>
                     </VCardText>
                   </VCard>
-                </VCol>
+                </VCol>                
               </VRow>
             </VCardText>
             <VCardActions class="justify-end">
@@ -112,6 +86,29 @@
               </VBtn>
             </VCardActions>
           </VCard>
+          <div class="d-flex justify-center mb-4 gap-3">
+            <!-- Botón 1: Reporte de Entregas -->
+            <VBtn
+              variant="outlined"
+              color="success"
+              @click="getDeliveryReport(1)"
+              prepend-icon="ri-truck-line"
+              title="Reporte de entregas"
+            >
+              
+            </VBtn>
+            
+            <!-- Botón 2: Reporte de Entregas Cliente -->
+            <VBtn
+              variant="outlined"
+              color="warning"
+              @click="getDeliveryReport(2)"
+              prepend-icon="ri-user-received-line"
+              title="Reporte de entregas por cliente"
+            >
+              
+            </VBtn>
+          </div>
         </template>
         <template #item.order_number="{ item }">
           <div class="d-flex align-center mx-0 px-0" style="width: 100px">
@@ -661,17 +658,7 @@
           <VBtn text v-bind="attrs" @click="snackbar = false"> Cerrar </VBtn>
         </template>
       </v-snackbar>
-    </VCardText>
-    <!--
-    <VCardActions class="justify-end custom-actions">      
-      <VBtn variant="outlined" color="success" @click="getDeliveryReport(1)">
-        Reporte de Entregas
-      </VBtn>
-      <VBtn variant="outlined" color="warning" @click="getDeliveryReport(2)">
-        Reporte de Entregas Cliente
-      </VBtn>
-    </VCardActions>
-    -->
+    </VCardText>    
   </VCard>
 </template>
 
@@ -763,6 +750,7 @@ export default {
       },
       isInitialLoad: true, // Bandera para identificar carga inicial
       //searchDebounce: null, // Para el debounce de búsqueda
+      
     };
   },
 
@@ -799,11 +787,10 @@ export default {
       );
     }
 
-    // Solo establecer fechas por defecto en la carga inicial
-    if (this.isInitialLoad) {
-      this.setDefaultDateRange();
-    }
     await this.loadData();    
+    this.selectedShipmentStatus = this.getPendingShipmentStatus();
+    this.fetchData();
+    
   },
 
   methods: {
@@ -874,8 +861,7 @@ export default {
 
     reset() {
       this.selectedCustomer = null;
-      this.selectedPaymentStatus = null;
-      this.selectedShipmentStatus = null;
+      this.selectedPaymentStatus = null;      
       this.search = "";
       this.pagination.page = 1;
       this.dateRange = {
@@ -909,14 +895,16 @@ export default {
     async fetchData() {
       this.loading = true;
       try {
-        
-        // Si es la primera carga, ya no lo será después de esta búsqueda
-        
+        if(!this.selectedShipmentStatus){
+          return ;
+        }
+                        console.log("selectedShipmentStatus:", this.selectedShipmentStatus);
         const params = {
           order_number: this.search || undefined,
-          customers: this.selectedCustomer || undefined,
+          customers: this.selectedCustomer || undefined,          
           payment_status_id: this.selectedPaymentStatus || undefined,
           shipment_status_id: this.selectedShipmentStatus || undefined,
+          shipping: 1 || undefined, //filtro por los que requieren envio
           page: this.pagination.page,
           per_page: this.pagination.itemsPerPage,
           sort_by: this.pagination.sortBy.length ? this.pagination.sortBy[0] : undefined,
@@ -925,15 +913,7 @@ export default {
               ? "desc"
               : "asc"
             : undefined,
-        };
-
-        console.log("this.isInitialLoad")
-        console.log(this.isInitialLoad)
-        if (this.isInitialLoad) {          
-          // Establecer el rango de fechas por defecto solo en la primera carga                    
-          params.order_start_date = this.defaultDateRange.start;
-          params.order_end_date = this.defaultDateRange.end;
-        }
+        };        
 
         // Añadir fechas si están definidas
         if (this.dateRange?.start && this.dateRange?.end) {
@@ -1254,37 +1234,15 @@ export default {
       this.snackbarColor = color;
       this.snackbar = true;
     },
+    getPendingShipmentStatus() {
+      const pendingId = this.shipmentStatuses.find(
+        (status) => status.code === this.$shipmentStatus.PENDING
+      )?.id
+      
+        return pendingId || null
+    },
     async getDeliveryReport(type) {
-      try {
-        // Validar rango de fechas
-        if (!this.dateRange.start || !this.dateRange.end) {
-          this.showSnackbar("Debe seleccionar un rango de fechas de entrega", "error");
-
-          return;
-        }
-
-        // Validar estado seleccionado
-        const code = this.shipmentStatuses.find(
-          (status) => status.id === this.selectedShipmentStatus
-        )?.code;
-        if (!code) {
-          this.showSnackbar(
-            "Debe seleccionar el estado de envio Pendiente para generar el reporte",
-            "error"
-          );
-
-          return;
-        }
-
-        if (code != this.$shipmentStatus.PENDING) {
-          this.showSnackbar(
-            "Debe seleccionar el estado de envio Pendiente para generar el reporte",
-            "error"
-          );
-
-          return;
-        }
-
+      try {        
         // Mostrar loader mientras se genera el PDF
         this.loading = true;
 
@@ -1298,6 +1256,9 @@ export default {
           end_date: this.dateRange.end,
           shipment_status_id: this.selectedShipmentStatus,
           customers: this.selectedCustomer,
+          order_number: this.search || undefined,          
+          payment_status_id: this.selectedPaymentStatus || undefined,          
+          shipping: 1 || undefined, //filtro por los que requieren envio
         };
 
         // Llamar al endpoint de Laravel que genera el PDF
