@@ -488,136 +488,201 @@
   </VDialog>
 
   <!-- Dialog Confirmar Pago -->
-  <VDialog v-model="paymentDialog" max-width="500px">
-    <VCard>
-      <VToolbar color="success">
+  <VDialog v-model="paymentDialog" max-width="580px" persistent>
+  <VCard class="rounded-lg">
+    <!-- Header con estilo minimalista -->
+    <VToolbar color="primary" density="compact">
+      <VToolbarTitle class="text-white font-weight-medium">
         <VBtn icon="ri-close-line" color="white" @click="paymentDialog = false" />
-        <VToolbarTitle>¿Registrar Pago?</VToolbarTitle>
-      </VToolbar>
-      <VCardText>
-        <VAlert type="success" variant="tonal" class="mb-4 mt-4 text-center " :icon="false">
-         <p class="text-h5 text-success my-0"> ¡Orden creada exitosamente!</p>
-        </VAlert>
-        <VAlert type="success" variant="tonal" class="mb-4 mt-4" :icon="false"> 
-          <VRow class="py-0 my-0">
-            <VCol cols="12" sm="6" class=" text-end text-h5 text-success" >
-              Número de Orden:
-            </VCol>
+         Confirmación de Pago
+      </VToolbarTitle>
+      <VSpacer />
+      <VBtn
+        icon
+        variant="text"
+        color="white"
+        @click="paymentDialog = false"
+        class="mr-1"
+      >
+        <VIcon>mdi-close</VIcon>
+      </VBtn>
+    </VToolbar>
 
-              <VCol cols="12" sm="6" class=" text-end text-h5 text-success">
-                {{ createdOrder?.order?.order_number }}
-              </VCol>
-          </VRow>
-          <VRow class="py-0 my-0">
-            <VCol cols="12" sm="6" class=" text-end text-h5 text-success">
-             Total:
-            </VCol>
+    <VCardText class="px-4 pt-5 pb-2">
+      <!-- Mensaje de éxito más destacado -->
+      <div class="text-center mb-5">
+        <VAvatar color="success-lighten-5" size="56" class="mb-3">
+          <VIcon icon="ri-checkbox-circle-fill" color="success" size="80" />
+        </VAvatar>
+        <h3 class="text-h5 font-weight-medium text-success mb-2">
+          ¡Orden creada exitosamente!
+        </h3>
+        <p class="text-medium-emphasis mb-0">
+          ¿Deseas registrar un pago para esta orden?
+        </p>
+      </div>
 
-              <VCol cols="12" sm="6" class=" text-end text-h5 text-success">
-               {{ formatCurrency(createdOrder?.order?.total_amount) }}
-              </VCol>
-          </VRow>
-           
-        </VAlert>
-        <p class="text-center text-h5">¿Deseas registrar un pago para esta orden?</p>
-      </VCardText>
-      <VCardActions>
-        <VSpacer />
-        <VBtn variant="outlined" color="success" @click="finishOrder"> No, Finalizar </VBtn>
-        <VBtn class="bg-success" color="white" @click="openPaymentForm"> Sí, Registrar Pago </VBtn>
-      </VCardActions>
-    </VCard>
-  </VDialog>
+      <!-- Detalles de la orden en tarjeta estilizada -->
+      <VCard flat border class="mb-4">
+        <VCardText class="pa-4">
+          <div class="d-flex justify-space-between align-center mb-3">
+            <span class="text-medium-emphasis">Número de Orden:</span>
+            <span class="font-weight-medium">
+              #{{ createdOrder?.order?.order_number }}
+            </span>
+          </div>
+          <div class="d-flex justify-space-between align-center">
+            <span class="text-medium-emphasis">Total:</span>
+            <span class="text-h5 font-weight-medium text-success">
+              {{ formatCurrency(createdOrder?.order?.total_amount) }}
+            </span>
+          </div>
+        </VCardText>
+      </VCard>
+    </VCardText>
+
+    <!-- Acciones con mejor distribución -->
+    <VCardActions class="px-4 pb-4 pt-0">
+      <VRow>
+          <VCol cols="12" md="12" sm="12" class="pt-4 pb-0 my-0">
+      <VBtn
+        variant="outlined"
+        color="primary"
+        @click="finishOrder"
+        block
+        class="text-capitalize mr-2"
+      >
+        <VIcon icon="mdi-check" class="mr-1" />
+        Finalizar sin pago
+      </VBtn>
+      </VCol>
+      <VCol cols="12" md="12" sm="12" class="pt-1 pb-2 my-0">
+    
+      <VBtn
+ 
+        color="white"
+        @click="openPaymentForm"
+        block
+        class="bg-primary text-capitalize"
+      >
+        <VIcon icon="mdi-cash-plus" class="mr-1" />
+        Registrar Pago
+      </VBtn>
+      </VCol>
+      </VRow>
+
+    </VCardActions>
+    
+  </VCard>
+</VDialog>
 
   <!-- Dialog Registrar Pago -->
-  <VDialog v-model="paymentFormDialog" max-width="1000px">
-    <VCard>
-      <VToolbar color="success">
-        <VBtn icon="ri-close-line" color="white" @click="closePaymentForm" />
-        <VToolbarTitle>Registrar Pago</VToolbarTitle>
+  <VDialog v-model="paymentFormDialog" max-width="600px" persistent>
+    <VCard class="rounded-lg">
+      <!-- Header con gradiente y tipografía más limpia -->
+      <VToolbar color="primary" density="compact" class="ml-0 pl-0">
+        <VToolbarTitle class="text-h6 font-weight-medium text-white">
+          <VBtn icon="ri-close-line" color="white" @click="closePaymentForm" />
+          Registrar Pago
+        </VToolbarTitle>
+        <VSpacer />
+        <VBtn icon variant="text" color="white" @click="closePaymentForm">
+          <VIcon>mdi-close</VIcon>
+        </VBtn>
       </VToolbar>
+
       <VForm ref="paymentForm" v-model="validPayment">
-        <VCardText>
-         
-            
-            
-            <!-- aca debe ir la linea de pagos -->
-            <VRow class="justify-center">                
-              <VCol cols="12" md="12" sm="12">
-                <VCard>     
-                  <div class="v-card-item"> 
-                    <div class="v-card-item__content">
-                      <div class="v-card-title">
-                        <h5 class="text-h5">
-                        <VAvatar icon="ri-money-dollar-circle-line" class="text-success mr-2" variant="tonal"/>Pagos
-                        </h5>
-                        </div> 
-                    </div> 
-                  </div>                    
-                  <VCardText>     
-                    <VRow>
-              <VCol cols="12">
-                <VAlert type="success" variant="tonal" class="mb-4" :icon="false">
-                  <VRow>
-                    <VCol cols="12" sm="9" class=" text-end text-h5 text-success">
-                      Total de la Orden: 
-                    </VCol>
+        <VCardText class="px-4 pt-4 pb-2">
+          <!-- Resumen de pagos en tarjeta compacta -->
+          <VCard flat class="border" color="surface">
+            <VCardItem class="py-2">
+              <VCardTitle class="text-subtitle-1 font-weight-medium d-flex align-center">
+                
+                <VAvatar
+                  icon="ri-money-dollar-circle-line"
+                  class="text-primary mr-2"
+                  variant="tonal"
+                />
+                Resumen de Pagos
+              </VCardTitle>
+            </VCardItem>
 
-                      <VCol cols="12" sm="3" class=" text-end text-h5 text-success">
-                        {{ formatCurrency(createdOrder?.order?.total_amount) }}
-                      </VCol>
-                  </VRow>
-                  <VRow>
-                    <VCol cols="12" sm="9" class=" text-end pt-0 text-h5 text-success">
-                      Total Pagado:
-                    </VCol>
+            <VDivider />
 
-                      <VCol cols="12" sm="3" class=" text-end pt-0 text-h5 text-success">
-                        {{ formatCurrency(totalPaid) }}
-                      </VCol>
-                  </VRow>
-                  <VRow class="pb-2">
-                    <VCol cols="12" sm="9" class=" text-end pt-0 text-h5 text-success">
-                     Saldo Pendiente:
-                    </VCol>
+            <VCardText class="px-2 py-3">
+              <!-- Diseño tipo tabla para mejor alineación -->
+              <div class="d-flex flex-column gap-2">
+                <div class="d-flex justify-space-between">
+                  <span class="text-caption text-medium-emphasis">Total Orden:</span>
+                  <span class="font-weight-medium">{{ formatCurrency(createdOrder?.order?.total_amount) }}</span>
+                </div>
+                <div class="d-flex justify-space-between">
+                  <span class="text-caption text-medium-emphasis">Total Pagado:</span>
+                  <span class="font-weight-medium text-primary">{{ formatCurrency(totalPaid) }}</span>
+                </div>
+                <div class="d-flex justify-space-between">
+                  <span class="text-caption text-medium-emphasis">Saldo Pendiente:</span>
+                  <span class="font-weight-medium" :class="pendingAmount > 0 ? 'text-error' : 'text-success'">
+                    {{ formatCurrency(pendingAmount) }}
+                  </span>
+                </div>
+                
+                <VDivider class="my-1" />
+                
+                <div class="d-flex justify-space-between">
+                  <span class="text-caption text-medium-emphasis">Vuelto:</span>
+                  <span class="font-weight-medium text-success">{{ formatCurrency(change) }}</span>
+                </div>
+              </div>
+            </VCardText>
+          </VCard>
 
-                      <VCol cols="12" sm="3" class=" text-end pt-0  text-h5 text-success">
-                        {{ formatCurrency(pendingAmount) }}
-                      </VCol>
-                  </VRow>
-                  <v-divider :thickness="3" color="success"></v-divider>
-                   <VRow class="pt-4">
-                    <VCol cols="12" sm="9" class=" text-end pt-0 text-h5 text-success">
-                     Vuelto:
-                    </VCol>
-
-                      <VCol cols="12" sm="3" class=" text-end pt-0  text-h5 text-success">
-                        {{ formatCurrency(change) }}
-                      </VCol>
-                  </VRow>
-                </VAlert>
-              </VCol>
-
-           
-            </VRow>          
-                    <PaymentsRow                        
-                          ref="paymentsRow"
-                          modulo="pagos"                          
-                          :key="keyPayments"
-                          @update-total="updateTotal"
-                    ></PaymentsRow>
-                  </VCardText>
-                </VCard>               
-              </VCol>
-            </VRow>
-    
+          <!-- Componente de pagos con margen superior -->
+          <div class="mt-4">
+            <PaymentsRow
+              ref="paymentsRow"
+              :key="keyPayments"
+              modulo="pagos"
+              @update-total="updateTotal"
+            />
+          </div>
         </VCardText>
-        <VCardActions>
-          <VSpacer />
-          <VBtn variant="outlined" color="success" @click="closePaymentForm"> Cancelar </VBtn>
-          <VBtn class="bg-success" color="white" @click="savePayment" :loading="savingPayment">
-            Registrar Pago
-          </VBtn>
+
+        <!-- Acciones con diseño más moderno -->
+        <VCardActions class="px-4 pb-4 pt-2">
+          <VRow>
+            <VCol cols="12" md="12" sm="12" class="pt-4 pb-0 my-0">
+              <VBtn
+                variant="outlined"
+                color="primary"
+                @click="closePaymentForm"
+                class="text-capitalize"
+              block
+              >
+                Cancelar
+              </VBtn> 
+            </VCol>
+            <VCol cols="12" md="12" sm="12" class="pt-1 my-0 pb-2">
+              <VBtn
+              
+                @click="savePayment"
+                :loading="savingPayment"
+                :disabled="!validPayment"
+                color="white"
+                class="bg-primary  text-capitalize"
+                block
+              >
+              
+                <template v-if="!savingPayment">
+                  <VIcon icon="mdi-check-circle-outline" class="mr-1" />
+                  Confirmar Pago
+                </template>
+                <template v-else>
+                  Procesando...
+                </template>
+              </VBtn>
+            </VCol>
+          </VRow>
         </VCardActions>
       </VForm>
     </VCard>

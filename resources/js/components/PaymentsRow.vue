@@ -49,7 +49,7 @@
 						></VTextField>
 					</template>
 					<template #item.actions="{ item }">
-						<!-- <div class="d-flex gap-1"> -->
+						 <div class="d-flex gap-0 px-0 mx-0"> 
 							<IconBtn
 								color="warning"
 								size="x-small"
@@ -74,7 +74,7 @@
 							>
 								<VIcon icon="ri-add-line" />
 							</IconBtn>
-						<!-- </div> -->
+						 </div> 
 						</template>			                    
 				</VDataTable>
 			</VCol> 
@@ -96,7 +96,7 @@
 			payments: [],			
 			route: "payments",       
 			headers: [				
-        		{ title: "", key: "actions", align: "center"   },
+        { title: "", key: "actions", align: "center",width:"100px"   },
 				{ title: "Id", key: "index", align: " d-none" },
 				{ title: "Metodo de pago", key: "payment_method_id", align: "center" },
 				{ title: "Importe", key: "amount", align: "center"  },				
