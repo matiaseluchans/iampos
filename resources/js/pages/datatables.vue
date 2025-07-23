@@ -201,7 +201,7 @@ onMounted(() => {
     :headers="headers"
     :items="userList"
     :items-per-page="5"
-    class="text-no-wrap"
+    class="text-no-wrap striped-table"
   >
     <!-- full name -->
     <template #item.fullName="{ item }">

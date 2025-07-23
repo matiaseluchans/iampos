@@ -15,7 +15,7 @@
       <VDataTable
         :headers="showHeaders"
         :items="filteredStock"        
-        class="text-no-wrap"
+        class="text-no-wrap striped-table"
         :loading="loading"
       >
         <template v-slot:top>

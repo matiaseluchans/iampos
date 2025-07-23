@@ -81,3 +81,41 @@ html {
 .logo-color-text {
   color: #989898 !important
 }
+
+.striped-table .v-data-table__tr:nth-child(even) {
+  background-color: #f8f9fa;
+}
+
+.striped-table .v-data-table__tr:nth-child(odd) {
+  background-color: #ffffff;
+}
+
+
+/* Estilo para el chip principal */
+.status-chip {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.status-chip:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilo para las opciones del menú */
+.status-option {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding:0 0;
+}
+
+.status-option:hover {
+  transform: scale(1.22);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Estilo para la opción seleccionada */
+.selected-status {
+  border: 2px solid currentColor;
+  font-weight: bold;
+}

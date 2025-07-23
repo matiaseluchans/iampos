@@ -67,7 +67,7 @@ const solidCardData = [
         </VCardText>
 
         <VCardText class="d-flex justify-space-between align-center flex-wrap">
-          <div class="text-no-wrap">
+          <div class="text-no-wrap striped-table">
             <VAvatar
               size="34"
               :image="data.avatarImg"

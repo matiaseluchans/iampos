@@ -6,7 +6,7 @@
           :headers="showHeaders"
           :items="filteredDesserts"
           :search="search"
-          class="text-no-wrap"
+          class="text-no-wrap striped-table"
         >
           <template v-slot:top>
             <VCard flat color="white">

@@ -5,7 +5,7 @@
         :headers="showHeaders"
         :items="filteredStock"
         :search="search"
-        class="text-no-wrap"
+        class="text-no-wrap striped-table"
         :loading="loading"
       >
         <template v-slot:top>

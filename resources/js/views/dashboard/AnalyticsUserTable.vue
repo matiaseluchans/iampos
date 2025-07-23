@@ -187,7 +187,7 @@ const resolveUserStatusVariant = stat => {
       :headers="headers"
       :items="userData"
       item-value="id"
-      class="text-no-wrap"
+      class="text-no-wrap striped-table"
     >
       <!-- User -->
       <template #item.username="{ item }">

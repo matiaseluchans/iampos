@@ -339,7 +339,7 @@ const recentDevices = [
           :headers="recentDevicesHeaders"
           :items="recentDevices"
           hide-default-footer
-          class="text-no-wrap"
+          class="text-no-wrap striped-table"
         >
           <template #item.browser="{ item }">
             <div class="d-flex">

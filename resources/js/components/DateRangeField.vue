@@ -1,14 +1,11 @@
 <template>
-  <VCard variant="outlined" class="mb-4">
-    <VCardTitle class="text-subtitle-1 pa-4 pb-0">
-      {{ modelLabel || 'Rango de fechas' }}
-    </VCardTitle>
-    <VCardText class="pt-2">
+  
+       
       <VRow dense>
         <VCol cols="6">
           <VTextField
             v-model="start"
-            label="Desde"
+            :label="modelLabel+' desde' || 'Desde'"
             placeholder="dd/mm/yyyy"
             v-mask="'##/##/####'"
             :error-messages="startError"
@@ -21,7 +18,7 @@
         <VCol cols="6">
           <VTextField
             v-model="end"
-            label="Hasta"
+            :label="modelLabel+' hasta' || 'Hasta'"
             placeholder="dd/mm/yyyy"
             v-mask="'##/##/####'"
             :error-messages="endError"
@@ -31,8 +28,7 @@
           />
         </VCol>
       </VRow>
-    </VCardText>
-  </VCard>
+     
 </template>
 
 <script>
