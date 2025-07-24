@@ -1,18 +1,41 @@
 <template>
   <VCard>
-    <VCardTitle class="d-flex align-center">
-      <div>
-        <div class="text-h5">Entregas Pendientes</div>
-        <div class="text-caption text-medium-emphasis d-flex align-center mt-1">
-          <VIcon icon="ri-information-line" size="16" class="mr-1"/>
-          <span class="v-card-info-subtitle">
-            Ordenes pendientes de entrega, puedes buscar por número de orden, cliente, estado de pago y fecha de entrega.
-            <!-- Ordenes con envío pendientes de entrega, puedes buscar por un período de fecha de entrega y generar los reportes. -->
+    <VCardTitle class="d-flex flex-wrap align-center justify-space-between ga-2">
+      <div class="d-flex flex-column" style="min-width: 250px; flex-grow: 1">
+        <h2 class="text-h5 mb-1">Entregas Pendientes</h2>
+        <div class="text-caption text-medium-emphasis d-flex align-center">
+          <VIcon icon="ri-information-line" size="16" class="mr-1" />
+          <span style="white-space: normal">
+            Ordenes pendientes de entrega, puedes buscar por número de orden, cliente,
+            estado de pago y fecha de entrega.
           </span>
         </div>
       </div>
+
+      <!-- Botones - Se reorganizan en móvil -->
+      <div class="d-flex flex-wrap ga-2" style="flex-shrink: 0">
+        <VBtn
+          color="success"
+          variant="outlined"
+          @click="getDeliveryReport(1)"
+          prepend-icon="ri-file-pdf-2-line"
+          size="small"
+        >
+          Por Producto
+        </VBtn>
+        <VBtn
+          color="success"
+          variant="outlined"
+          @click="getDeliveryReport(2)"
+          prepend-icon="ri-file-pdf-2-line"
+          size="small"
+        >
+          Por Cliente
+        </VBtn>
+      </div>
     </VCardTitle>
-    <VCardText class="d-flex px-2">      
+
+    <VCardText class="d-flex px-2">
       <VDataTable
         :headers="showHeaders"
         :items="orders.data || []"
@@ -25,69 +48,72 @@
       >
         <template v-slot:top>
           <VCard flat color="white">
-            <VCardText>
-              <VRow>
-                <VCol cols="12" md="12" sm="12" class="pl-0 pt-0">
-                  <VCard class="py-3 px-0">
-                    <VCardText>
-                      <VRow>
-                        <VCol cols="12" md="6" sm="12" class="pl-0 pt-0">
-                          <VTextField
-                            v-model="search"
-                            label="Número de Orden"
-                            class="mt-0"
-                            density="compact"                            
-                          />
-                          <VAutocomplete
-                            v-model="selectedCustomer"
-                            :items="customers"
-                            :item-title="customers.firstname ? 'firstname' : 'address'"
-                            item-value="id"
-                            label="Clientes"
-                            multiple
-                            clearable
-                            class="mt-1"
-                            density="compact"                            
-                          />                          
-                        </VCol>
-                        <VCol cols="12" md="6" sm="12" class="pl-0 pt-0">
-                          <VAutocomplete
-                            v-model="selectedPaymentStatus"
-                            :items="paymentStatuses"
-                            item-title="name"
-                            item-value="id"
-                            label="Estado del pago"
-                            clearable
-                            class="mt-0"
-                            density="compact"                            
-                          />
-                          <DateRangeField
-                            class="mt-0 py-0"
-                            ref="dateDeliveryRange"
-                            v-model="dateRange"
-                            modelLabel="Fecha entrega"                            
-                          />
-                        </VCol>
-                      </VRow>
-                    </VCardText>
-                  </VCard>
-                </VCol>                
+            <VCardText class="mx-0 px-0">
+              <VRow dense class="mx-0 px-0">
+                <VCol cols="12" md="3">
+                  <VTextField
+                    v-model="search"
+                    label="Buscar orden"
+                    placeholder="Número de orden"
+                    density="compact"
+                    clearable
+                    hide-details
+                  />
+                </VCol>
+                <VCol cols="12" md="3">
+                  <VAutocomplete
+                    v-model="selectedCustomer"
+                    :items="customers"
+                    :item-title="customers.firstname ? 'firstname' : 'address'"
+                    item-value="id"
+                    label="Clientes"
+                    multiple
+                    clearable
+                    class="mt-0"
+                    density="compact"
+                  />
+                </VCol>
+                <VCol cols="12" md="3">
+                  <VAutocomplete
+                    v-model="selectedPaymentStatus"
+                    :items="paymentStatuses"
+                    item-title="name"
+                    item-value="id"
+                    label="Estado pago"
+                    density="compact"
+                    clearable
+                    hide-details
+                  />
+                </VCol>
+                <VCol cols="12" md="3">
+                  <DateRangeField
+                    ref="dateDeliveryRange"
+                    v-model="dateRange"
+                    label="Fecha entrega"
+                    density="compact"
+                    hide-details
+                  />
+                </VCol>
               </VRow>
             </VCardText>
             <VCardActions class="justify-end">
-              <VBtn variant="outlined" color="warning" @click="reset"> Reset </VBtn>
+              <VBtn variant="outlined" color="primary" @click="reset"> Reset </VBtn>
               <VBtn
                 variant="outlined"
-                color="primary"
-                @click="unsetInitialLoad(); fetchData()"
+                color="white"
+                class="bg-primary"
+                @click="
+                  unsetInitialLoad();
+                  fetchData();
+                "
                 :loading="loading"
               >
                 Buscar
               </VBtn>
             </VCardActions>
           </VCard>
-          <div class="d-flex justify-center mb-4 gap-3">
-            <!-- Botón 1: Reporte de Entregas -->
+          <!--<div class="d-flex justify-center mb-4 gap-3">
+            
             <VBtn
               variant="outlined"
               color="success"
@@ -97,8 +123,7 @@
             >
               
             </VBtn>
-            
-            <!-- Botón 2: Reporte de Entregas Cliente -->
+             
             <VBtn
               variant="outlined"
               color="warning"
@@ -108,7 +133,7 @@
             >
               
             </VBtn>
-          </div>
+          </div>-->
         </template>
         <template #item.order_number="{ item }">
           <div class="d-flex align-center mx-0 px-0" style="width: 100px">
@@ -118,7 +143,7 @@
               <span class="d-block font-weight-medium text-high-emphasis text-truncate">{{
                 item.order_number
               }}</span>
-              <small>Productos: {{ item.quantity_products }}</small>              
+              <small>Productos: {{ item.quantity_products }}</small>
             </div>
           </div>
         </template>
@@ -214,13 +239,16 @@
                     density="comfortable"
                     class="ma-1 status-option"
                     style="width: 150px"
-                    :class="`selected-status ${status.id === item.payment_status.id ? 'selected-status' : ''}`"
-                    >
+                    :class="`selected-status ${
+                      status.id === item.payment_status.id ? 'selected-status' : ''
+                    }`"
+                  >
                     {{ status.name }}
                     <VIcon
                       v-if="status.id === item.payment_status.id"
                       icon="ri-check-line"
-                      class="ml-1"/>
+                      class="ml-1"
+                    />
                   </VChip>
                 </VListItem>
               </VList>
@@ -254,7 +282,9 @@
                     density="comfortable"
                     class="ma-1 status-option"
                     style="width: 150px"
-                    :class="`selected-status ${status.id === item.shipment_status.id ? 'selected-status' : ''}`"
+                    :class="`selected-status ${
+                      status.id === item.shipment_status.id ? 'selected-status' : ''
+                    }`"
                   >
                     {{ status.name }}
                     <VIcon
@@ -339,169 +369,185 @@
         </template>
       </VDataTable>
 
-      <VDialog v-model="movementDialog" max-width="80%">
-        <VCard>
-          <VToolbar color="primary">
-            <VBtn icon="ri-close-line" color="white" @click="closeMovementDialog" />
-            <VToolbarTitle>{{ movementFormTitle }}</VToolbarTitle>
-            <VSpacer />
+      <VDialog v-model="movementDialog" max-width="800px" persistent>
+        <VCard class="rounded-lg">
+          <!-- Header con iconos Remix -->
+          <VToolbar color="primary" density="compact">
+            <VToolbarTitle class="text-white font-weight-medium">
+              <VBtn icon variant="text" color="white" @click="closeMovementDialog">
+              <VIcon>ri-close-line</VIcon>
+            </VBtn>
+              {{ movementFormTitle }}
+            </VToolbarTitle>
+            
           </VToolbar>
+
           <VForm ref="movementForm" v-model="validMovement">
-            <VCardText>
-              <VContainer>
-                <!-- Sección de información de la orden -->
-                <VCard class="mb-6" color="primary-lighten-5">
+            <VCardText class="px-4 pt-4 pb-2">
+              <!-- Sección de orden con iconos Remix -->
+              <VCard flat border class="mb-4" color="primary-lighten-5">
+                <VCardItem class="py-0 mt-2 ">
                   <VCardTitle class="d-flex align-center">
-                    <VAvatar
-                      icon="ri-inbox-unarchive-line"
-                      class="text-info mr-2"
-                      variant="tonal"
-                    />
-
-                    <span>Detalles de la Orden
+                     <VAvatar
+                            icon="ri-inbox-unarchive-line"
+                            class="text-info mr-2"
+                            variant="tonal"
+                          />
+                    <span>Detalles de la Orden</span>
+                    <div class="d-flex flex-wrap gap-2 ml-3">
                       <VChip
-                      :color="getStatusCodeColor(selectedOrder.payment_status.code)"                                                        
-                      prepend-icon="ri-money-dollar-circle-line"
-                      density="comfortable"
-                      class="font-weight-bold ma-1 status-option"                            
-                    >
-                      {{ selectedOrder.payment_status.name }}
-                    </VChip>
-                    <VChip
-                      :color="getStatusCodeColorShipping(selectedOrder.shipment_status.code)"                            
-                      prepend-icon="ri-truck-line"
-                      density="comfortable"
-                      class="font-weight-bold ma-1 status-option"                            
-                    >
-                      {{ selectedOrder.shipment_status.name }}
-                    </VChip>
-                    </span>
+                        :color="getStatusCodeColor(selectedOrder.payment_status.code)"
+                        size="small"
+                        class="font-weight-medium"
+                      >
+                        <VIcon  icon="ri-money-dollar-circle-line" class="mr-1"/>
+                        {{ selectedOrder.payment_status.name }}
+                      </VChip>
+                      <VChip
+                        :color="getStatusCodeColorShipping(selectedOrder.shipment_status.code)"
+                        size="small"
+                        class="font-weight-medium"
+                      >
+                        <VIcon  icon="ri-truck-line" class="mr-1"/>
+                        {{ selectedOrder.shipment_status.name }}
+                      </VChip>
+                    </div>
                   </VCardTitle>
-                  <VDivider />
-                  <VCardText>
-                    <VRow>
-                      <VCol cols="12" md="4" class="d-flex align-center">
-                        <div class="info-field">
-                          <div class="text-caption text-primary">Número de Orden</div>
-                          <span class="text-h6 font-weight-bold">{{
-                            selectedOrder.order_number
-                          }}</span>
-                        </div>
-                      </VCol>
+                </VCardItem>
+                <VDivider class="my-1" />
+                <VCardText>
+                  <VRow dense>
+                    <VCol cols="6" sm="3">
+                      <div class="d-flex flex-column">
+                        <span class="text-caption text-medium-emphasis">
+                          <VIcon icon="ri-hashtag" size="14" class="mr-1"/>
+                          Número
+                        </span>
+                        <span class="font-weight-medium">{{ selectedOrder.order_number }}</span>
+                      </div>
+                    </VCol>
+                    <VCol cols="6" sm="3">
+                      <div class="d-flex flex-column">
+                        <span class="text-caption text-medium-emphasis">
+                          <VIcon icon="ri-calendar-line" size="14" class="mr-1"/>
+                          Fecha
+                        </span>
+                        <span class="font-weight-medium">{{ selectedOrder.order_date }}</span>
+                      </div>
+                    </VCol>
+                    <VCol cols="6" sm="3">
+                      <div class="d-flex flex-column">
+                        <span class="text-caption text-medium-emphasis">
+                          <VIcon icon="ri-archive-line" size="14" class="mr-1"/>
+                          Productos
+                        </span>
+                        <span class="font-weight-medium">
+                          {{ selectedOrder.quantity_products }} <small class="text-caption">items</small>
+                        </span>
+                      </div>
+                    </VCol>
+                    <VCol cols="6" sm="3">
+                      <div class="d-flex flex-column">
+                        <span class="text-caption text-medium-emphasis">
+                          <VIcon icon="ri-money-dollar-circle-line" size="14" class="mr-1"/>
+                          Total
+                        </span>
+                        <span class="font-weight-medium text-success">
+                          {{ formatCurrency(selectedOrder.total_amount) }}
+                        </span>
+                      </div>
+                    </VCol>
+                  </VRow>
+                </VCardText>
+              </VCard>
 
-                      <VCol cols="12" md="4" class="d-flex align-center">
-                        <div class="info-field">
-                          <div class="text-caption text-primary">Fecha</div>
-                          <span class="text-h6 font-weight-bold">
-                            {{ selectedOrder.order_date }}
-                          </span>
-                        </div>
-                      </VCol>
-<!--
-                      <VCol cols="12" md="2" class="d-flex align-center">
-                        <div class="info-field">
-                          <div class="text-caption text-primary">Estado Actual</div>
-                          
-                        </div>
-                      </VCol>
--->                      
-                      <VCol cols="12" md="2" class="d-flex align-center">
-                        <div class="info-field">
-                          <div class="text-caption text-primary">Productos</div>
-                          <span class="text-h6 font-weight-bold">
-                            {{ selectedOrder.quantity_products }}
-                            <small class="text-caption">items</small>
-                          </span>
-                        </div>
-                      </VCol>
-                      <VCol cols="12" md="2" class="d-flex align-center">
-                        <div class="info-field">
-                          <div class="text-caption text-primary">Importe Total</div>
-                          <span class="text-h6 font-weight-bold text-success">
-                            {{ formatCurrency(selectedOrder.total_amount) }}
-                          </span>
-                        </div>
-                      </VCol>
-                    </VRow>
-                  </VCardText>
-                </VCard>
-                <!-- Sección de información del cliente -->
-                <VCard class="mb-6" color="grey-lighten-4">
+              <!-- Sección de cliente con iconos Remix -->
+              <VCard flat border class="mb-4" color="grey-lighten-4">
+                <VCardItem class="py-0 mt-2">
                   <VCardTitle class="d-flex align-center">
-                    <VAvatar icon="ri-user-line" class="text-info mr-2" variant="tonal" />
+                   
+                      <VAvatar icon="ri-user-line" class="text-info mr-2" variant="tonal" />
+
                     <span>Información del Cliente</span>
                   </VCardTitle>
-                  <VDivider />
-                  <VCardText>
-                    <VRow>
-                      <VCol cols="12" md="4">
-                        <div class="info-field">
-                          <div class="text-caption text-grey-darken-2">Nombre</div>
-                          <span class="text-body-1 font-weight-bold">
-                            {{ selectedOrder.customer.firstname }}
-                            {{ selectedOrder.customer.lastname }}
-                          </span>
-                        </div>
-                      </VCol>
-
-                      <VCol cols="12" md="4">
-                        <div class="info-field">
-                          <div class="text-caption text-grey-darken-2">Dirección</div>
-                          <span class="text-body-1 font-weight-bold">
-                            {{ selectedOrder.customer.address }}
-                          </span>
-                        </div>
-                      </VCol>
-
-                      <VCol cols="12" md="4">
-                        <div class="info-field">
-                          <div class="text-caption text-grey-darken-2">Contacto</div>
-                          <span class="text-body-1 font-weight-bold">
-                            {{ selectedOrder.customer.telephone || "Sin teléfono" }}
-                            <template v-if="selectedOrder.customer.email">
-                              <br />{{ selectedOrder.customer.email }}
-                            </template>
-                          </span>
-                        </div>
-                      </VCol>
-                    </VRow>
-                  </VCardText>
-                </VCard>
-                <!-- Selector de estado -->
-                <VRow>
-                  <VCol cols="12" md="6" sm="6">
-                    <VAutocomplete
-                      v-model="movement.payment_status_id"
-                      :items="paymentStatuses"
-                      item-title="name"
-                      item-value="id"
-                      label="Estado del pago"
-                      :rules="[validateStatusChange(movement.payment_status_id, 1)]"
-                      variant="outlined"
-                      class="mt-2"
-                      clearable
-                    />
-                  </VCol>
-                  <VCol cols="12" md="6" sm="6">
-                    <VAutocomplete
-                      v-model="movement.shipment_status_id"
-                      :items="shipmentStatuses"
-                      item-title="name"
-                      item-value="id"
-                      label="Estado de la entrega"
-                      :rules="[validateStatusChange(movement.shipment_status_id, 2)]"
-                      variant="outlined"
-                      class="mt-2"
-                      clearable
-                    />
-                  </VCol>
-                </VRow>
-              </VContainer>
+                </VCardItem>
+                <VDivider class="my-1" />
+                <VCardText>
+                  <VRow dense>
+                    <VCol cols="12" md="4">
+                      <div class="d-flex flex-column">
+                        <span class="text-caption text-medium-emphasis">
+                          <VIcon icon="ri-user-3-line" size="14" class="mr-1"/>
+                          Nombre
+                        </span>
+                        <span class="font-weight-medium">
+                          {{ selectedOrder.customer.firstname }} {{ selectedOrder.customer.lastname }}
+                        </span>
+                      </div>
+                    </VCol>
+                    <VCol cols="12" md="4">
+                      <div class="d-flex flex-column">
+                        <span class="text-caption text-medium-emphasis">
+                          <VIcon icon="ri-map-pin-line" size="14" class="mr-1"/>
+                          Dirección
+                        </span>
+                        <span class="font-weight-medium">
+                          {{ selectedOrder.customer.address || 'No especificada' }}
+                        </span>
+                      </div>
+                    </VCol>
+                    <VCol cols="12" md="4">
+                      <div class="d-flex flex-column">
+                        <span class="text-caption text-medium-emphasis">
+                          <VIcon icon="ri-phone-line" size="14" class="mr-1"/>
+                          Contacto
+                        </span>
+                        <span class="font-weight-medium">
+                          {{ selectedOrder.customer.telephone || 'Sin teléfono' }}
+                        </span>
+                        <span v-if="selectedOrder.customer.email" class="text-primary text-caption">
+                          <VIcon icon="ri-mail-line" size="12" class="mr-1"/>
+                          {{ selectedOrder.customer.email }}
+                        </span>
+                      </div>
+                    </VCol>
+                  </VRow>
+                </VCardText>
+              </VCard>
+        
+              <VRow>
+                <VCol cols="12" md="6" sm="6">
+                  <VAutocomplete
+                    v-model="movement.payment_status_id"
+                    :items="paymentStatuses"
+                    item-title="name"
+                    item-value="id"
+                    label="Estado del pago"
+                    :rules="[validateStatusChange(movement.payment_status_id, 1)]"
+                    variant="outlined"
+                    class="mt-2"
+                    clearable
+                  />
+                </VCol>
+                <VCol cols="12" md="6" sm="6">
+                  <VAutocomplete
+                    v-model="movement.shipment_status_id"
+                    :items="shipmentStatuses"
+                    item-title="name"
+                    item-value="id"
+                    label="Estado de la entrega"
+                    :rules="[validateStatusChange(movement.shipment_status_id, 2)]"
+                    variant="outlined"
+                    class="mt-2"
+                    clearable
+                  />
+                </VCol>
+              </VRow>
             </VCardText>
 
             <VCardActions>
               <VSpacer />
-              <VBtn variant="outlined" color="secondary" @click="closeMovementDialog">
+              <VBtn variant="outlined" color="primary" @click="closeMovementDialog">
                 Cancelar
               </VBtn>
               <VBtn
@@ -519,134 +565,113 @@
       </VDialog>
 
       <!-- Dialog Registrar pagos -->
-      <VDialog v-model="paymentFormDialog" max-width="1000px">
-        <VCard>
-          <VToolbar color="success">
-            <VBtn icon="ri-close-line" color="white" @click="closePaymentForm" />
-            <VToolbarTitle>Registrar Pago</VToolbarTitle>
+      <VDialog v-model="paymentFormDialog" max-width="600px" persistent>
+        <VCard class="rounded-lg">
+          <!-- Header con gradiente y tipografía más limpia -->
+          <VToolbar color="primary" density="compact" class="ml-0 pl-0">
+            <VToolbarTitle class="text-h6 font-weight-medium text-white">
+              <VBtn icon="ri-close-line" color="white" @click="closePaymentForm" />
+              Registrar Pago
+            </VToolbarTitle>
+            <VSpacer />
+            <VBtn icon variant="text" color="white" @click="closePaymentForm">
+              <VIcon>mdi-close</VIcon>
+            </VBtn>
           </VToolbar>
+
           <VForm ref="paymentForm" v-model="validPayment">
-            <VCardText>
-              <!-- aca debe ir la linea de pagos -->
-              <VRow class="justify-center">
-                <VCol cols="12" md="12" sm="12">
-                  <VCard>
-                    <div class="v-card-item">
-                      <div class="v-card-item__content">
-                        <div class="v-card-title">
-                          <h5 class="text-h5">
-                            <VAvatar
-                              icon="ri-money-dollar-circle-line"
-                              class="text-success mr-2"
-                              variant="tonal"
-                            />Pagos
-                          </h5>
-                        </div>
-                      </div>
+            <VCardText class="px-4 pt-4 pb-2">
+              <!-- Resumen de pagos en tarjeta compacta -->
+              <VCard flat class="border" color="surface">
+                <VCardItem class="py-2">
+                  <VCardTitle class="text-subtitle-1 font-weight-medium d-flex align-center">
+                    
+                    <VAvatar
+                      icon="ri-money-dollar-circle-line"
+                      class="text-primary mr-2"
+                      variant="tonal"
+                    />
+                    Resumen de Pagos
+                  </VCardTitle>
+                </VCardItem>
+
+                <VDivider />
+
+                <VCardText class="px-2 py-3">
+                  <!-- Diseño tipo tabla para mejor alineación -->
+                  <div class="d-flex flex-column gap-2">
+                    <div class="d-flex justify-space-between">
+                      <span class="text-caption text-medium-emphasis">Total Orden:</span>
+                      <span class="font-weight-medium">{{ formatCurrency(createdOrder?.order?.total_amount) }}</span>
                     </div>
-                    <VCardText>
-                      <VRow>
-                        <VCol cols="12">
-                          <VAlert
-                            type="success"
-                            variant="tonal"
-                            class="mb-4"
-                            :icon="false"
-                          >
-                            <VRow>
-                              <VCol
-                                cols="12"
-                                sm="9"
-                                class="text-end text-h5 text-success"
-                              >
-                                Total de la Orden:
-                              </VCol>
-                              <VCol
-                                cols="12"
-                                sm="3"
-                                class="text-end text-h5 text-success"
-                              >
-                                {{ formatCurrency(createdOrder?.order?.total_amount) }}
-                              </VCol>
-                            </VRow>
-                            <VRow>
-                              <VCol
-                                cols="12"
-                                sm="9"
-                                class="text-end pt-0 text-h5 text-success"
-                              >
-                                Total Pagado:
-                              </VCol>
-                              <VCol
-                                cols="12"
-                                sm="3"
-                                class="text-end pt-0 text-h5 text-success"
-                              >
-                                {{ formatCurrency(totalPaid) }}
-                              </VCol>
-                            </VRow>
-                            <VRow class="pb-2">
-                              <VCol
-                                cols="12"
-                                sm="9"
-                                class="text-end pt-0 text-h5 text-success"
-                              >
-                                Saldo Pendiente:
-                              </VCol>
+                    <div class="d-flex justify-space-between">
+                      <span class="text-caption text-medium-emphasis">Total Pagado:</span>
+                      <span class="font-weight-medium text-primary">{{ formatCurrency(totalPaid) }}</span>
+                    </div>
+                    <div class="d-flex justify-space-between">
+                      <span class="text-caption text-medium-emphasis">Saldo Pendiente:</span>
+                      <span class="font-weight-medium" :class="pendingAmount > 0 ? 'text-error' : 'text-success'">
+                        {{ formatCurrency(pendingAmount) }}
+                      </span>
+                    </div>
+                    
+                    <VDivider class="my-1" />
+                    
+                    <div class="d-flex justify-space-between">
+                      <span class="text-caption text-medium-emphasis">Vuelto:</span>
+                      <span class="font-weight-medium text-success">{{ formatCurrency(change) }}</span>
+                    </div>
+                  </div>
+                </VCardText>
+              </VCard>
 
-                              <VCol
-                                cols="12"
-                                sm="3"
-                                class="text-end pt-0 text-h5 text-success"
-                              >
-                                {{ formatCurrency(pendingAmount) }}
-                              </VCol>
-                            </VRow>
-                            <VDivider :thickness="3" color="success" />
-                            <VRow class="pt-4">
-                              <VCol
-                                cols="12"
-                                sm="9"
-                                class="text-end pt-0 text-h5 text-success"
-                              >
-                                Vuelto:
-                              </VCol>
+              <!-- Componente de pagos con margen superior -->
+              <div class="mt-4">
+                <PaymentsRow
+                  ref="paymentsRow"
+                  :key="keyPayments"
+                  modulo="pagos"
+                  :records="createdOrder.order.payment"
+                  @update-total="updateTotal"
+                />
+              </div>
+            </VCardText>
 
-                              <VCol
-                                cols="12"
-                                sm="3"
-                                class="text-end pt-0 text-h5 text-success"
-                              >
-                                {{ formatCurrency(change) }}
-                              </VCol>
-                            </VRow>
-                          </VAlert>
-                        </VCol>
-                      </VRow>
-                      <PaymentsRow
-                        ref="paymentsRow"
-                        :key="keyPayments"
-                        modulo="pagos"
-                        @update-total="updateTotal"
-                      />
-                    </VCardText>
-                  </VCard>
+            <!-- Acciones con diseño más moderno -->
+            <VCardActions class="px-4 pb-4 pt-2">
+              <VRow>
+                <VCol cols="12" md="12" sm="12" class="pt-4 pb-0 my-0">
+                  <VBtn
+                    variant="outlined"
+                    color="primary"
+                    @click="closePaymentForm"
+                    class="text-capitalize"
+                  block
+                  >
+                    Cancelar
+                  </VBtn> 
+                </VCol>
+                <VCol cols="12" md="12" sm="12" class="pt-1 my-0 pb-2">
+                  <VBtn
+                  
+                    @click="savePayment"
+                    :loading="savingPayment"
+                    :disabled="!validPayment"
+                    color="white"
+                    class="bg-primary  text-capitalize"
+                    block
+                  >
+                  
+                    <template v-if="!savingPayment">
+                      <VIcon icon="mdi-check-circle-outline" class="mr-1" />
+                      Confirmar Pago
+                    </template>
+                    <template v-else>
+                      Procesando...
+                    </template>
+                  </VBtn>
                 </VCol>
               </VRow>
-            </VCardText>
-            <VCardActions>
-              <VSpacer />
-              <VBtn variant="outlined" color="success" @click="closePaymentForm">
-                Cancelar
-              </VBtn>
-              <VBtn
-                class="bg-success"
-                color="white"
-                @click="savePayment"
-                :loading="savingPayment"
-              >
-                Registrar Pago
-              </VBtn>
             </VCardActions>
           </VForm>
         </VCard>
@@ -658,7 +683,7 @@
           <VBtn text v-bind="attrs" @click="snackbar = false"> Cerrar </VBtn>
         </template>
       </v-snackbar>
-    </VCardText>    
+    </VCardText>
   </VCard>
 </template>
 
@@ -691,7 +716,7 @@ export default {
         start: null,
         end: null,
       },
-      defaultDateRange: {},  // Guardamos el rango inicial para poder resetearlo
+      defaultDateRange: {}, // Guardamos el rango inicial para poder resetearlo
       loading: false,
       search: "",
       customers: [],
@@ -750,7 +775,6 @@ export default {
       },
       isInitialLoad: true, // Bandera para identificar carga inicial
       //searchDebounce: null, // Para el debounce de búsqueda
-      
     };
   },
 
@@ -787,10 +811,9 @@ export default {
       );
     }
 
-    await this.loadData();    
+    await this.loadData();
     this.selectedShipmentStatus = this.getPendingShipmentStatus();
     this.fetchData();
-    
   },
 
   methods: {
@@ -800,16 +823,15 @@ export default {
     setDefaultDateRange() {
       const endDate = new Date().toISOString().split("T")[0];
       const startDate = new Date();
-      
+
       // Establecer el rango por defecto a 60 días atrás
       startDate.setDate(startDate.getDate() - 60);
-      
+
       this.defaultDateRange = {
         start: startDate.toISOString().split("T")[0],
-        end: endDate
+        end: endDate,
       };
-                  
-    },   
+    },
     async updatePaymentStatus(item, newStatus) {
       // No hacer nada si es el mismo estado
       if (newStatus.id === item.payment_status.id) return;
@@ -861,7 +883,7 @@ export default {
 
     reset() {
       this.selectedCustomer = null;
-      this.selectedPaymentStatus = null;      
+      this.selectedPaymentStatus = null;
       this.search = "";
       this.pagination.page = 1;
       this.dateRange = {
@@ -895,13 +917,13 @@ export default {
     async fetchData() {
       this.loading = true;
       try {
-        if(!this.selectedShipmentStatus){
-          return ;
+        if (!this.selectedShipmentStatus) {
+          return;
         }
-                        console.log("selectedShipmentStatus:", this.selectedShipmentStatus);
+        console.log("selectedShipmentStatus:", this.selectedShipmentStatus);
         const params = {
           order_number: this.search || undefined,
-          customers: this.selectedCustomer || undefined,          
+          customers: this.selectedCustomer || undefined,
           payment_status_id: this.selectedPaymentStatus || undefined,
           shipment_status_id: this.selectedShipmentStatus || undefined,
           shipping: 1 || undefined, //filtro por los que requieren envio
@@ -913,7 +935,7 @@ export default {
               ? "desc"
               : "asc"
             : undefined,
-        };        
+        };
 
         // Añadir fechas si están definidas
         if (this.dateRange?.start && this.dateRange?.end) {
@@ -1012,12 +1034,12 @@ export default {
           return "Verifique la informacion de los pagos";
         }
         // 1. Verificar paymentMethod duplicados
-        if (paymentMethod.has(payment.payment_method_id.id)) {
+        /*if (paymentMethod.has(payment.payment_method_id.id)) {
           return (
             "Ha seleccionado mas de una vez el mismo metodo de pago. Metodo de pago: " +
             payment.payment_method_id.name
           );
-        }
+        }*/
         paymentMethod.add(payment.payment_method_id.id);
       }
 
@@ -1124,7 +1146,7 @@ export default {
 
     closeMovementDialog() {
       this.movementDialog = false;
-      this.$refs.movementForm?.reset();      
+      this.$refs.movementForm?.reset();
     },
 
     async saveMovement() {
@@ -1185,15 +1207,15 @@ export default {
 
       return statusColorMap[code] || "error";
     },
-    
+
     getStatusCodeColorShipping(code) {
       const statusColorMap = {
         [this.$shipmentStatus.NOT_REQUIRED]: "success",
         [this.$shipmentStatus.DELIVERED]: "success",
         [this.$shipmentStatus.SHIPPED]: "success",
         [this.$shipmentStatus.READY_PICKUP]: "warning",
-        [this.$shipmentStatus.PENDING]: "warning",        
-        [this.$shipmentStatus.IN_TRANSIT]: "warning",        
+        [this.$shipmentStatus.PENDING]: "warning",
+        [this.$shipmentStatus.IN_TRANSIT]: "warning",
         [this.$shipmentStatus.CANCEL]: "error",
         [this.$shipmentStatus.FAILED]: "error",
         [this.$shipmentStatus.RETURNED]: "error",
@@ -1237,12 +1259,12 @@ export default {
     getPendingShipmentStatus() {
       const pendingId = this.shipmentStatuses.find(
         (status) => status.code === this.$shipmentStatus.PENDING
-      )?.id
-      
-        return pendingId || null
+      )?.id;
+
+      return pendingId || null;
     },
     async getDeliveryReport(type) {
-      try {        
+      try {
         // Mostrar loader mientras se genera el PDF
         this.loading = true;
 
@@ -1256,8 +1278,8 @@ export default {
           end_date: this.dateRange.end,
           shipment_status_id: this.selectedShipmentStatus,
           customers: this.selectedCustomer,
-          order_number: this.search || undefined,          
-          payment_status_id: this.selectedPaymentStatus || undefined,          
+          order_number: this.search || undefined,
+          payment_status_id: this.selectedPaymentStatus || undefined,
           shipping: 1 || undefined, //filtro por los que requieren envio
         };
 

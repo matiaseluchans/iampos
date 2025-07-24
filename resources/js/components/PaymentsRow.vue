@@ -40,7 +40,7 @@
 							class="text-left"
 							v-model="item.amount"
 							:label="item.amount ? '' : 'Importe'"
-							:rules="[$rulesRequerido, $rulesNumericos]"
+							:rules="[$rulesRequerido]"
 							required							
 							density="compact"
 							hide-details
