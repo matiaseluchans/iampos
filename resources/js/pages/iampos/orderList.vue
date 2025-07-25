@@ -880,11 +880,12 @@ export default {
         data = {
           data: {
             payment_status_id: this.movement.payment_status_id,
-            shipment_status_id: this.movement.shipment_status_id },          
+            shipment_status_id: this.movement.shipment_status_id }, 
+            _method: 'PUT'         
         }
         
         
-        await this.$axios.put(endpoint, data)
+        await this.$axios.post(endpoint, data)
         this.showSnackbar('Estado actualizado correctamente', 'success')
         this.closeMovementDialog()
         await this.fetchData()
