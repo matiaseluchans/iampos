@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
+use Illuminate\Support\Facades\Artisan;
 
 
 /*
@@ -183,4 +184,10 @@ Route::get('/version', function () {
     } catch (ProcessFailedException $e) {
         return response()->json(['error' => $e->getMessage()], 500);
     }
+});
+
+
+Route::get('/clear-cache', function () {
+    Artisan::call('optimize:clear');
+    return response()->json(['message' => 'Cache cleared successfully']);
 });
