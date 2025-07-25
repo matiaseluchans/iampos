@@ -86,9 +86,9 @@ class PaymentRepository extends BaseRepository
             else{
                 $statusCode = StatusEnum::PARTIAL_PAYMENT;
             }
-            $status = Status::where('code', $statusCode)->first();            
-            //actualizo el estado de la orden    
-            $order->status_id = $status->id;            
+            $paymentStatus = PaymentStatus::where('code', $statusCode)->first();            
+            //actualizo el estado de pago de la orden    
+            $order->payment_status_id = $paymentStatus->id;
             $order->save();
 
             // Confirmar la transacción
