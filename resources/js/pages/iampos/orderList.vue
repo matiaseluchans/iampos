@@ -147,7 +147,7 @@
           <div :class=" (item.total_profit>0)? 'text-right text-success':'text-right text-error'">
             <strong>{{ formatCurrency(item.total_amount) }}</strong>
           </div>
-        </template>
+        </template>        
         <!--<template #item.shipping="{ item }">                                
           <strong>{{ item.shipping =="1"?'Con envío':'Sin envío' }}</strong>          
         </template>-->
@@ -690,7 +690,8 @@ export default {
     if(this.isAdmin){
       this.headers.splice(4, 0, 
         { title: 'Costo', key: 'total_cost', align: 'end' },
-        { title: 'Ganancia', key: 'total_profit', align: 'end' }
+        { title: 'Ganancia', key: 'total_profit', align: 'end' },
+        { title: 'Pagado', key: 'total_paid', align: 'end' },
       )
     }
     await this.fetchData()

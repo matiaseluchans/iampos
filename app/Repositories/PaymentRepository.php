@@ -76,11 +76,11 @@ class PaymentRepository extends BaseRepository
             }
 
             // Calcular total de pagos actuales
-            $totalPagado = Payment::where('order_id', $orderId)->sum('amount');
+            $totalPaid = Payment::where('order_id', $orderId)->sum('amount');
             // Obtener el total de la orden
             $order = Order::findOrFail($orderId);
             // Verificar si se pagó completamente            
-            if ((float) $totalPagado >= (float) $order->total_amount) {  
+            if ((float) $totalPaid >= (float) $order->total_amount) {  
                 $statusCode = StatusEnum::PAID;
             }
             else{
@@ -88,6 +88,7 @@ class PaymentRepository extends BaseRepository
             }
             $paymentStatus = PaymentStatus::where('code', $statusCode)->first();            
             //actualizo el estado de pago de la orden    
+            $order->total_paid = $totalPaid;
             $order->payment_status_id = $paymentStatus->id;
             $order->save();
 

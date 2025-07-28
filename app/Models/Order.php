@@ -30,6 +30,7 @@ class Order extends Model
         'tax_amount',
         'discount_amount',
         'total_amount',
+        'total_paid',
         'total_cost',
         'total_profit',
         'notes',

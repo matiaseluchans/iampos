@@ -20,7 +20,7 @@
         :items-per-page="pagination.itemsPerPage"
         :page="pagination.page"
         :items-length="orders.total || 0"
-        @update:options="handlePaginationChange"
+        @update:options="handlePaginationChange"        
       >
         <template v-slot:top>
           <VCard flat color="white">
@@ -68,23 +68,22 @@
                        
 
                 <VCol cols="12" md="4" sm="12" class="pl-0 pt-0 py-0">
-                   
-                          <VAutocomplete
-                            v-model="selectedShipmentStatus"
-                            :items="shipmentStatuses"
-                            item-title="name"
-                            item-value="id"
-                            label="Estado entrega"
-                            clearable
-                            class="mt-0"
-                            density="compact"                            
-                          />
-                          <DateRangeField
-                            class="mt-0 py-0"
-                            ref="dateDeliveryRange"
-                            v-model="dateRange"
-                            modelLabel="Fecha entrega"                            
-                          /> 
+                  <VAutocomplete
+                    v-model="selectedShipmentStatus"
+                    :items="shipmentStatuses"
+                    item-title="name"
+                    item-value="id"
+                    label="Estado entrega"
+                    clearable
+                    class="mt-0"
+                    density="compact"                            
+                  />
+                  <DateRangeField
+                    class="mt-0 py-0"
+                    ref="dateDeliveryRange"
+                    v-model="dateRange"
+                    modelLabel="Fecha entrega"                            
+                  /> 
                 </VCol>
               </VRow>
             </VCardText>
@@ -151,6 +150,11 @@
         <template #item.total_profit="{ item }">
           <div class="text-right text-success">
             <strong>{{ formatCurrency(item.total_profit) }}</strong>
+          </div>
+        </template>
+        <template #item.total_paid="{ item }">                      
+          <div :class=" (item.total_paid>0)? 'text-right text-success':'text-right text-error'">
+            <strong>{{ formatCurrency(item.total_paid) }}</strong>
           </div>
         </template>
         <template #item.customer="{ item }">
@@ -328,6 +332,35 @@
               </VList>
             </VMenu>
           </div>
+        </template>
+        <!--
+          <template v-slot:footer>
+            <div class="d-flex justify-end pa-4 font-weight-bold">
+              <span class="mr-4">Total Amount:</span>
+              <span>{{ calculateTotalAmount() }}</span>
+            </div>
+          </template>
+        -->
+        <template #tfoot>
+          <tfoot>
+            <tr class="bg-grey-lighten-4 font-weight-bold">
+              <td class="text-left">
+                <div class="d-flex align-center mx-0 px-0" style="width: 100px">                  
+                  <div class="d-flex flex-column text-start">
+                    <span class="d-block font-weight-medium text-high-emphasis text-truncate">Facturas Totales: {{
+                      orders.data.length
+                    }}</span>
+                    <small>Productos Totales: {{ calculateTotalProducts() }}</small>              
+                  </div>
+                </div>
+              </td>
+              <td :colspan="showHeaders.length - 7" class="text-right"></td>              
+              <td class="text-right">{{ formatCurrency(calculateTotalCost()) }}</td>
+              <td class="text-right">{{ formatCurrency(calculateTotalProfit()) }}</td>
+              <td class="text-right">{{ formatCurrency(calculateTotalAmount()) }}</td>
+              <td class="text-right">{{ formatCurrency(calculateTotalPaid()) }}</td>
+            </tr>
+          </tfoot>
         </template>
       </VDataTable>
 
@@ -725,14 +758,13 @@ export default {
       headers: [
         { title: "", key: "actions", sortable: false, align: "left", width: "40px" },
         { title: "Orden", key: "order_number", width: "60px" },
-        { title: "Fecha", key: "order_date", align: "center", width: "60px" },
-      
+        { title: "Fecha", key: "order_date", align: "center", width: "60px" },      
         { title: "Cliente", key: "customer", width: "70%" },
-          { title: "Vendedor", key: "seller_name", width: "10%" },
+        { title: "Vendedor", key: "seller_name", width: "10%" },        
+        { title: "Total", key: "total_amount", align: "end" },
+        { title: "Pagado", key: "total_paid", align: "end" },
         { title: "Estados", key: "payment_status_id", align: "center" },
         { title: "Fecha Entrega", key: "delivery_date", align: "center", width: "100px" },
-
-        { title: "Total", key: "total_amount", align: "end" },
       ],
       isAdmin: false,
       createdOrder: { order: {} },
@@ -779,10 +811,10 @@ export default {
     this.checkAdmin();
     if (this.isAdmin) {
       this.headers.splice(
-        4,
+        5,
         0,
         { title: "Costo", key: "total_cost", align: "end" },
-        { title: "Ganancia", key: "total_profit", align: "end" }
+        { title: "Ganancia", key: "total_profit", align: "end" },        
       );
     }
 
@@ -794,6 +826,41 @@ export default {
   },
 
   methods: {
+    calculateTotalAmount() {
+      if (!this.orders.data) return 0;
+
+      return this.orders.data.reduce((total, item) => {
+        return total + (parseFloat(item.total_amount) || 0);
+      }, 0).toFixed(2); // Formats to 2 decimal places
+    },
+    calculateTotalPaid() {
+      if (!this.orders.data) return 0;
+      
+      return this.orders.data.reduce((total, item) => {
+        return total + (parseFloat(item.total_paid) || 0);
+      }, 0).toFixed(2); // Formats to 2 decimal places
+    },
+    calculateTotalCost() {
+      if (!this.orders.data) return 0;
+      
+      return this.orders.data.reduce((total, item) => {
+        return total + (parseFloat(item.total_cost) || 0);
+      }, 0).toFixed(2); // Formats to 2 decimal places
+    },
+    calculateTotalProfit() {
+      if (!this.orders.data) return 0;
+      
+      return this.orders.data.reduce((total, item) => {
+        return total + (parseFloat(item.total_profit) || 0);
+      }, 0).toFixed(2); // Formats to 2 decimal places
+    },
+    calculateTotalProducts() {
+      if (!this.orders.data) return 0;
+      
+      return this.orders.data.reduce((total, item) => {
+        return total + (item.quantity_products || 0);
+      }, 0);
+    },
     unsetInitialLoad() {
       this.isInitialLoad = false;
     },
