@@ -81,7 +81,7 @@
             margin-bottom: 4mm;
             padding: 3mm;
             background-color: #f9f9f9;
-            
+
             font-size: 0.8rem;
         }
 
@@ -268,9 +268,9 @@
         <!-- Información del cliente -->
         <div class="client-info">
             <div class="section-title">INFORME DE PEDIDOS POR CLIENTES</div>
-            <div class="client-name">Fecha de Entrega: {{$dates}}</div>            
+            <div class="client-name">Fecha de Entrega: {{$dates}}</div>
         </div>
-        
+
         <!-- Productos -->
         <div class="section-title">DETALLE DE PRODUCTOS</div>
         <table>
@@ -278,41 +278,41 @@
                 <tr>
                     <th style="width: 60mm;">Cliente</th>
                     <th style="width: 60mm;">Productos</th>
-                    <th style="width: 20mm;" class="text-right">Bultos</th>                    
+                    <th style="width: 20mm;" class="text-right">Bultos</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($orders as $item)
                 <tr>
-                    <td>{{ $item->address }}</td>                    
-                    <td>{{ $item->name }}</td>                    
-                    <td class="text-right">{{ $item->total_quantity }}</td>                    
+                    <td>{{ $item->address }}</td>
+                    <td>{{ $item->name }}</td>
+                    <td class="text-right">{{ $item->total_quantity }}</td>
                 </tr>
                 @endforeach
             </tbody>
             <tfoot>
-            <tr>
-                <th>&nbsp;</th>
-                <th>Total</th>
-                <th class="text-right">{{ $total }}</th>
-            </tr>
-        </tfoot>
+                <tr>
+                    <th>&nbsp;</th>
+                    <th>Total</th>
+                    <th class="text-right">{{ $total }}</th>
+                </tr>
+            </tfoot>
         </table>
 
-        
 
-        
+
+
         <!-- Pie de página -->
-        
+
         <div class="footer">
             <div>¡Gracias por su compra!</div>
             <div>Para consultas: info@empresa.com - Tel: (011) 1234-5678</div>
             <div class="legal-info">
                 Conserve este documento para cualquier gestión posterior
             </div>
-            
+
         </div>
-        
+
     </div>
 </body>
 

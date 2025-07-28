@@ -754,6 +754,7 @@ export default {
         { title: "Orden", key: "order_number", width: "60px" },
         { title: "Fecha", key: "order_date", align: "center", width: "60px" },
         { title: "Cliente", key: "customer", width: "70%" },
+        { title: "Vendedor", key: "seller_name", width: "10%" },
         { title: "Estados", key: "payment_status_id", align: "center" },
         { title: "Fecha Entrega", key: "delivery_date", align: "center", width: "100px" },
 

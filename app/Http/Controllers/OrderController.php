@@ -67,7 +67,7 @@ class OrderController extends Controller
 
         $mpdf = new \Mpdf\Mpdf([
             'mode' => 'utf-8',
-            'format' => [120, 297], // 80mm de ancho, alto automático
+            'format ' => [150, 297], // 80mm de ancho, alto automático
             'margin_left' => 2,
             'margin_right' => 2,
             'margin_top' => 5,
@@ -80,9 +80,11 @@ class OrderController extends Controller
         ]);
 
         // Para maximizar compatibilidad con impresoras térmicas
+        /*
         $mpdf->showImageErrors = true;
         $mpdf->simpleTables = true;
         $mpdf->packTableData = true;
+        */
 
         // Vista de la factura
         $html = view('invoices.remitoComanda', [
@@ -90,6 +92,7 @@ class OrderController extends Controller
             'date' => now()->format('d/m/Y'),
             'logo' => public_path('logo.png')
         ])->render();
+
 
 
         $mpdf->WriteHTML($html);
@@ -127,15 +130,32 @@ class OrderController extends Controller
             'orientation' => 'P'
         ]);
 
-        // Vista de la factura
-        $html = view('invoices.remito', [
+        // Vista del remito (primera copia)
+        $html1 = view('invoices.remito', [
             'order' => $order,
             'date' => now()->format('d/m/Y'),
-            'logo' => public_path('logo.png')
+            'logo' => public_path('logo.png'),
+            'copyText' => 'ORIGINAL' // Texto para identificar la copia
         ])->render();
 
+        // Vista del remito (segunda copia)
+        $html2 = view('invoices.remito', [
+            'order' => $order,
+            'date' => now()->format('d/m/Y'),
+            'logo' => public_path('logo.png'),
+            'copyText' => 'DUPLICADO' // Texto para identificar la copia
+        ])->render();
 
-        $mpdf->WriteHTML($html);
+        // Agregar primera copia
+        $mpdf->WriteHTML($html1);
+
+        // Agregar separación entre copias
+        $mpdf->WriteHTML('<div style="page-break-after: always;"></div>');
+        // O si prefieres sin salto de página, con una línea divisoria:
+        // $mpdf->WriteHTML('<hr style="border: 1px dashed #000; margin: 20px 0;">');
+
+        // Agregar segunda copia
+        $mpdf->WriteHTML($html2);
 
         // Generar PDF
         $mpdf->Output("remito_{$order->order_number}.pdf", \Mpdf\Output\Destination::INLINE);
@@ -155,7 +175,7 @@ class OrderController extends Controller
     {
         return $this->repository->search($request);
     }
-    
+
     public function latest(Request $request)
     {
         return $this->repository->latest($request);

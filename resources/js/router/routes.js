@@ -97,7 +97,7 @@ export const routes = [
         component: () => import('@/pages/iampos/users.vue'),
         meta: { requiresAuth: true,
           
-          allowedRoles: ['superadmin']
+          allowedRoles: ['superadmin','bebidas-admin']
         }
       },
       

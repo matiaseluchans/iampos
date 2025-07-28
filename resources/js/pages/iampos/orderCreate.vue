@@ -145,14 +145,14 @@
                 <VAutocomplete
                   v-model="newItem.product_id"
                   :items="products"
-                  item-title="name"
+                  :item-title="productTitle"
                   item-value="id"
                   
                   label="Seleccionar Producto"
                   clearable
+                 
                   @update:model-value="onProductChange"
-                  density="compact"
-                >
+                  density="compact">
                   <template v-slot:item="{ props, item }">
                     <v-sheet border="info md"> 
                     <VListItem v-bind="props">
@@ -162,7 +162,7 @@
                        
                         <VChip :color="getProductStock(item.raw.id) >0 ?'success':'error'">Stock: {{ getProductStock(item.raw.id) }} </VChip>
                       
-                        Código: {{ item.raw.code }}   
+               
                         </VListItemSubtitle>
                     
                     </VListItem>
@@ -700,7 +700,10 @@
 <script>
 import { VAvatar, VCardItem, VTextField } from "vuetify/lib/components/index.mjs";
 import PaymentsRow from "@/components/PaymentsRow.vue";
+ 
 import { mapGetters } from 'vuex';
+
+ 
 
 export default {
   data() {
@@ -828,6 +831,24 @@ export default {
   },
 
   methods: {
+
+    productTitle(item) {
+
+      const currentUser = this.$store.getters.currentUser;
+ 
+      let title=item.name;
+ 
+      if(currentUser.data.tenant.id ==2)
+      {
+        title =`[${item.code}] ${item.name} `;
+      }
+
+      
+      return title;
+    },
+    
+     
+     
     setDate(value){
       if(value) return
       let tomorrow = this.getDateTimeTomorrow()

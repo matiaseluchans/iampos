@@ -432,7 +432,19 @@ export default {
   methods: {
     async initialize() {
       try {
-        const response = await this.$axios.get(this.$routes[this.route]);
+
+ 
+        let route="";
+        if(this.$is("superadmin"))
+        {
+          route = this.route ;
+        }
+        else
+        {
+          route= "usersList";
+        }
+        const response = await this.$axios.get(this.$routes[route]);
+        
         this.desserts = response.data.data;
       } catch (error) {
         console.error("Error cargando usuarios:", error);
@@ -441,8 +453,26 @@ export default {
 
     async loadTenants() {
       try {
-        const response = await this.$axios.get(this.$routes['tenants']);
-        this.tenants = response.data.data;
+
+        let route= this.$routes['tenants'];
+        
+        if(this.$is("superadmin"))
+        {
+          const response = await this.$axios.get(route);
+
+          this.tenants = response.data.data;
+        }
+        else
+        {
+          route = this.$routes['tenants']+"/"+this.$store.getters.currentUser.data.tenant.id;
+          
+          const response = await this.$axios.get(route);
+
+          this.tenants = [response.data.data];
+        }
+         
+
+     
       } catch (error) {
         console.error("Error cargando tenants:", error);
       }

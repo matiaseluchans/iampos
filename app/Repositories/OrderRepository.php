@@ -33,9 +33,9 @@ class OrderRepository extends BaseRepository
             $relations = ['customer', 'status', 'paymentStatus', 'shipmentStatus', 'orderType', 'payment'];
             $query = $query->with($relations);
             $query->where('created_at', '>=', now()->subDays($days));
-            
+
             $query->orderBy('order_date', 'desc');
-            
+
             return $this->successResponse($query->get());
         } catch (\Exception $e) {
             report($e);
@@ -107,24 +107,23 @@ class OrderRepository extends BaseRepository
             }
             if (!isset($form['shipment_status_id'])) {
                 //si es con envio
-                if($form['shipping']){
+                if ($form['shipping']) {
                     // Si no se especifica el estado de envío, se asigna el penmdiente                    
-                    $code = StatusEnum::PENDING;                                        
-                }
-                else{
+                    $code = StatusEnum::PENDING;
+                } else {
                     $code = StatusEnum::NOT_REQUIRED;
                 }
                 $shipmentStatus = ShipmentStatus::where('tenant_id', $user->tenant_id)
-                            ->where('active', true)
-                            ->where('code', $code)
-                            ->first();
-                $form['shipment_status_id'] = $shipmentStatus ? $shipmentStatus->id : null;                 
+                    ->where('active', true)
+                    ->where('code', $code)
+                    ->first();
+                $form['shipment_status_id'] = $shipmentStatus ? $shipmentStatus->id : null;
             }
-            
-            
+
+
             // Si no se especifica el estado de pago, se asigna el estado inicial
             if (!isset($form['payment_status_id'])) {
-                $paymentStatus = PaymentStatus::where('tenant_id', $user->tenant_id)        
+                $paymentStatus = PaymentStatus::where('tenant_id', $user->tenant_id)
                     ->where('active', true)
                     ->where('code', StatusEnum::PENDING)
                     ->first();
@@ -225,7 +224,7 @@ class OrderRepository extends BaseRepository
         }
         */
 
-           
+
 
         $ordersQuery = $this->model::select([
             'order_items.product_id',
@@ -235,12 +234,12 @@ class OrderRepository extends BaseRepository
             ->join('order_items', 'orders.id', '=', 'order_items.order_id')
             ->join('products', 'order_items.product_id', '=', 'products.id')
             ->where('shipping', 1);
-       //     ->whereBetween('delivery_date', [Carbon::parse($startDate)->startOfDay(), Carbon::parse($endDate)->endOfDay()]);
-        
+        //     ->whereBetween('delivery_date', [Carbon::parse($startDate)->startOfDay(), Carbon::parse($endDate)->endOfDay()]);
+
         $deliveryStartDate = $request->input('delivery_start_date'); // Formato: Y-m-d
-        $deliveryEndDate = $request->input('delivery_end_date');        
+        $deliveryEndDate = $request->input('delivery_end_date');
         $dates = '';
-        if($deliveryStartDate && $deliveryEndDate){
+        if ($deliveryStartDate && $deliveryEndDate) {
             $ordersQuery->whereBetween('delivery_date', [Carbon::parse($deliveryStartDate)->startOfDay(), Carbon::parse($deliveryEndDate)->endOfDay()]);
             $dates = Carbon::parse($deliveryStartDate)->format('d/m/Y') . ' - ' . Carbon::parse($deliveryEndDate)->format('d/m/Y');
         }
@@ -249,11 +248,11 @@ class OrderRepository extends BaseRepository
         }
         if ($request->input('customers')) {
             $ordersQuery->whereIn('customer_id', $request->input('customers'));
-        }        
-        if($request->input('order_number')){
-            $ordersQuery->where('order_number', 'LIKE', '%'.$request->input('order_number').'%');
         }
-        if($request->input('payment_status_id')){
+        if ($request->input('order_number')) {
+            $ordersQuery->where('order_number', 'LIKE', '%' . $request->input('order_number') . '%');
+        }
+        if ($request->input('payment_status_id')) {
             $ordersQuery->where('payment_status_id', $request->input('payment_status_id'));
         }
 
@@ -322,7 +321,7 @@ class OrderRepository extends BaseRepository
             $errors = implode(', ', $validator->errors()->all());
             return $this->errorResponse(null, $errors);
         }
-        */            
+        */
         $ordersQuery = $this->model::select([
             'customers.id',
             'customers.address',
@@ -334,29 +333,29 @@ class OrderRepository extends BaseRepository
             ->join('order_items', 'orders.id', '=', 'order_items.order_id')
             ->join('products', 'order_items.product_id', '=', 'products.id')
             ->where('shipping', 1);
-            //->whereBetween('delivery_date', [Carbon::parse($startDate)->startOfDay(), Carbon::parse($endDate)->endOfDay()]);
+        //->whereBetween('delivery_date', [Carbon::parse($startDate)->startOfDay(), Carbon::parse($endDate)->endOfDay()]);
 
         $deliveryStartDate = $request->input('delivery_start_date'); // Formato: Y-m-d
         $deliveryEndDate = $request->input('delivery_end_date');
 
-        
+
         $dates = '';
-        if($deliveryStartDate && $deliveryEndDate){
+        if ($deliveryStartDate && $deliveryEndDate) {
             $ordersQuery->whereBetween('delivery_date', [Carbon::parse($deliveryStartDate)->startOfDay(), Carbon::parse($deliveryEndDate)->endOfDay()]);
             $dates = Carbon::parse($deliveryStartDate)->format('d/m/Y') . ' - ' . Carbon::parse($deliveryEndDate)->format('d/m/Y');
         }
-        if($request->input('shipment_status_id')) {
+        if ($request->input('shipment_status_id')) {
             $ordersQuery->where('shipment_status_id', $request->input('shipment_status_id'));
         }
         if ($request->input('customers')) {
             $ordersQuery->whereIn('customer_id', $request->input('customers'));
         }
-        if($request->input('order_number')){
-            $ordersQuery->where('order_number', 'LIKE', '%'.$request->input('order_number').'%');
+        if ($request->input('order_number')) {
+            $ordersQuery->where('order_number', 'LIKE', '%' . $request->input('order_number') . '%');
         }
-        if($request->input('payment_status_id')){
+        if ($request->input('payment_status_id')) {
             $ordersQuery->where('payment_status_id', $request->input('payment_status_id'));
-        }                
+        }
 
         $orders = $ordersQuery->groupBy('customers.id', 'customers.address', 'order_items.product_id', 'products.name')->orderBy('customers.id', 'desc')->get();
 
@@ -367,7 +366,7 @@ class OrderRepository extends BaseRepository
 
         $mpdf = new \Mpdf\Mpdf([
             'mode' => 'utf-8',
-            'format' => [120, 297], // 80mm de ancho, alto automático
+            //'format' => [120, 297], // 80mm de ancho, alto automático
             'margin_left' => 2,
             'margin_right' => 2,
             'margin_top' => 5,
@@ -405,39 +404,39 @@ class OrderRepository extends BaseRepository
         try {
             $query = $this->model->query();
             $relations = ['customer', 'status', 'paymentStatus', 'shipmentStatus', 'orderType', 'payment'];
-            $query = $query->with($relations);            
+            $query = $query->with($relations);
 
             $deliveryStartDate = $request->input('delivery_start_date'); // Formato: Y-m-d
             $deliveryEndDate = $request->input('delivery_end_date');
-            
+
             $orderStartDate = $request->input('order_start_date'); // Formato: Y-m-d
             $orderEndDate = $request->input('order_end_date');
 
-            if($request->input('order_number')){
-                $query->where('order_number', 'LIKE', '%'.$request->input('order_number').'%');
+            if ($request->input('order_number')) {
+                $query->where('order_number', 'LIKE', '%' . $request->input('order_number') . '%');
             }
-            if($request->input('payment_status_id')){
+            if ($request->input('payment_status_id')) {
                 $query->where('payment_status_id', $request->input('payment_status_id'));
             }
             //dd($request->input('shipment_status_id'));
-            if($request->input('shipment_status_id')){
+            if ($request->input('shipment_status_id')) {
                 $query->where('shipment_status_id', $request->input('shipment_status_id'));
             }
-            if($request->input('shipping')){
+            if ($request->input('shipping')) {
                 $query->where('shipping', $request->input('shipping'));
             }
-            if($request->input('customers')){
+            if ($request->input('customers')) {
                 $query->whereIn('customer_id', $request->input('customers'));
             }
-            if($deliveryStartDate && $deliveryEndDate){
+            if ($deliveryStartDate && $deliveryEndDate) {
                 $query->whereBetween('delivery_date', [Carbon::parse($deliveryStartDate)->startOfDay(), Carbon::parse($deliveryEndDate)->endOfDay()]);
             }
-            if($orderStartDate && $orderEndDate){
+            if ($orderStartDate && $orderEndDate) {
                 $query->whereBetween('order_date', [Carbon::parse($orderStartDate)->startOfDay(), Carbon::parse($orderEndDate)->endOfDay()]);
             }
-            
+
             $query->orderBy('order_date', 'desc');
-            
+
             return $this->successResponse($query->get());
         } catch (\Exception $e) {
             report($e);

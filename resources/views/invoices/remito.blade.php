@@ -17,15 +17,18 @@
         }
 
         .invoice-container {
-            width: 120mm;
+            /*width: 120mm;*/
             margin: 0 0;
-            padding: 3mm;
+            padding-top: 3mm;
+            padding-left: 3mm;
+            padding-right: 3mm;
+            padding-bottom: 0mm;
             border: #e0e0e0 solid 1px;
         }
 
         .header {
-            margin-bottom: 5mm;
-            padding-bottom: 3mm;
+            margin-bottom: 2mm;
+            padding-bottom: 1mm;
             border-bottom: 1px solid #e0e0e0;
             overflow: hidden;
         }
@@ -78,8 +81,14 @@
         }
 
         .client-info {
+
+            float: left;
             margin-bottom: 4mm;
-            padding: 3mm;
+            padding-top: 3mm;
+            padding-left: 3mm;
+            padding-right: 3mm;
+            padding-bottom: 0mm;
+            margin-right: 15mm;
             background-color: #f9f9f9;
             border-left: 3px solid #1976d2;
             font-size: 0.8rem;
@@ -121,7 +130,7 @@
         }
 
         .payment-method {
-            width: 40%;
+            width: 30%;
             float: left;
             padding: 2mm;
             background-color: #f5f9ff;
@@ -129,7 +138,7 @@
         }
 
         .shipping-method {
-            width: 48%;
+            width: 40%;
             float: right;
             padding: 2mm;
             background-color: #f5f9ff;
@@ -144,8 +153,8 @@
         }
 
         th {
-            background-color: #1976d2;
-            color: white;
+            border: #eee solid 1px;
+            color: #1976d2;
             padding: 2mm;
             font-weight: bold;
             text-align: left;
@@ -170,10 +179,10 @@
         }
 
         .totals {
-            width: 60mm;
+
             float: right;
-            margin-top: 3mm;
-            margin-left: 60mm;
+            /* margin-top: 3mm;*/
+            margin-left: 5mm;
         }
 
         .total-row {
@@ -215,12 +224,12 @@
             margin-top: 4mm;
             padding: 2mm;
             background-color: #f9f9f9;
-            font-size: 0.8rem;
+            font-size: 1.3rem;
             clear: both;
         }
 
         .footer {
-            margin-top: 4mm;
+            margin-top: 2mm;
             font-size: 0.7rem;
             text-align: center;
             color: #777;
@@ -235,7 +244,7 @@
         }
 
         .barcode {
-            margin-top: 3mm;
+            margin-top: 1mm;
             text-align: center;
             font-family: 'idautomationhc39m', monospace;
             font-size: 0.8rem;
@@ -245,150 +254,184 @@
 </head>
 
 <body>
-    <div class="invoice-container">
-        <!-- Encabezado -->
-        <div class="header">
-            @if(file_exists($logo))
-            <img class="logo" src="data:image/png;base64,{{ base64_encode(file_get_contents($logo)) }}" />
-            @endif
-            <div class="company-info">
-                <div class="company-name">{{$order->tenant->name}}</div>
-                <div class="company-details">
-                    <div>{{$order->tenant->address}}</div>
-                    <div>CUIT: XX-XXXXXXXX-X</div>
-                    <div>Tel: {{$order->tenant->telephone}}</div>
+    <div>
+        <div class="invoice-container">
+            <!-- Encabezado -->
+            <div class="header">
+                @if(file_exists($logo))
+                <!--<img class="logo" src="data:image/png;base64,{{ base64_encode(file_get_contents($logo)) }}" />-->
+                @endif
+
+                @if($order->tenant->id != 2)
+
+                <div class="company-info">
+                    <div class="company-name">{{$order->tenant->name}}</div>
+                    <div class="company-details">
+                        <div>{{$order->tenant->address}}</div>
+                        <div>CUIT: XX-XXXXXXXX-X</div>
+                        <div>Tel: {{$order->tenant->telephone}}</div>
+                    </div>
+                </div>
+                @endif
+
+                <div class="invoice-info">
+                    <div class="invoice-title">REMITO</div>
+                    <div class="invoice-number">N° {{ $order->order_number }}</div>
+                    <div class="invoice-date">Fecha: {{ $date }}</div>
+
                 </div>
             </div>
 
-            <div class="invoice-info">
-                <div class="invoice-title">REMITO</div>
-                <div class="invoice-number">N° {{ $order->order_number }}</div>
-                <div class="invoice-date">Fecha: {{ $date }}</div>
-
-            </div>
-        </div>
-
-        <!-- Información del cliente -->
-        <div class="client-info">
-            <div class="section-title">DATOS DEL CLIENTE</div>
-            <div class="client-name">{{ $order->customer->name ?? 'Consumidor Final' }}</div>
-            <div class="client-details">
+            <!-- Información del cliente -->
+            <div class="client-info" style="width:70mm;">
+                <div class="section-title">DATOS DEL CLIENTE</div>
                 <div class="detail-item"><span class="detail-label">Dirección:</span> {{ $order->customer->address }}</div>
-                <div class="detail-item"><span class="detail-label">Teléfono:</span> {{ $order->customer->telephone }}</div>
-            </div>
-        </div>
 
-        <!-- Métodos de pago y envío -->
-        <div class="payment-section">
-            <div class="payment-method">
+                <div class="client-name">{{ $order->customer->name ?? 'Consumidor Final' }}</div>
+
+                <div class="detail-item"><span class="detail-label">Teléfono:</span> {{ $order->customer->telephone }}</div>
+
+            </div>
+
+            <!-- Métodos de pago y envío -->
+
+            <div class="client-info" style="width:50mm;height:21.5mm;margin-left:5px">
                 <div class="section-title">ESTADO DE PAGO</div>
                 <div class="detail-item"><span class="detail-label">Estado:</span> {{ $order->status->name ?? 'No especificado' }}</div>
-
+                <div class="detail-item"></div>
             </div>
 
-            <div class="shipping-method">
+            <div class="client-info" style="width:50mm;height:21.5mm;margin-left:5px">
                 <div class="section-title">ESTADO ENVÍO</div>
                 <div class="detail-item"><span class="detail-label">Estado:</span> {{ $order->shipping ==0 ? 'Sin Envio': 'Con Envio' }}</div>
                 @if($order->shipping ==1)
                 <div class="detail-item"><span class="detail-label">Fecha Envio:</span>{{ $order->delivery_date->format('d/m/Y')  }}</div>
                 @endif
+                <div class="detail-item"></div>
             </div>
         </div>
 
         <!-- Productos -->
-        <div class="section-title">DETALLE DE PRODUCTOS</div>
+        <div class="section-title" style="margin-top:2mm">DETALLE DE PRODUCTOS</div>
         <table>
             <thead>
                 <tr>
-                    <th style="width: 60mm;">Descripción</th>
-                    <th style="width: 20mm;" class="text-right">P. Unit.</th>
+                    <th style="width: 10mm;">Cód</th>
+                    <th style="">Descripción</th>
                     <th style="width: 15mm;" class="text-right">Cant.</th>
+                    <th style="width: 20mm;" class="text-right">P. Unit.</th>
+
                     <th style="width: 25mm;" class="text-right">Total</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($order->items as $item)
                 <tr>
-                    <td>{{ $item->product->name }}<br><span class="product-code">Código: {{ $item->product->code }}</span></td>
-                    <td class="text-right">${{ number_format($item->unit_price, 2, ',', '.') }}</td>
+                    <td> {{ $item->product->code }}</td>
+                    <td>{{ $item->product->name }}</td>
                     <td class="text-right">{{ $item->quantity }}</td>
+                    <td class="text-right">${{ number_format($item->unit_price, 2, ',', '.') }}</td>
+
                     <td class="text-right">${{ number_format($item->unit_price * $item->quantity, 2, ',', '.') }}</td>
                 </tr>
                 @endforeach
+                <br>
+                <tr>
+                    <td colspan="2" class="text-right"><strong>Cantidad Total</strong></td>
+                    <td class="text-right"><strong>{{ $order->items->sum('quantity') }}</strong></td>
+                    <td class="text-right"><strong>Total</strong></td>
+                    <td class="text-right"><strong>${{ number_format($order->items->sum(function($item) { return $item->unit_price * $item->quantity; }), 2, ',', '.') }}</strong></td>
+                </tr>
             </tbody>
         </table>
 
-        <!-- Totales -->
-        <table class="totals">
+
+        <table>
             <tr>
-                <td class="total-row subtotal">
-                    <span class="total-label">Subtotal:</span>
+                <td style="width:140mm" class="notes">
+                    <!-- Notas -->
+
+                    <div class="section-title">INFORMACIÓN ADICIONAL</div>
+                    <div>{{ $order->notes ?? 'Sin observaciones' }}</div>
+
+
                 </td>
-                <td class="total-value subtotal">${{ number_format($order->subtotal, 2, ',', '.') }}</td>
-            </tr>
+                <td>
+                    <!-- Totales -->
+                    <table class="totals">
+                        <tr>
+                            <td class="total-row subtotal">
+                                <span class="total-label">Subtotal:</span>
+                            </td>
+                            <td class="total-value subtotal">${{ number_format($order->subtotal, 2, ',', '.') }}</td>
+                        </tr>
 
-            @if($order->discount > 0)
-            <tr>
-                <td class="total-row">
-                    <span class="total-label">Descuento:</span>
-                </td>
-                <td class="total-value">-${{ number_format($order->discount, 2, ',', '.') }}</td>
-            </tr>
-            @endif
+                        @if($order->discount > 0)
+                        <tr>
+                            <td class="total-row">
+                                <span class="total-label">Descuento:</span>
+                            </td>
+                            <td class="total-value">-${{ number_format($order->discount, 2, ',', '.') }}</td>
+                        </tr>
+                        @endif
 
 
-            <tr>
+                        <!--<tr>
                 <td class="total-row taxes">
                     <span class="total-label">IVA (21%):</span>
                 </td>
                 <td class="total-value">${{ number_format($order->tax_amount, 2, ',', '.') }}</td>
 
+            </tr>-->
+
+
+                        @if($order->shipping_cost > 0)
+                        <tr>
+                            <td class="total-row">
+                                <span class="total-label">Envío:</span>
+                            </td>
+                            <td class="total-value">${{ number_format($order->shipping_cost, 2, ',', '.') }}</td>
+                        </tr>
+                        @endif
+
+
+
+                        <tr class="">
+                            <td class="grand-total" style="padding-left: 2mm;">
+                                <span class=" total-label">TOTAL:</span>
+                            </td>
+                            <td class="grand-total" style="text-align: right;padding-right:2mm">
+                                ${{ number_format($order->total_amount, 2, ',', '.') }}
+                            </td>
+                        </tr>
+                    </table>
+
+
+                </td>
             </tr>
 
-
-            @if($order->shipping_cost > 0)
-            <tr>
-                <td class="total-row">
-                    <span class="total-label">Envío:</span>
-                </td>
-                <td class="total-value">${{ number_format($order->shipping_cost, 2, ',', '.') }}</td>
-            </tr>
-            @endif
-
-
-
-            <tr class="">
-                <td class="grand-total" style="padding-left: 2mm;">
-                    <span class=" total-label">TOTAL:</span>
-                </td>
-                <td class="grand-total" style="text-align: right;padding-right:2mm">
-                    ${{ number_format($order->total_amount, 2, ',', '.') }}
-                </td>
-            </tr>
         </table>
 
 
 
 
-        <!-- Notas -->
-        <div class="notes">
-            <div class="section-title">INFORMACIÓN ADICIONAL</div>
-            <div>{{ $order->notes ?? 'Sin observaciones' }}</div>
-            <div class="legal-info">
-                Documento no válido como comprobante fiscal según RG AFIP 4291/2018
-            </div>
-        </div>
-
         <!-- Pie de página -->
         <div class="footer">
             <div>¡Gracias por su compra!</div>
-            <div>Para consultas: info@empresa.com - Tel: (011) 1234-5678</div>
+
             <div class="legal-info">
+
+                Documento no válido como comprobante fiscal según RG AFIP 4291/2018.
+
                 Conserve este documento para cualquier gestión posterior
             </div>
             <div class="barcode">*{{ $order->order_number }}*</div>
         </div>
     </div>
+
+
+
+
 </body>
 
 </html>

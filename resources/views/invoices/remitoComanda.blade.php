@@ -8,43 +8,68 @@
         body {
             font-family: Arial, sans-serif;
             font-size: 9px;
-            margin: 0;
-            padding: 2mm;
-            width: 120mm;
+
+            /* Ancho más estrecho como en la imagen */
+        }
+
+        .border {
+            margin-top: 15mm;
+            margin-left: 15mm;
+            margin-right: 15mm;
+
+            border: 1px solid #000;
         }
 
         .header {
             text-align: center;
-            margin-bottom: 2mm;
-            padding-bottom: 2mm;
-            border-bottom: 1px dashed #000;
+            margin-bottom: 1mm;
+            padding-bottom: 1mm;
+            border-bottom: 1px solid #000;
         }
 
         .company-name {
             font-weight: bold;
-            font-size: 11px;
+            font-size: 10px;
+            margin-bottom: 1mm;
+        }
+
+        .iva-info {
+            text-align: center;
+            font-size: 8px;
+            margin: 1mm 0;
         }
 
         .document-info {
-            margin: 3mm 0;
+            margin: 2mm 0;
             text-align: center;
             font-weight: bold;
+            font-size: 10px;
+        }
+
+        .section-title {
+            font-weight: bold;
+            margin: 2mm 0 1mm 0;
+            border-bottom: 1px solid #000;
         }
 
         .client-info {
-            margin-bottom: 3mm;
-            padding-bottom: 2mm;
-            border-bottom: 1px dashed #000;
+            margin-bottom: 2mm;
         }
 
-        .client-name {
+        .client-row {
+            display: flex;
+            margin-bottom: 1mm;
+        }
+
+        .client-label {
             font-weight: bold;
+            width: 20mm;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 3mm;
+            margin: 1mm 0 2mm 0;
             font-size: 8px;
         }
 
@@ -57,20 +82,20 @@
         td {
             padding: 1mm 0;
             border-bottom: 1px dotted #ccc;
+            vertical-align: top;
         }
 
         .text-right {
             text-align: right;
         }
 
+        .text-center {
+            text-align: center;
+        }
+
         .totals {
-            margin-top: 3mm;
-
-            padding-top: 2mm;
-
-            width: 60mm;
-            float: right;
-            margin-left: 60mm;
+            margin-top: 2mm;
+            width: 100%;
         }
 
         .total-row {
@@ -84,125 +109,188 @@
             border-top: 1px solid #000;
             border-bottom: 1px solid #000;
             padding: 1mm 0;
+            margin: 2mm 0;
         }
 
         .footer {
-            margin-top: 3mm;
+            margin-top: 2mm;
             text-align: center;
             font-size: 7px;
-            border-top: 1px dashed #000;
-            padding-top: 2mm;
         }
 
         .barcode {
             font-family: 'Libre Barcode 39', monospace;
             font-size: 16px;
             text-align: center;
+            margin-top: 1mm;
+        }
+
+        .observaciones {
             margin-top: 2mm;
+            font-size: 8px;
         }
     </style>
 </head>
 
 <body>
-    <div class="header">
-        <div class="company-name">{{ $order->tenant->name}}</div>
-        <div>{{$order->tenant->address}}</div>
-        <div>CUIT: XX-XXXXXXXX-X | Tel: {{$order->tenant->telephone}}</div>
+    <div class="border">
+        <div class=" header">
+            <table>
+                <tr>
+                    <td>
+                        <div class="company-name">I.V.A RESPONSABLE MONOTRIBUTO</div>
+                        <div class="iva-info">Inicio de Actividades: {{ $order->tenant->created_at->format('d-m-Y') ?? '01-03-2012' }}</div>
+                    </td>
+                    <td>
+                        <div class="document-info">
+                            <div>REMITO N° {{ $order->order_number }}</div>
+                            <div>Fecha: {{ $date }}</div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+
+
+
+        </div>
+
+        <div class="section-title">VENDEDOR: <strong>{{ $order->seller_name }}</strong></div>
+
+
+
+        <div class="section-title">CLIENTE</div>
+        <div style="margin-bottom: 2mm;"><strong>{{ $order->customer->name ?? 'CONSUMIDOR FINAL' }}</strong></div>
+        <div class="client-row">
+            <span class="client-label">Domicilio:</span>
+            <span>{{ $order->customer->address }}</span>
+        </div>
+        <div class="client-row">
+            <span class="client-label">Teléfono:</span>
+            <span>{{ $order->customer->telephone }}</span>
+        </div>
+
+        <div class="section-title">OBSERVACIONES:</div>
+        <div class="observaciones">{{ $order->notes ?? ' ' }}</div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 8mm;">COD</th>
+                    <th style="width: 35mm;">PRODUCTO</th>
+                    <th style="width: 8mm;" class="text-right">CANT</th>
+                    <th style="width: 12mm;" class="text-right">PRECIO </th>
+                    <th style="width: 12mm;" class="text-right">MONTO </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($order->items as $item)
+                <tr>
+                    <td>{{ $item->product->code }}</td>
+                    <td>{{ $item->product->name }}</td>
+                    <td class="text-right">{{ $item->quantity }}</td>
+                    <td class="text-right">${{ number_format($item->unit_price, 2, ',', '.') }}</td>
+                    <td class="text-right">${{ number_format($item->unit_price * $item->quantity, 2, ',', '.') }}</td>
+                </tr>
+                @endforeach
+
+                <tr>
+                    <td class="text-right total-row grand-total"> </td>
+                    <td class="text-right total-row grand-total">TOTAL</td>
+                    <td class="text-right total-row grand-total">{{ $order->items->sum('quantity') }} un</td>
+                    <td class="text-right total-row grand-total"> </td>
+                    <td class="text-right total-row grand-total">${{ number_format($order->total_amount, 2, ',', '.') }}</td>
+                </tr>
+            </tbody>
+        </table>
+
+
+
+        <div class="footer">
+            <div>¡GRACIAS POR SU COMPRA!</div>
+            <div>Documento no válido como factura</div>
+            <div class="barcode">*{{ $order->order_number }}*</div>
+        </div>
     </div>
 
-    <div class="document-info">
-        <div>REMITO N° {{ $order->order_number }}</div>
-        <div>Fecha: {{ $date }}</div>
-    </div>
-
-    <div class="client-info">
-        <div class="client-name">CLIENTE: {{ $order->customer->name ?? 'CONSUMIDOR FINAL' }}</div>
-        <div>DIRECCIÓN: {{ $order->customer->address }}</div>
-        <div>TEL: {{ $order->customer->telephone }}</div>
-    </div>
-
-    <table>
-        <thead>
-            <tr>
-                <th style="width: 45mm;">DESCRIPCIÓN</th>
-                <th style="width: 10mm;" class="text-right">CANT</th>
-                <th style="width: 15mm;" class="text-right">TOTAL</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($order->items as $item)
-            <tr>
-                <td>{{ $item->product->name }}</td>
-                <td class="text-right">{{ $item->quantity }}</td>
-                <td class="text-right">${{ number_format($item->unit_price * $item->quantity, 2, ',', '.') }}</td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
-
-    <div style="border-top: 1px dashed #000;"></div>
-
-    <table class="totals">
-        <tr>
-            <td class="total-row subtotal">
-                <span class="total-label">Subtotal:</span>
-            </td>
-            <td class="total-value subtotal" style="text-align: right;">${{ number_format($order->subtotal, 2, ',', '.') }}</td>
-        </tr>
-
-        @if($order->discount > 0)
-        <tr>
-            <td class="total-row">
-                <span class="total-label">Descuento:</span>
-            </td>
-            <td class="total-value" style="text-align: right;">-${{ number_format($order->discount, 2, ',', '.') }}</td>
-        </tr>
-        @endif
-
-
-        <tr>
-            <td class="total-row taxes">
-                <span class="total-label">IVA (21%):</span>
-            </td>
-            <td class="total-value" style="text-align: right;">${{ number_format($order->tax_amount, 2, ',', '.') }}</td>
-
-        </tr>
-
-
-        @if($order->shipping_cost > 0)
-        <tr>
-            <td class="total-row">
-                <span class="total-label">Envío:</span>
-            </td>
-            <td class="total-value" style="text-align: right;">${{ number_format($order->shipping_cost, 2, ',', '.') }}</td>
-        </tr>
-        @endif
+    <div class="border">
+        <div class=" header">
+            <table>
+                <tr>
+                    <td>
+                        <div class="company-name">I.V.A RESPONSABLE MONOTRIBUTO</div>
+                        <div class="iva-info">Inicio de Actividades: {{ $order->tenant->created_at->format('d-m-Y') ?? '01-03-2012' }}</div>
+                    </td>
+                    <td>
+                        <div class="document-info">
+                            <div>REMITO N° {{ $order->order_number }}</div>
+                            <div>Fecha: {{ $date }}</div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
 
 
 
-        <tr class="">
-            <td class="grand-total" style="">
-                <span class=" total-label">TOTAL:</span>
-            </td>
-            <td class="grand-total" style="text-align: right">
-                ${{ number_format($order->total_amount, 2, ',', '.') }}
-            </td>
-        </tr>
-    </table>
-    <div style="margin: 3mm 0; font-size: 8px;">
-        <div><strong>ESTADO DE PAGO:</strong> {{ $order->status->name ?? 'No especificado' }}</div>
-        <div><strong>ESTADO DE ENVÍO:</strong> {{ $order->shipping ==0 ? 'Sin Envio': 'Con Envio' }}</div>
-        @if($order->shipping ==1)
-        <div><strong>Fecha Envio:</strong> {{ $order->delivery_date->format('d/m/Y')  }}</div>
-        @endif
+        </div>
 
-    </div>
+        <div class="section-title">VENDEDOR: <strong>{{ $order->seller_name }}</strong></div>
 
-    <div class="footer">
-        <div>¡GRACIAS POR SU COMPRA!</div>
-        <div>Documento no válido como factura</div>
-        <div class="barcode">*{{ $order->order_number }}*</div>
+
+
+        <div class="section-title">CLIENTE</div>
+        <div style="margin-bottom: 2mm;"><strong>{{ $order->customer->name ?? 'CONSUMIDOR FINAL' }}</strong></div>
+        <div class="client-row">
+            <span class="client-label">Domicilio:</span>
+            <span>{{ $order->customer->address }}</span>
+        </div>
+        <div class="client-row">
+            <span class="client-label">Teléfono:</span>
+            <span>{{ $order->customer->telephone }}</span>
+        </div>
+
+        <div class="section-title">OBSERVACIONES:</div>
+        <div class="observaciones">{{ $order->notes ?? ' ' }}</div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 8mm;">COD</th>
+                    <th style="width: 35mm;">PRODUCTO</th>
+                    <th style="width: 8mm;" class="text-right">CANT</th>
+                    <th style="width: 12mm;" class="text-right">PRECIO </th>
+                    <th style="width: 12mm;" class="text-right">MONTO </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($order->items as $item)
+                <tr>
+                    <td>{{ $item->product->code }}</td>
+                    <td>{{ $item->product->name }}</td>
+                    <td class="text-right">{{ $item->quantity }}</td>
+                    <td class="text-right">${{ number_format($item->unit_price, 2, ',', '.') }}</td>
+                    <td class="text-right">${{ number_format($item->unit_price * $item->quantity, 2, ',', '.') }}</td>
+                </tr>
+                @endforeach
+
+                <tr>
+                    <td class="text-right total-row grand-total"> </td>
+                    <td class="text-right total-row grand-total">TOTAL</td>
+                    <td class="text-right total-row grand-total">{{ $order->items->sum('quantity') }} un</td>
+                    <td class="text-right total-row grand-total"> </td>
+                    <td class="text-right total-row grand-total">${{ number_format($order->total_amount, 2, ',', '.') }}</td>
+                </tr>
+            </tbody>
+        </table>
+
+
+
+        <div class="footer">
+            <div>¡GRACIAS POR SU COMPRA!</div>
+            <div>Documento no válido como factura</div>
+            <div class="barcode">*{{ $order->order_number }}*</div>
+        </div>
     </div>
 </body>
+
 
 </html>
