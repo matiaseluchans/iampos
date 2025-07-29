@@ -17,7 +17,7 @@
         }
 
         .invoice-container {
-            width: 120mm;
+            width: 240mm;
             margin: 0 0;
             padding: 3mm;
             border: #e0e0e0 solid 1px;
@@ -244,18 +244,7 @@
 <body>
     <div class="invoice-container">
         <!-- Encabezado -->
-        <div class="header">
-            @if(file_exists($logo))
-            <img class="logo" src="data:image/png;base64,{{ base64_encode(file_get_contents($logo)) }}" />
-            @endif
-            <div class="company-info">
-                <div class="company-name">Matias Eluchans SRL</div>
-                <div class="company-details">
-                    <div>Sargento Cabral 2005, Ramos Mejía</div>
-                    <div>CUIT: 30-12345678-9</div>
-                    <div>Tel: (011) 1234-5678</div>
-                </div>
-            </div>
+        <div class="header">            
 
             <div class="invoice-info">
                 <div class="invoice-title">ORDEN DE PEDIDOS POR CLIENTE</div>
@@ -272,29 +261,35 @@
         </div>
 
         <!-- Productos -->
-        <div class="section-title">DETALLE DE PRODUCTOS</div>
+        <div class="section-title">DETALLE DE ENTREGAS</div>
         <table>
             <thead>
                 <tr>
-                    <th style="width: 60mm;">Cliente</th>
-                    <th style="width: 60mm;">Productos</th>
                     <th style="width: 20mm;" class="text-right">Bultos</th>
+                    <th style="width: 50mm;">Direccion</th>                    
+                    <th style="width: 50mm;">Localidad</th>
+                    <th style="width: 30mm;" class="text-right">Factura</th>                    
+                    <th style="width: 50mm;" class="text-right">Real</th>                    
                 </tr>
             </thead>
             <tbody>
                 @foreach($orders as $item)
                 <tr>
-                    <td>{{ $item->address }}</td>
-                    <td>{{ $item->name }}</td>
                     <td class="text-right">{{ $item->total_quantity }}</td>
+                    <td>{{ $item->address }}</td>
+                    <td>{{ $item->locality }}</td>
+                    <td class="text-right">$ {{ number_format($item->total_amount, 2, ',', '.') }}</td>
+                    <td style="width: 50mm;" class="text-right">&nbsp;</td>
                 </tr>
                 @endforeach
             </tbody>
             <tfoot>
                 <tr>
+                    <th class="text-right">{{ $totalProducts }}</th>
                     <th>&nbsp;</th>
-                    <th>Total</th>
-                    <th class="text-right">{{ $total }}</th>
+                    <th>&nbsp;</th>
+                    <th class="text-right">${{ number_format($totalAmount, 2, ',', '.')  }}</th>                    
+                    <th>&nbsp;</th>                    
                 </tr>
             </tfoot>
         </table>

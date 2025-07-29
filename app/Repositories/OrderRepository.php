@@ -301,43 +301,23 @@ class OrderRepository extends BaseRepository
     }
 
     public function generateCustomerDeliveryReport($request)
-    {
-        /*
-        $validator = Validator::make(
-            $request->all(),
-            [
-                'start_date' => 'required|date',
-                'end_date' => 'required|date|after_or_equal:start_date',
-            ],
-            [
-                "start_date.required" => getMsg("required"),
-                "start_date.date_format" => getMsg("date_format"),
-                "end_date.required" => getMsg("required"),
-                "end_date.date_format" => getMsg("date_format"),
-            ]
-        );
-
-        if ($validator->fails()) {
-            $errors = implode(', ', $validator->errors()->all());
-            return $this->errorResponse(null, $errors);
-        }
-        */
+    {        
         $ordersQuery = $this->model::select([
+            'orders.id',
             'customers.id',
             'customers.address',
-            'order_items.product_id',
-            'products.name', // Nombre del producto
+            'localities.name as locality',                        
+            DB::raw('SUM(orders.total_amount) as total_amount'),
             DB::raw('SUM(order_items.quantity) as total_quantity')
         ])
             ->join('customers', 'customers.id', '=', 'orders.customer_id')
             ->join('order_items', 'orders.id', '=', 'order_items.order_id')
-            ->join('products', 'order_items.product_id', '=', 'products.id')
-            ->where('shipping', 1);
-        //->whereBetween('delivery_date', [Carbon::parse($startDate)->startOfDay(), Carbon::parse($endDate)->endOfDay()]);
+            ->leftJoin('localities', 'localities.id', '=', 'customers.locality_id')
+            /*->join('products', 'order_items.product_id', '=', 'products.id')*/
+            ->where('shipping', 1);        
 
-        $deliveryStartDate = $request->input('delivery_start_date'); // Formato: Y-m-d
-        $deliveryEndDate = $request->input('delivery_end_date');
-
+        $deliveryStartDate = $request->input('start_date'); // Formato: Y-m-d
+        $deliveryEndDate = $request->input('end_date');        
 
         $dates = '';
         if ($deliveryStartDate && $deliveryEndDate) {
@@ -357,12 +337,15 @@ class OrderRepository extends BaseRepository
             $ordersQuery->where('payment_status_id', $request->input('payment_status_id'));
         }
 
-        $orders = $ordersQuery->groupBy('customers.id', 'customers.address', 'order_items.product_id', 'products.name')->orderBy('customers.id', 'desc')->get();
+        //$orders = $ordersQuery->groupBy('customers.id', 'customers.address', 'order_items.product_id', 'products.name')->orderBy('customers.id', 'desc')->get();
+        $orders = $ordersQuery->groupBy('orders.id', 'customers.id', 'customers.address', 'localities.name')->orderBy('customers.id', 'desc')->get();        
 
         $totalQuantity = $orders->sum('total_quantity');
 
+        $totalAmount = $orders->sum('total_amount');
+
         // Configuración de mPDF
-        $defaultConfig = (new ConfigVariables())->getDefaults();
+        //$defaultConfig = (new ConfigVariables())->getDefaults();
 
         $mpdf = new \Mpdf\Mpdf([
             'mode' => 'utf-8',
@@ -375,7 +358,7 @@ class OrderRepository extends BaseRepository
             'margin_footer' => 2,
             'default_font_size' => 8,
             'default_font' => 'Arial',
-            'orientation' => 'P'
+            'orientation' => 'P'            
         ]);
 
         // Para maximizar compatibilidad con impresoras térmicas
@@ -387,13 +370,17 @@ class OrderRepository extends BaseRepository
         $html = view('invoices.deliveryCustomers', [
             'dates' => $dates,
             'orders' => $orders,
-            'total' => $totalQuantity,
+            'totalProducts' => $totalQuantity,
+            'totalAmount' => $totalAmount,
             'date' => now()->format('d/m/Y'),
             'logo' => public_path('logo.png')
         ])->render();
 
-
-        $mpdf->WriteHTML($html);
+        $chunks = str_split($html, 500000); // Divide en trozos de ~500KB
+        foreach ($chunks as $chunk) {
+            $mpdf->WriteHTML($chunk);
+        }
+        //$mpdf->WriteHTML($html);
 
         // Generar PDF
         return $mpdf->Output("orden_entrega.pdf", \Mpdf\Output\Destination::INLINE);
