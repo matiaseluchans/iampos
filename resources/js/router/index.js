@@ -52,10 +52,10 @@ router.beforeEach(async (to, from, next) => {
   if (requiresAuth && !store.getters.isAuthenticated) {
     next('/login')
   } else if (isLoginRoute && store.getters.isAuthenticated) {
-    next('/dashboard')
+    next('/')
   } else if (requiresAuth && !hasAccess(to, currentUser)) {
     // Si no tiene acceso, redirigir al dashboard o mostrar error
-    next('/dashboard') // o podrías usar next('/unauthorized')
+    next('/') // o podrías usar next('/unauthorized')
   } else {
     next()
   }

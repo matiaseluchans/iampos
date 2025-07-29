@@ -11,14 +11,14 @@ const user = computed(() => store.getters.currentUser)
 
 // Definimos toda la estructura de navegación como un array de objetos
 const navItems = [
-  {
+  /*{
     component: 'VerticalNavLink',
     item: {
       title: 'Dashboard',
       icon: 'ri-home-smile-line',
       to: '/dashboard'
     }
-  },
+  },*/
   {
     component: 'VerticalNavLink',
     item: {
