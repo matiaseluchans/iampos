@@ -81,7 +81,7 @@
             margin-bottom: 4mm;
             padding: 3mm;
             background-color: #f9f9f9;
-            
+
             font-size: 0.8rem;
         }
 
@@ -144,8 +144,8 @@
         }
 
         th {
-            background-color: #1976d2;
-            color: white;
+            border: #eee solid 1px;
+            color: #1976d2;
             padding: 2mm;
             font-weight: bold;
             text-align: left;
@@ -246,16 +246,21 @@
         <!-- Encabezado -->
         <div class="header">
             @if(file_exists($logo))
-            <img class="logo" src="data:image/png;base64,{{ base64_encode(file_get_contents($logo)) }}" />
+            <!--<img class="logo" src="data:image/png;base64,{{ base64_encode(file_get_contents($logo)) }}" />-->
             @endif
+
+
+            @if($user->tenant_id != 2)
+
             <div class="company-info">
-                <div class="company-name">Matias Eluchans SRL</div>
+                <div class="company-name">{{$user->tenant->name}}</div>
                 <div class="company-details">
-                    <div>Sargento Cabral 2005, Ramos Mejía</div>
-                    <div>CUIT: 30-12345678-9</div>
-                    <div>Tel: (011) 1234-5678</div>
+                    <div>{{$user->tenant->address}}</div>
+                    <div>CUIT: XX-XXXXXXXX-X</div>
+                    <div>Tel: {{$user->tenant->telephone}}</div>
                 </div>
             </div>
+            @endif
 
             <div class="invoice-info">
                 <div class="invoice-title">ORDEN DE PEDIDOS</div>
@@ -268,48 +273,48 @@
         <!-- Información del cliente -->
         <div class="client-info">
             <div class="section-title">INFORME DE PEDIDOS</div>
-            <div class="client-name">Fecha de Entrega: {{$dates}}</div>            
+            <div class="client-name">Fecha de Entrega: {{$dates}}</div>
         </div>
-        
+
         <!-- Productos -->
         <div class="section-title">DETALLE DE PRODUCTOS</div>
         <table>
             <thead>
                 <tr>
                     <th style="width: 60mm;">Productos</th>
-                    <th style="width: 20mm;" class="text-right">Bultos</th>                    
+                    <th style="width: 20mm;" class="text-right">Bultos</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($orders as $item)
                 <tr>
-                    <td>{{ $item->name }}</td>                    
-                    <td class="text-right">{{ $item->total_quantity }}</td>                    
+                    <td>{{ $item->name }}</td>
+                    <td class="text-right">{{ $item->total_quantity }}</td>
                 </tr>
                 @endforeach
             </tbody>
             <tfoot>
-            <tr>
-                <th>Total</th>
-                <th class="text-right">{{ $total }}</th>
-            </tr>
-        </tfoot>
+                <tr>
+                    <th>Total</th>
+                    <th class="text-right">{{ $total }}</th>
+                </tr>
+            </tfoot>
         </table>
 
-        
 
-        
+
+
         <!-- Pie de página -->
-        
+
         <div class="footer">
             <div>¡Gracias por su compra!</div>
-            <div>Para consultas: info@empresa.com - Tel: (011) 1234-5678</div>
+            <!--<div>Para consultas: info@empresa.com - Tel: (011) 1234-5678</div>-->
             <div class="legal-info">
                 Conserve este documento para cualquier gestión posterior
             </div>
-            
+
         </div>
-        
+
     </div>
 </body>
 

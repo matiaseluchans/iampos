@@ -267,7 +267,7 @@ class OrderRepository extends BaseRepository
 
         $mpdf = new \Mpdf\Mpdf([
             'mode' => 'utf-8',
-            'format' => [120, 297], // 80mm de ancho, alto automático
+            //'format' => [120, 297], // 80mm de ancho, alto automático
             'margin_left' => 2,
             'margin_right' => 2,
             'margin_top' => 5,
@@ -288,6 +288,7 @@ class OrderRepository extends BaseRepository
         $html = view('invoices.delivery', [
             'dates' => $dates,
             'orders' => $orders,
+            "user" => auth()->user(),
             'total' => $totalQuantity,
             'date' => now()->format('d/m/Y'),
             'logo' => public_path('logo.png')
@@ -301,12 +302,12 @@ class OrderRepository extends BaseRepository
     }
 
     public function generateCustomerDeliveryReport($request)
-    {        
+    {
         $ordersQuery = $this->model::select([
             'orders.id',
             'customers.id',
             'customers.address',
-            'localities.name as locality',                        
+            'localities.name as locality',
             DB::raw('SUM(orders.total_amount) as total_amount'),
             DB::raw('SUM(order_items.quantity) as total_quantity')
         ])
@@ -314,10 +315,10 @@ class OrderRepository extends BaseRepository
             ->join('order_items', 'orders.id', '=', 'order_items.order_id')
             ->leftJoin('localities', 'localities.id', '=', 'customers.locality_id')
             /*->join('products', 'order_items.product_id', '=', 'products.id')*/
-            ->where('shipping', 1);        
+            ->where('shipping', 1);
 
         $deliveryStartDate = $request->input('start_date'); // Formato: Y-m-d
-        $deliveryEndDate = $request->input('end_date');        
+        $deliveryEndDate = $request->input('end_date');
 
         $dates = '';
         if ($deliveryStartDate && $deliveryEndDate) {
@@ -338,7 +339,7 @@ class OrderRepository extends BaseRepository
         }
 
         //$orders = $ordersQuery->groupBy('customers.id', 'customers.address', 'order_items.product_id', 'products.name')->orderBy('customers.id', 'desc')->get();
-        $orders = $ordersQuery->groupBy('orders.id', 'customers.id', 'customers.address', 'localities.name')->orderBy('customers.id', 'desc')->get();        
+        $orders = $ordersQuery->groupBy('orders.id', 'customers.id', 'customers.address', 'localities.name')->orderBy('customers.id', 'desc')->get();
 
         $totalQuantity = $orders->sum('total_quantity');
 
@@ -358,7 +359,7 @@ class OrderRepository extends BaseRepository
             'margin_footer' => 2,
             'default_font_size' => 8,
             'default_font' => 'Arial',
-            'orientation' => 'P'            
+            'orientation' => 'P'
         ]);
 
         // Para maximizar compatibilidad con impresoras térmicas

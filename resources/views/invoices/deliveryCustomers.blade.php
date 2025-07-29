@@ -144,8 +144,8 @@
         }
 
         th {
-            background-color: #1976d2;
-            color: white;
+            border: #eee solid 1px;
+            color: #1976d2;
             padding: 2mm;
             font-weight: bold;
             text-align: left;
@@ -244,7 +244,7 @@
 <body>
     <div class="invoice-container">
         <!-- Encabezado -->
-        <div class="header">            
+        <div class="header">
 
             <div class="invoice-info">
                 <div class="invoice-title">ORDEN DE PEDIDOS POR CLIENTE</div>
@@ -266,10 +266,10 @@
             <thead>
                 <tr>
                     <th style="width: 20mm;" class="text-right">Bultos</th>
-                    <th style="width: 50mm;">Direccion</th>                    
+                    <th style="width: 50mm;">Direccion</th>
                     <th style="width: 50mm;">Localidad</th>
-                    <th style="width: 30mm;" class="text-right">Factura</th>                    
-                    <th style="width: 50mm;" class="text-right">Real</th>                    
+                    <th style="width: 30mm;" class="text-right">Factura</th>
+                    <th style="width: 50mm;" class="text-right">Real</th>
                 </tr>
             </thead>
             <tbody>
@@ -288,8 +288,8 @@
                     <th class="text-right">{{ $totalProducts }}</th>
                     <th>&nbsp;</th>
                     <th>&nbsp;</th>
-                    <th class="text-right">${{ number_format($totalAmount, 2, ',', '.')  }}</th>                    
-                    <th>&nbsp;</th>                    
+                    <th class="text-right">${{ number_format($totalAmount, 2, ',', '.')  }}</th>
+                    <th>&nbsp;</th>
                 </tr>
             </tfoot>
         </table>
@@ -301,7 +301,7 @@
 
         <div class="footer">
             <div>¡Gracias por su compra!</div>
-            <div>Para consultas: info@empresa.com - Tel: (011) 1234-5678</div>
+            <!--<div>Para consultas: info@empresa.com - Tel: (011) 1234-5678</div>-->
             <div class="legal-info">
                 Conserve este documento para cualquier gestión posterior
             </div>

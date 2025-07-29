@@ -1082,6 +1082,7 @@ export default {
           : 0;
     },
     async validatePayments(payments) {
+      console.log(payments);
       if (payments.length <= 0) {
         return "Debe incluir al menos una modalidad de pago";
       }
@@ -1112,7 +1113,7 @@ export default {
       return true;
     },
     async savePayment() {
-      const isValid = await this.validatePayments(this.$refs.paymentsRow.payments);
+      const isValid = await this.validatePayments(this.$refs.paymentsRow.newPayments);
 
       if (isValid !== true) return this.showSnackbar(isValid, "error");
 
@@ -1121,7 +1122,7 @@ export default {
         const paymentData = {
           //...this.payment,
           order_id: this.createdOrder.order.id,
-          payments: this.$refs.paymentsRow.payments,
+          payments: this.$refs.paymentsRow.newPayments,
         };
  
         const response = await this.$axios.post(this.$routes["payments"], paymentData);
