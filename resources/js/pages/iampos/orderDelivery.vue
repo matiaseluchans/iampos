@@ -367,6 +367,31 @@
             </VMenu>
           </div>
         </template>
+
+        <template #tfoot>
+          <tfoot>
+            <tr class="bg-grey-lighten-4 font-weight-bold" style="background:#ccc">
+              <td class="text-left">
+                
+              </td>
+              <td :colspan="showHeaders.length - 7" class="text-right">
+                <div class="d-flex align-center mx-0 px-0" style="width: 100px">                  
+                  <div class="d-flex flex-column text-start">
+                    <span class="d-block font-weight-medium text-high-emphasis text-truncate">Facturas Totales: {{
+                      orders.data.length
+                    }}</span>
+                    <small>Productos Totales: {{ calculateTotalProducts() }}</small>              
+                  </div>
+                </div></td>              
+              <td class="text-right">{{ formatCurrency(calculateTotalCost()) }}</td>
+              <td class="text-right">{{ formatCurrency(calculateTotalProfit()) }}</td>
+              <td class="text-right">{{ formatCurrency(calculateTotalAmount()) }}</td>
+              <td class="text-right"></td>
+              <td class="text-right"></td>
+              <td class="text-right"></td>
+            </tr>
+          </tfoot>
+        </template>
       </VDataTable>
 
       <VDialog v-model="movementDialog" max-width="800px" persistent>
@@ -750,15 +775,20 @@ export default {
 
       // Headers
       headers: [
-        { title: "", key: "actions", sortable: false, align: "left", width: "40px" },
+        { title: "", key: "actions", sortable: false, align: "left", width: "0px",  cellProps: { 
+          class: "actions-cell",  /* Clase aplicada vía cellProps*/
+          /*style: { padding: "0", margin: "0" },*/  // Estilos inline
+        }},
         { title: "Orden", key: "order_number", width: "60px" },
         { title: "Fecha", key: "order_date", align: "center", width: "60px" },
         { title: "Cliente", key: "customer", width: "70%" },
-        { title: "Vendedor", key: "seller_name", width: "10%" },
-        { title: "Estados", key: "payment_status_id", align: "center" },
-        { title: "Fecha Entrega", key: "delivery_date", align: "center", width: "100px" },
-
         { title: "Total", key: "total_amount", align: "end" },
+        { title: "Vendedor", key: "seller_name", width: "10%" },
+       
+        { title: "Fecha Entrega", key: "delivery_date", align: "center", width: "100px" },
+        { title: "Estados", key: "payment_status_id", align: "center" },
+
+        
       ],
       isAdmin: false,
       createdOrder: { order: {} },
@@ -818,6 +848,42 @@ export default {
   },
 
   methods: {
+
+    calculateTotalAmount() {
+      if (!this.orders.data) return 0;
+
+      return this.orders.data.reduce((total, item) => {
+        return total + (parseFloat(item.total_amount) || 0);
+      }, 0).toFixed(2); // Formats to 2 decimal places
+    },
+    calculateTotalPaid() {
+      if (!this.orders.data) return 0;
+      
+      return this.orders.data.reduce((total, item) => {
+        return total + (parseFloat(item.total_paid) || 0);
+      }, 0).toFixed(2); // Formats to 2 decimal places
+    },
+    calculateTotalCost() {
+      if (!this.orders.data) return 0;
+      
+      return this.orders.data.reduce((total, item) => {
+        return total + (parseFloat(item.total_cost) || 0);
+      }, 0).toFixed(2); // Formats to 2 decimal places
+    },
+    calculateTotalProfit() {
+      if (!this.orders.data) return 0;
+      
+      return this.orders.data.reduce((total, item) => {
+        return total + (parseFloat(item.total_profit) || 0);
+      }, 0).toFixed(2); // Formats to 2 decimal places
+    },
+    calculateTotalProducts() {
+      if (!this.orders.data) return 0;
+      
+      return this.orders.data.reduce((total, item) => {
+        return total + (item.quantity_products || 0);
+      }, 0);
+    },
     unsetInitialLoad() {
       this.isInitialLoad = false;
     },
@@ -1390,8 +1456,5 @@ export default {
 
 .v-card-title {
   padding-bottom: 12px;
-}
-.custom-actions {
-  padding: 8px 16px; /* Ajusta el espaciado interno si es necesario */
 }
 </style>

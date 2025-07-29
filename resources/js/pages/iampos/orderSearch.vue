@@ -343,8 +343,11 @@
         -->
         <template #tfoot>
           <tfoot>
-            <tr class="bg-grey-lighten-4 font-weight-bold">
+            <tr class="bg-grey-lighten-4 font-weight-bold" style="background:#ccc">
               <td class="text-left">
+                
+              </td>
+              <td :colspan="showHeaders.length - 8" class="text-right">
                 <div class="d-flex align-center mx-0 px-0" style="width: 100px">                  
                   <div class="d-flex flex-column text-start">
                     <span class="d-block font-weight-medium text-high-emphasis text-truncate">Facturas Totales: {{
@@ -352,13 +355,16 @@
                     }}</span>
                     <small>Productos Totales: {{ calculateTotalProducts() }}</small>              
                   </div>
-                </div>
-              </td>
-              <td :colspan="showHeaders.length - 7" class="text-right"></td>              
+                </div></td>              
+              
+              
               <td class="text-right">{{ formatCurrency(calculateTotalCost()) }}</td>
               <td class="text-right">{{ formatCurrency(calculateTotalProfit()) }}</td>
               <td class="text-right">{{ formatCurrency(calculateTotalAmount()) }}</td>
               <td class="text-right">{{ formatCurrency(calculateTotalPaid()) }}</td>
+              <td class="text-right"></td>
+              <td class="text-right"></td>
+              <td class="text-right"></td>
             </tr>
           </tfoot>
         </template>
@@ -756,15 +762,20 @@ export default {
 
       // Headers
       headers: [
-        { title: "", key: "actions", sortable: false, align: "left", width: "40px" },
+        { title: "", key: "actions", sortable: false, align: "left", width: "0px", cellProps: { 
+          class: "actions-cell",  /* Clase aplicada vía cellProps*/
+          /*style: { padding: "0", margin: "0" },*/  // Estilos inline
+        } 
+        },
         { title: "Orden", key: "order_number", width: "60px" },
         { title: "Fecha", key: "order_date", align: "center", width: "60px" },      
         { title: "Cliente", key: "customer", width: "70%" },
-        { title: "Vendedor", key: "seller_name", width: "10%" },        
         { title: "Total", key: "total_amount", align: "end" },
         { title: "Pagado", key: "total_paid", align: "end" },
-        { title: "Estados", key: "payment_status_id", align: "center" },
+        { title: "Vendedor", key: "seller_name", width: "10%" },        
+
         { title: "Fecha Entrega", key: "delivery_date", align: "center", width: "100px" },
+        { title: "Estados", key: "payment_status_id", align: "center" },
       ],
       isAdmin: false,
       createdOrder: { order: {} },
@@ -811,7 +822,7 @@ export default {
     this.checkAdmin();
     if (this.isAdmin) {
       this.headers.splice(
-        5,
+        4,
         0,
         { title: "Costo", key: "total_cost", align: "end" },
         { title: "Ganancia", key: "total_profit", align: "end" },        

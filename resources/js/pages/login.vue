@@ -27,7 +27,7 @@ async function handleLogin() {
   isLoading.value = true;
   try {
     await login(form.value.email, form.value.password);
-    router.push("/dashboard");
+    router.push("/");
   } catch (error) {
     Swal.fire({
       icon: "error",
