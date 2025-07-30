@@ -281,28 +281,7 @@ export default {
     search: "",
     imagePreview: "",
     valid: true,
-    headers: [
-      {
-        title: "Acciones",
-        key: "actions",
-        value: "actions",
-        sortable: false,
-        width: "150px",
-      },
-      {
-        title: "Cód.",
-        filterable: true,
-        key: "code",
-        width: "50px",
-        class: "column-code",
-      },
-      { title: "Nombre", filterable: true, key: "name" },
-
-      { title: "Imagen", key: "image", sortable: false },
-      { title: "Precio Compra", key: "purchase_price" },
-      { title: "Precio Venta", key: "sale_price" },
-      { title: "Estado", key: "active", width: "150px" },
-    ],
+    headers: [ ],
     desserts: [],
     editedIndex: -1,
     vista: false,
@@ -355,6 +334,51 @@ export default {
 
   created() {
     this.$initialize();
+
+    if(this.$is('bebidas-user'))
+    {
+      this.headers = [
+        {
+          title: "Cód.",
+          filterable: true,
+          key: "code",
+          width: "50px",
+          class: "column-code",
+        },
+        { title: "Nombre", filterable: true, key: "name" },
+
+        { title: "Imagen", key: "image", sortable: false },
+       
+        { title: "Precio Venta", key: "sale_price" },
+        { title: "Estado", key: "active", width: "150px" },
+      ];
+    }
+    else
+    {
+      this.headers = [
+        {
+          title: "Acciones",
+          key: "actions",
+          value: "actions",
+          sortable: false,
+          width: "150px",
+        },
+        {
+          title: "Cód.",
+          filterable: true,
+          key: "code",
+          width: "50px",
+          class: "column-code",
+        },
+        { title: "Nombre", filterable: true, key: "name" },
+
+        { title: "Imagen", key: "image", sortable: false },
+        { title: "Precio Compra", key: "purchase_price" },
+        { title: "Precio Venta", key: "sale_price" },
+        { title: "Estado", key: "active", width: "150px" },
+      ];
+
+    }
     this.selectedHeaders = this.headers;
     this.loadCategories();
     this.loadBrands();

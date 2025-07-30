@@ -283,100 +283,105 @@
             </div>
 
             <!-- Información del cliente -->
+            @if($order->tenant->id != 2)
             <div class="client-info" style="width:70mm;">
-                <div class="section-title">DATOS DEL CLIENTE</div>
-                <div class="detail-item"><span class="detail-label">Dirección:</span> {{ $order->customer->address }}</div>
+                @else
+                <div class="client-info" style="width:100%;">
+                    @endif
+                    <div class="section-title">DATOS DEL CLIENTE</div>
+                    <div class="detail-item"><span class="detail-label">Dirección:</span> {{ $order->customer->address }} - {{ $order->customer->locality ? $order->customer->locality->name :''}}</div>
 
-                <div class="client-name">{{ $order->customer->name ?? 'Consumidor Final' }}</div>
+                    <div class="client-name">{{ $order->customer->name ?? 'Consumidor Final' }}</div>
 
-                <div class="detail-item"><span class="detail-label">Teléfono:</span> {{ $order->customer->telephone }}</div>
+                    <div class="detail-item"><span class="detail-label">Teléfono:</span> {{ $order->customer->telephone }}</div>
 
-            </div>
+                </div>
 
-            <!-- Métodos de pago y envío -->
+                <!-- Métodos de pago y envío -->
+                @if($order->tenant->id != 2)
+                <div class="client-info" style="width:50mm;height:21.5mm;margin-left:5px">
+                    <div class="section-title">ESTADO DE PAGO</div>
+                    <div class="detail-item"><span class="detail-label">Estado:</span> {{ $order->status->name ?? 'No especificado' }}</div>
+                    <div class="detail-item"></div>
+                </div>
 
-            <div class="client-info" style="width:50mm;height:21.5mm;margin-left:5px">
-                <div class="section-title">ESTADO DE PAGO</div>
-                <div class="detail-item"><span class="detail-label">Estado:</span> {{ $order->status->name ?? 'No especificado' }}</div>
-                <div class="detail-item"></div>
-            </div>
-
-            <div class="client-info" style="width:50mm;height:21.5mm;margin-left:5px">
-                <div class="section-title">ESTADO ENVÍO</div>
-                <div class="detail-item"><span class="detail-label">Estado:</span> {{ $order->shipping ==0 ? 'Sin Envio': 'Con Envio' }}</div>
-                @if($order->shipping ==1)
-                <div class="detail-item"><span class="detail-label">Fecha Envio:</span>{{ $order->delivery_date->format('d/m/Y')  }}</div>
+                <div class="client-info" style="width:50mm;height:21.5mm;margin-left:5px">
+                    <div class="section-title">ESTADO ENVÍO</div>
+                    <div class="detail-item"><span class="detail-label">Estado:</span> {{ $order->shipping ==0 ? 'Sin Envio': 'Con Envio' }}</div>
+                    @if($order->shipping ==1)
+                    <div class="detail-item"><span class="detail-label">Fecha Envio:</span>{{ $order->delivery_date->format('d/m/Y')  }}</div>
+                    @endif
+                    <div class="detail-item"></div>
+                </div>
                 @endif
-                <div class="detail-item"></div>
             </div>
-        </div>
 
-        <!-- Productos -->
-        <div class="section-title" style="margin-top:2mm">DETALLE DE PRODUCTOS</div>
-        <table>
-            <thead>
+            <!-- Productos -->
+            <div class="section-title" style="margin-top:2mm">DETALLE DE PRODUCTOS</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 10mm;">Cód</th>
+                        <th style="">Descripción</th>
+                        <th style="width: 15mm;" class="text-right">Cant.</th>
+                        <th style="width: 20mm;" class="text-right">P. Unit.</th>
+
+                        <th style="width: 25mm;" class="text-right">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($order->items as $item)
+                    <tr>
+                        <td> {{ $item->product->code }}</td>
+                        <td>{{ $item->product->name }}</td>
+                        <td class="text-right">{{ $item->quantity }}</td>
+                        <td class="text-right">${{ number_format($item->unit_price, 2, ',', '.') }}</td>
+
+                        <td class="text-right">${{ number_format($item->unit_price * $item->quantity, 2, ',', '.') }}</td>
+                    </tr>
+                    @endforeach
+                    <br>
+                    <tr>
+                        <td colspan="2" class="text-right"><strong>Cantidad Total</strong></td>
+                        <td class="text-right"><strong>{{ $order->items->sum('quantity') }}</strong></td>
+                        <td class="text-right"><strong>Total</strong></td>
+                        <td class="text-right"><strong>${{ number_format($order->items->sum(function($item) { return $item->unit_price * $item->quantity; }), 2, ',', '.') }}</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+
+
+            <table>
                 <tr>
-                    <th style="width: 10mm;">Cód</th>
-                    <th style="">Descripción</th>
-                    <th style="width: 15mm;" class="text-right">Cant.</th>
-                    <th style="width: 20mm;" class="text-right">P. Unit.</th>
+                    <td style="width:140mm" class="notes">
+                        <!-- Notas -->
 
-                    <th style="width: 25mm;" class="text-right">Total</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($order->items as $item)
-                <tr>
-                    <td> {{ $item->product->code }}</td>
-                    <td>{{ $item->product->name }}</td>
-                    <td class="text-right">{{ $item->quantity }}</td>
-                    <td class="text-right">${{ number_format($item->unit_price, 2, ',', '.') }}</td>
-
-                    <td class="text-right">${{ number_format($item->unit_price * $item->quantity, 2, ',', '.') }}</td>
-                </tr>
-                @endforeach
-                <br>
-                <tr>
-                    <td colspan="2" class="text-right"><strong>Cantidad Total</strong></td>
-                    <td class="text-right"><strong>{{ $order->items->sum('quantity') }}</strong></td>
-                    <td class="text-right"><strong>Total</strong></td>
-                    <td class="text-right"><strong>${{ number_format($order->items->sum(function($item) { return $item->unit_price * $item->quantity; }), 2, ',', '.') }}</strong></td>
-                </tr>
-            </tbody>
-        </table>
+                        <div class="section-title">INFORMACIÓN ADICIONAL</div>
+                        <div>{{ $order->notes ?? 'Sin observaciones' }}</div>
 
 
-        <table>
-            <tr>
-                <td style="width:140mm" class="notes">
-                    <!-- Notas -->
+                    </td>
+                    <td>
+                        <!-- Totales -->
+                        <table class="totals">
+                            <tr>
+                                <td class="total-row subtotal">
+                                    <span class="total-label">Subtotal:</span>
+                                </td>
+                                <td class="total-value subtotal">${{ number_format($order->subtotal, 2, ',', '.') }}</td>
+                            </tr>
 
-                    <div class="section-title">INFORMACIÓN ADICIONAL</div>
-                    <div>{{ $order->notes ?? 'Sin observaciones' }}</div>
-
-
-                </td>
-                <td>
-                    <!-- Totales -->
-                    <table class="totals">
-                        <tr>
-                            <td class="total-row subtotal">
-                                <span class="total-label">Subtotal:</span>
-                            </td>
-                            <td class="total-value subtotal">${{ number_format($order->subtotal, 2, ',', '.') }}</td>
-                        </tr>
-
-                        @if($order->discount > 0)
-                        <tr>
-                            <td class="total-row">
-                                <span class="total-label">Descuento:</span>
-                            </td>
-                            <td class="total-value">-${{ number_format($order->discount, 2, ',', '.') }}</td>
-                        </tr>
-                        @endif
+                            @if($order->discount > 0)
+                            <tr>
+                                <td class="total-row">
+                                    <span class="total-label">Descuento:</span>
+                                </td>
+                                <td class="total-value">-${{ number_format($order->discount, 2, ',', '.') }}</td>
+                            </tr>
+                            @endif
 
 
-                        <!--<tr>
+                            <!--<tr>
                 <td class="total-row taxes">
                     <span class="total-label">IVA (21%):</span>
                 </td>
@@ -385,49 +390,49 @@
             </tr>-->
 
 
-                        @if($order->shipping_cost > 0)
-                        <tr>
-                            <td class="total-row">
-                                <span class="total-label">Envío:</span>
-                            </td>
-                            <td class="total-value">${{ number_format($order->shipping_cost, 2, ',', '.') }}</td>
-                        </tr>
-                        @endif
+                            @if($order->shipping_cost > 0)
+                            <tr>
+                                <td class="total-row">
+                                    <span class="total-label">Envío:</span>
+                                </td>
+                                <td class="total-value">${{ number_format($order->shipping_cost, 2, ',', '.') }}</td>
+                            </tr>
+                            @endif
 
 
 
-                        <tr class="">
-                            <td class="grand-total" style="padding-left: 2mm;">
-                                <span class=" total-label">TOTAL:</span>
-                            </td>
-                            <td class="grand-total" style="text-align: right;padding-right:2mm">
-                                ${{ number_format($order->total_amount, 2, ',', '.') }}
-                            </td>
-                        </tr>
-                    </table>
+                            <tr class="">
+                                <td class="grand-total" style="padding-left: 2mm;">
+                                    <span class=" total-label">TOTAL:</span>
+                                </td>
+                                <td class="grand-total" style="text-align: right;padding-right:2mm">
+                                    ${{ number_format($order->total_amount, 2, ',', '.') }}
+                                </td>
+                            </tr>
+                        </table>
 
 
-                </td>
-            </tr>
+                    </td>
+                </tr>
 
-        </table>
-
-
+            </table>
 
 
-        <!-- Pie de página -->
-        <div class="footer">
-            <div>¡Gracias por su compra!</div>
 
-            <div class="legal-info">
 
-                Documento no válido como comprobante fiscal según RG AFIP 4291/2018.
+            <!-- Pie de página -->
+            <div class="footer">
+                <div>¡Gracias por su compra!</div>
 
-                Conserve este documento para cualquier gestión posterior
+                <div class="legal-info">
+
+                    Documento no válido como comprobante fiscal según RG AFIP 4291/2018.
+
+                    Conserve este documento para cualquier gestión posterior
+                </div>
+                <div class="barcode">*{{ $order->order_number }}*</div>
             </div>
-            <div class="barcode">*{{ $order->order_number }}*</div>
         </div>
-    </div>
 
 
 

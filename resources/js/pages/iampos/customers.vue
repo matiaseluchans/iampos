@@ -200,7 +200,7 @@ export default {
     headers: [
       { title: "Acciones", key: "actions", value: "actions", sortable: false, width:"150px" },
       { title: "Direccion", filterable: true, key: "address" },
-      { title: "Localidad", filterable: true, key: "locality" },
+      { title: "Localidad", filterable: true, key: "locality.name" },
       { title: "Telefono", filterable: true, key: "telephone" },
       { title: "Nombre", filterable: true, key: "firstname" },
       { title: "Estado", key: "active", width:"150px" },

@@ -162,7 +162,7 @@
         <div style="margin-bottom: 2mm;"><strong>{{ $order->customer->name ?? 'CONSUMIDOR FINAL' }}</strong></div>
         <div class="client-row">
             <span class="client-label">Domicilio:</span>
-            <span>{{ $order->customer->address }}</span>
+            <span>{{ $order->customer->address }} - {{ $order->customer->locality ? $order->customer->locality->name :''}}</span>
         </div>
         <div class="client-row">
             <span class="client-label">Teléfono:</span>
@@ -241,7 +241,7 @@
         <div style="margin-bottom: 2mm;"><strong>{{ $order->customer->name ?? 'CONSUMIDOR FINAL' }}</strong></div>
         <div class="client-row">
             <span class="client-label">Domicilio:</span>
-            <span>{{ $order->customer->address }}</span>
+            <span>{{ $order->customer->address }} - {{ $order->customer->locality ? $order->customer->locality->name :''}}</span>
         </div>
         <div class="client-row">
             <span class="client-label">Teléfono:</span>

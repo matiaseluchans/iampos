@@ -37,4 +37,9 @@ class Customer extends Model
     {
         return $this->belongsTo(Tenant::class);
     }
+
+    public function locality()
+    {
+        return $this->belongsTo(Locality::class);
+    }
 }

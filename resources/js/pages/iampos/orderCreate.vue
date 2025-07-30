@@ -46,7 +46,7 @@
                     <v-sheet border="info md"> 
                     <VListItem v-bind="props">
                    
-                      <VListItemSubtitle class="text-caption"><strong>localidad:</strong>{{ item.raw.locality_id}} - <strong>telefono:</strong>{{ item.raw.telephone }}</VListItemSubtitle>
+                      <VListItemSubtitle class="text-caption"><strong>localidad:</strong>{{ item.raw.locality?.name}} - <strong>telefono:</strong>{{ item.raw.telephone }}</VListItemSubtitle>
                    
                     </VListItem>
                     </v-sheet>
@@ -89,6 +89,7 @@
                   label="Dirección de Entrega"
                   :rules="[(v) => !!v || 'Dirección de entrega es requerida']"
                   :disabled="!order.shipping"
+                  density="compact"
                   />
               </VCol>
               <VCol cols="auto" md="auto" class="mb-0" >
@@ -120,6 +121,7 @@
                   clearable
                   @focus="setDate(order.delivery_date)"
                   :disabled="!order.shipping"
+                  density="compact"
                 />
               </VCol>
             </VRow>
@@ -1253,6 +1255,35 @@ export default {
 <style>
 
 
+.custom-bg-gray .v-field__overlay {
+  background-color: #ddd !important;
+  
+}
+.cliente .v-autocomplete__selection {
+    font-size: 18px;
+    /*font-weight: bold;
+    margin-top: 10px;
+    margin-bottom: -10px;*/
+}
+.number-end .v-field__input{
+  text-align: end !important;
+}
+
+.bg-warning-2{
+  background: #fdedb1;
+}
+
+.text-h6 input {
+  font-size: 1.25rem !important;
+  font-weight: 600 !important;
+}
+</style>
+<style scoped>
+
+
+tbody{
+  font-size: 13px !important;
+}
 .v-card-title {
   font-weight: 600;
 }
@@ -1262,42 +1293,14 @@ export default {
   
 }
 
-tbody{
-  font-size: 13px !important;
-}
-.text-h6 input {
-  font-size: 1.25rem !important;
-  font-weight: 600 !important;
-}
 
 .v-field__field {
     height: 35px !important;
     font-size: 13px !important;
     margin-top: 0px !important;
 }
-.v-field__input{
-  min-block-size: 19px !important;
-}
 .v-data-table__tr{
   height: 43px !important;
 }
 
-
-.cliente .v-autocomplete__selection {
-    /*font-size: 23px;
-    font-weight: bold;
-    margin-top: 10px;
-    margin-bottom: -10px;*/
-}
-.custom-bg-gray .v-field__overlay {
-  background-color: #ddd !important;
-  
-}
-.number-end .v-field__input{
-  text-align: end !important;
-}
-
-.bg-warning-2{
-  background: #fdedb1;
-}
 </style>
