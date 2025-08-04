@@ -347,7 +347,7 @@
               <td class="text-left">
                 
               </td>
-              <td :colspan="showHeaders.length - 8" class="text-right">
+              <td :colspan="showHeaders.length - (this.isAdmin? 8:6)" class="text-right">
                 <div class="d-flex align-center mx-0 px-0" style="width: 100px">                  
                   <div class="d-flex flex-column text-start">
                     <span class="d-block font-weight-medium text-high-emphasis text-truncate">Facturas Totales: {{
@@ -358,8 +358,8 @@
                 </div></td>              
               
               
-              <td class="text-right">{{ formatCurrency(calculateTotalCost()) }}</td>
-              <td class="text-right">{{ formatCurrency(calculateTotalProfit()) }}</td>
+              <td v-if="this.isAdmin" class="text-right">{{ formatCurrency(calculateTotalCost()) }}</td>
+              <td v-if="this.isAdmin" class="text-right">{{ formatCurrency(calculateTotalProfit()) }}</td>
               <td class="text-right">{{ formatCurrency(calculateTotalAmount()) }}</td>
               <td class="text-right">{{ formatCurrency(calculateTotalPaid()) }}</td>
               <td class="text-right"></td>

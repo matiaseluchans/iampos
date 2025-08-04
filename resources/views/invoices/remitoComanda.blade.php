@@ -205,6 +205,38 @@
 
 
 
+        @if(isset($order->payment) && count($order->payment)> 0)
+        <div class="section-title" style="margin-top:2mm">DETALLE DE PAGOS</div>
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 40mm;">Fecha</th>
+                    <th style="width: 50mm;" style="">Método</th>
+                    <th style="width: 50mm;" class="text-right">Monto</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($order->payment as $item)
+                <tr>
+                    <td>{{ $item->payment_date }}</td>
+                    <td> {{ $item->paymentMethod->name }}</td>
+
+
+                    <td class="text-right">${{ number_format($item->amount, 2, ',', '.') }}</td>
+
+                </tr>
+                @endforeach
+                <br>
+                <tr>
+
+                    <td colspan="2" class="text-right"><strong>Total Pagado</strong></td>
+                    <td class="text-right"><strong>${{ number_format( $order->payment->sum('amount'), 2, ',', '.') }}</strong></td>
+
+                </tr>
+            </tbody>
+        </table>
+        @endif
+
         <div class="footer">
             <div>¡GRACIAS POR SU COMPRA!</div>
             <div>Documento no válido como factura</div>
@@ -283,6 +315,37 @@
         </table>
 
 
+        @if(isset($order->payment) && count($order->payment)> 0)
+        <div class="section-title" style="margin-top:2mm">DETALLE DE PAGOS</div>
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 40mm;">Fecha</th>
+                    <th style="width: 50mm;" style="">Método</th>
+                    <th style="width: 50mm;" class="text-right">Monto</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($order->payment as $item)
+                <tr>
+                    <td>{{ $item->payment_date }}</td>
+                    <td> {{ $item->paymentMethod->name }}</td>
+
+
+                    <td class="text-right">${{ number_format($item->amount, 2, ',', '.') }}</td>
+
+                </tr>
+                @endforeach
+                <br>
+                <tr>
+
+                    <td colspan="2" class="text-right"><strong>Total Pagado</strong></td>
+                    <td class="text-right"><strong>${{ number_format( $order->payment->sum('amount'), 2, ',', '.') }}</strong></td>
+
+                </tr>
+            </tbody>
+        </table>
+        @endif
 
         <div class="footer">
             <div>¡GRACIAS POR SU COMPRA!</div>

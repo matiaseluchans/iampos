@@ -59,7 +59,8 @@ class OrderController extends Controller
         $order = Order::with([
             'customer',
             'items',
-            'payment'
+            'payment',
+            'payment.paymentMethod'
         ])->findOrFail($id);
 
         // Configuración de mPDF
@@ -106,8 +107,10 @@ class OrderController extends Controller
         $order = Order::with([
             'customer',
             'items',
-            'payment'
+            'payment',
+            'payment.paymentMethod'
         ])->findOrFail($id);
+
 
         // Configuración de mPDF
         $defaultConfig = (new ConfigVariables())->getDefaults();
@@ -137,6 +140,7 @@ class OrderController extends Controller
             'logo' => public_path('logo.png'),
             'copyText' => 'ORIGINAL' // Texto para identificar la copia
         ])->render();
+
 
         // Vista del remito (segunda copia)
         $html2 = view('invoices.remito', [

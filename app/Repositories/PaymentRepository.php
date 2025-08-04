@@ -14,21 +14,21 @@ use App\Enums\StatusEnum;
 
 class PaymentRepository extends BaseRepository
 {
-    public function __construct(Payment $m)
+    public function __construct(Payment $m, array $relations = ["paymentMethod"])
     {
-        parent::__construct($m);
+        parent::__construct($m, $relations);
     }
 
     public function save($request)
-    {       
+    {
         DB::beginTransaction();
         try {
-            
+
             // Validación de los datos generales del pedido
-            $validator = Validator::make($request->all(), [                
-                'order_id' => 'required',                
+            $validator = Validator::make($request->all(), [
+                'order_id' => 'required',
             ], [
-                "order_id.required" => getMsg("required"),                
+                "order_id.required" => getMsg("required"),
             ]);
 
             // Validación de los payments
@@ -48,16 +48,16 @@ class PaymentRepository extends BaseRepository
                 );
 
                 return $this->errorResponse(null, implode(', ', $errors));
-            }           
-                       
+            }
+
             //Datos del Usuario
             $user = Auth::user();
             // Datos del formulario
-            $formRequest = $request->all();            
+            $formRequest = $request->all();
             $orderId = $formRequest['order_id'];
             $paymentDate = Carbon::now();
             $payments = $formRequest['payments'];
-            $errors = [];                                    
+            $errors = [];
 
             // Registro de items con inserción masiva
             if (!empty($payments)) {
@@ -66,10 +66,10 @@ class PaymentRepository extends BaseRepository
                         'order_id' => $orderId,
                         'payment_method_id' => $payment['payment_method_id']['id'],
                         'amount' => $payment['amount'],
-                        'payment_date' => $paymentDate,                        
+                        'payment_date' => $paymentDate,
                         'tenant_id' => $user->tenant_id,
                         'created_by' => $user->id,
-                        'created_at' => now(),                        
+                        'created_at' => now(),
                     ];
                 }, $payments);
                 $this->model::insert($data);
@@ -80,13 +80,12 @@ class PaymentRepository extends BaseRepository
             // Obtener el total de la orden
             $order = Order::findOrFail($orderId);
             // Verificar si se pagó completamente            
-            if ((float) $totalPaid >= (float) $order->total_amount) {  
+            if ((float) $totalPaid >= (float) $order->total_amount) {
                 $statusCode = StatusEnum::PAID;
-            }
-            else{
+            } else {
                 $statusCode = StatusEnum::PARTIAL_PAYMENT;
             }
-            $paymentStatus = PaymentStatus::where('code', $statusCode)->first();            
+            $paymentStatus = PaymentStatus::where('code', $statusCode)->first();
             //actualizo el estado de pago de la orden    
             $order->total_paid = $totalPaid;
             $order->payment_status_id = $paymentStatus->id;
@@ -96,7 +95,7 @@ class PaymentRepository extends BaseRepository
             DB::commit();
             $this->cacheForget();
 
-            return $this->successResponseCreate([                
+            return $this->successResponseCreate([
                 'payments' => $this->model::where('order_id', $order)->get(),
             ]);
         } catch (\Exception $e) {
@@ -105,5 +104,4 @@ class PaymentRepository extends BaseRepository
             return $this->errorResponse($e);
         }
     }
-
 }

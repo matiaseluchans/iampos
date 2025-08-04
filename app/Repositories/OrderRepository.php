@@ -20,7 +20,7 @@ use Mpdf\Config\FontVariables;
 
 class OrderRepository extends BaseRepository
 {
-    public function __construct(Order $m, array $relations = ['customer', 'status', 'paymentStatus', 'shipmentStatus', 'orderType', 'payment'])
+    public function __construct(Order $m, array $relations = ['customer', 'status', 'paymentStatus', 'shipmentStatus', 'orderType', 'payment', 'payment.paymentMethod'])
     {
         parent::__construct($m, $relations);
     }
@@ -391,7 +391,7 @@ class OrderRepository extends BaseRepository
     {
         try {
             $query = $this->model->query();
-            $relations = ['customer', 'status', 'paymentStatus', 'shipmentStatus', 'orderType', 'payment'];
+            $relations = ['customer', 'status', 'paymentStatus', 'shipmentStatus', 'orderType', 'payment', 'payment.paymentMethod'];
             $query = $query->with($relations);
 
             $deliveryStartDate = $request->input('delivery_start_date'); // Formato: Y-m-d
