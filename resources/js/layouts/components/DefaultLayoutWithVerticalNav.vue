@@ -69,7 +69,7 @@ const userPermissions = computed(() => store.getters.userPermissions)
         </IconBtn>
         -->
         
-        <div v-if="currentUser" class="user-info text-end pr-4">
+        <div v-if="currentUser" class="ml-2 user-info text-end pr-4">
           {{ currentUser.data.email }} <br> 
           <VChip
             class="ma-0"
