@@ -27,7 +27,7 @@ class Order extends Model
         'order_type_id',
         'quantity_products',
         'subtotal',
-        'tax_amount',
+        'aditional',
         'discount_amount',
         'total_amount',
         'total_paid',

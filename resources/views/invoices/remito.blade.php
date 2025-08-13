@@ -381,13 +381,13 @@
                             @endif
 
 
-                            <!--<tr>
-                <td class="total-row taxes">
-                    <span class="total-label">IVA (21%):</span>
-                </td>
-                <td class="total-value">${{ number_format($order->tax_amount, 2, ',', '.') }}</td>
+                            <tr>
+                                <td class="total-row taxes">
+                                    <span class="total-label">Adicional:</span>
+                                </td>
+                                <td class="total-value">${{ number_format($order->aditional, 2, ',', '.') }}</td>
 
-            </tr>-->
+                            </tr>
 
 
                             @if($order->shipping_cost > 0)

@@ -24,7 +24,9 @@ const navItems = [
     item: {
       title: 'Registrar Orden',
       to: '/order-create',
-      icon: 'ri-draft-line'
+      icon: 'ri-draft-line',
+      class: 'classOrderCreate'
+      
     }
   },
   {
@@ -32,7 +34,9 @@ const navItems = [
     item: {
       title: 'Ordenes',
       to: '/order-search',
-      icon: 'ri-shopping-bag-line'
+      icon: 'ri-shopping-bag-line',
+      
+      
     }
   },
   {
@@ -40,7 +44,8 @@ const navItems = [
     item: {
       title: 'Entregas',
       to: '/order-pending-deliveries',
-      icon: 'ri-truck-line'
+      icon: 'ri-truck-line',
+      
     }
   },
   /*
@@ -58,7 +63,8 @@ const navItems = [
     item: {
       title: 'Clientes',
       to: '/customers',
-      icon: 'ri-group-line'
+      icon: 'ri-group-line',
+      
     }
   },
   {
@@ -73,7 +79,8 @@ const navItems = [
         item: {
           title: 'Stock',
           to: '/stocks',
-          icon: 'ri-stock-line'
+          icon: 'ri-stock-line',
+      
         }
       },
       {
@@ -81,7 +88,8 @@ const navItems = [
         item: {
           title: 'Productos',
           to: '/products',
-          icon: 'ri-stock-line'
+          icon: 'ri-stock-line',
+      
         }
       }
     ]
@@ -97,7 +105,8 @@ const navItems = [
         component: 'VerticalNavLink',
         item: {
           title: 'Depositos',
-          to: '/warehouses'
+          to: '/warehouses',
+      
         }
       },
       {
@@ -105,7 +114,8 @@ const navItems = [
         item: {
           title: 'Categorias',
           to: '/categories',
-          icon: 'ri-bookmark-line'
+          icon: 'ri-bookmark-line',
+      
         }
       },
       {
@@ -113,7 +123,8 @@ const navItems = [
         item: {
           title: 'Marcas',
           to: '/brands',
-          icon: 'ri-bookmark-line'
+          icon: 'ri-bookmark-line',
+      
         }
       },
       {
@@ -121,7 +132,8 @@ const navItems = [
         item: {
           title: 'Estados',
           to: '/statuses',
-          icon: 'ri-bookmark-line'
+          icon: 'ri-bookmark-line',
+      
         }
       },
       {
@@ -129,7 +141,8 @@ const navItems = [
         item: {
           title: 'Metodos de Pago',
           to: '/paymentMethods',
-          icon: 'ri-wallet-3-line'
+          icon: 'ri-wallet-3-line',
+      
         }
       },
       {
@@ -137,7 +150,8 @@ const navItems = [
         item: {
           title: 'Localidades',
           to: '/localities',
-          icon: 'ri-map-pin-line'
+          icon: 'ri-map-pin-line',
+      
         }
       }
     ]
@@ -154,7 +168,8 @@ const navItems = [
         item: {
           title: 'Tenants',
           to: '/tenants',
-          icon: 'ri-database-2-line'
+          icon: 'ri-database-2-line',
+      
         }
       },
       {
@@ -162,7 +177,8 @@ const navItems = [
         item: {
           title: 'Usuarios',
           to: '/users',
-          icon: 'ri-user-line'
+          icon: 'ri-user-line',
+      
         }
       }
     ]
@@ -197,7 +213,7 @@ console.log('Menú filtrado:', filteredNavItems.value)
 
 <template>
   <div class="border-t-sm mx-4" />
-  <div>
+  <div class="mt-1"> 
     <template v-for="(navItem, index) in filteredNavItems" :key="index">
       <!-- LINKS DIRECTOS -->
       <VerticalNavLink
@@ -206,6 +222,7 @@ console.log('Menú filtrado:', filteredNavItems.value)
           title: navItem.item.title,
           to: navItem.item.to,
           icon: navItem.item.icon,
+          class:navItem.item.class||''
           // otras props si existen
         }"
       />
@@ -237,3 +254,5 @@ console.log('Menú filtrado:', filteredNavItems.value)
     </template>
   </div>
 </template>
+
+

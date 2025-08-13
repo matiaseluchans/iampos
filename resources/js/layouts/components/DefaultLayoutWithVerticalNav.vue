@@ -53,7 +53,10 @@ const userPermissions = computed(() => store.getters.userPermissions)
             <span class="meta-key">&#8984;K</span>
           </span>
         </div>
--->
+      -->
+      <div class="ml-4  font-weight-light text-h5 ">
+      {{$route.meta.title || ''}}
+      </div>
         <VSpacer />
         <!--
         <IconBtn

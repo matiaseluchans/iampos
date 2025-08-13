@@ -21,7 +21,7 @@ class StatusEnum
     const DELIVERED = 'delivered';
     const FAILED = 'failed';
     const RETURNED = 'returned';
-    
+
     public static function labels(): array
     {
         return [
@@ -44,7 +44,7 @@ class StatusEnum
             self::RETURNED => 'Devuelto',
         ];
     }
-    
+
     public static function label(string $value): string
     {
         return self::labels()[$value] ?? $value;
@@ -58,7 +58,7 @@ class StatusEnum
         }
         return $options;
     }
-    
+
     public static function all(): array
     {
         return [

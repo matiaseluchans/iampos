@@ -24,7 +24,7 @@ class DrinkOrdersTableSeeder extends Seeder
 
         $orders = [];
         $now = Carbon::now();
-        
+
         // Prefijo y número inicial        
         $startNumber = 1;
 
@@ -32,12 +32,12 @@ class DrinkOrdersTableSeeder extends Seeder
             $orderDate = $faker->dateTimeBetween('-2 years', 'now');
             $deliveryDate = $faker->dateTimeBetween($orderDate, '+30 days');
             $subtotal = $faker->randomFloat(2, 50, 5000);
-            $taxAmount = $subtotal * 0.16;
+            $aditional = $subtotal * 0.16;
             $discountAmount = $faker->randomFloat(2, 0, $subtotal * 0.3);
-            $totalAmount = $subtotal + $taxAmount - $discountAmount;
+            $totalAmount = $subtotal + $aditional - $discountAmount;
             $totalCost = $subtotal * $faker->randomFloat(2, 0.4, 0.7);
             $totalProfit = $totalAmount - $totalCost;
-            
+
             // Generar número de pedido con ceros a la izquierda
             $orderNumber = str_pad($startNumber + $i, 10, '0', STR_PAD_LEFT);
 
@@ -63,7 +63,7 @@ class DrinkOrdersTableSeeder extends Seeder
                 'shipping' => $faker->randomFloat(2, 0, 50),
                 'quantity_products' => $faker->numberBetween(1, 15),
                 'subtotal' => $subtotal,
-                'tax_amount' => $taxAmount,
+                'aditional' => $aditional,
                 'discount_amount' => $discountAmount,
                 'total_amount' => $totalAmount,
                 'total_cost' => $totalCost,

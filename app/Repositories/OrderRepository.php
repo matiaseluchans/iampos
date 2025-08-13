@@ -20,7 +20,7 @@ use Mpdf\Config\FontVariables;
 
 class OrderRepository extends BaseRepository
 {
-    public function __construct(Order $m, array $relations = ['customer', 'status', 'paymentStatus', 'shipmentStatus', 'orderType', 'payment', 'payment.paymentMethod'])
+    public function __construct(Order $m, array $relations = ['customer', 'items', 'status', 'paymentStatus', 'shipmentStatus', 'orderType', 'payment', 'payment.paymentMethod'])
     {
         parent::__construct($m, $relations);
     }
@@ -143,7 +143,7 @@ class OrderRepository extends BaseRepository
                 'order_type_id' => 1,
                 'quantity_products' => $form['quantity_products'],
                 'subtotal' => $form['subtotal'],
-                'tax_amount' => $form['tax_amount'],
+                'aditional' => $form['aditional'],
                 'discount_amount' => $form['discount_amount'],
                 'total_amount' => $form['total_amount'],
                 'total_cost' => $form['total_cost'],

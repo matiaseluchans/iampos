@@ -1,116 +1,160 @@
 export const routes = [
   { path: '/', redirect: '/order-search' },
    
-   {
+  {
     path: '/',
     component: () => import('@/layouts/default.vue'),
     children: [
       {
         path: '/dashboard',
+        
         component: () => import('@/pages/dashboard.vue'),
-        meta: { requiresAuth: true,
-          
-          allowedRoles: ['*']
-          
-         }
+        meta: { 
+          title: "Dashboard",
+          requiresAuth: true,
+          allowedRoles: ['*'],
+        },
       },
       {
         path: 'order-create',
+        
         component: () => import('@/pages/iampos/orderCreate.vue'),
-        meta: { requiresAuth: true,
-            
-          allowedRoles: ['*'] 
-        }
+        
+        meta: { 
+          title: "Crear Orden",
+          requiresAuth: true,
+          allowedRoles: ['*'], 
+        },
       },
       {
         path: 'order-list',
+        
         component: () => import('@/pages/iampos/orderList.vue'),
-        meta: { requiresAuth: true, 
-         
-          allowedRoles: ['*'] 
-        }
+        meta: { 
+          title: "Ordenes",
+          requiresAuth: true, 
+          allowedRoles: ['*'], 
+        },
       },
       {
         path: 'order-search',
+        
         component: () => import('@/pages/iampos/orderSearch.vue'),
-        meta: { requiresAuth: true, 
-         
-          allowedRoles: ['*'] 
-        }
+        meta: { 
+          title: "Buscador de ordenes",
+          requiresAuth: true, 
+          allowedRoles: ['*'], 
+        },
       },
       {
         path: 'order-pending-deliveries',
+        
         component: () => import('@/pages/iampos/orderDelivery.vue'),
-        meta: { requiresAuth: true, 
-         
-          allowedRoles: ['*'] 
-        }
+        meta: { 
+          title: "Ordenes pendientes de entrega",
+          requiresAuth: true, 
+          allowedRoles: ['*'],
+        },
       },      
       {
         path: 'customers',
+        
         component: () => import('@/pages/iampos/customers.vue'),
-        meta: { requiresAuth: true,
- 
-          allowedRoles: ['superadmin','bebidas-admin','petshop-admin'] 
-        }
+        meta: { 
+          title: "Clientes",
+          requiresAuth: true,
+          allowedRoles: ['superadmin','bebidas-admin','petshop-admin'], 
+        },
       }, 
       {
         path: 'localities',
+        
         component: () => import('@/pages/iampos/localities.vue'),
-        meta: { requiresAuth: true }
+        meta: { 
+          title: "Localidades",
+          requiresAuth: true, 
+        },
       }, 
       {
         path: 'products',
         component: () => import('@/pages/iampos/products.vue'),
-        meta: { requiresAuth: true }
+        meta: { 
+          title: "Productos",
+          requiresAuth: true, 
+        },
       }, 
       {
         path: 'stocks',
+        
         component: () => import('@/pages/iampos/stocks.vue'),
-        meta: { requiresAuth: true }
+        meta: { 
+          title: "Stock",
+          requiresAuth: true,
+        },
       },
       {
         path: 'warehouses',
         component: () => import('@/pages/iampos/warehouses.vue'),
-        meta: { requiresAuth: true }
+        meta: { 
+          title: "Depositos",
+          requiresAuth: true, 
+        },
       }, 
       {
         path: 'categories',
         component: () => import('@/pages/iampos/categories.vue'),
-        meta: { requiresAuth: true }
+        meta: { 
+          title: "Categorias",
+          requiresAuth: true ,
+        },
       }, 
       {
         path: 'brands',
+        
         component: () => import('@/pages/iampos/brands.vue'),
-        meta: { requiresAuth: true }
+        meta: { 
+          title: "Marcas",
+          requiresAuth: true,
+        },
       }, 
       {
         path: 'tenants',
+        
         component: () => import('@/pages/iampos/tenants.vue'),
-        meta: { requiresAuth: true ,
-          allowedRoles: ['superadmin']
-        }
+        meta: { 
+          title: "Tenants",
+          requiresAuth: true ,
+          allowedRoles: ['superadmin'],
+        },
       }, 
 
       {
         path: 'users',
+        
         component: () => import('@/pages/iampos/users.vue'),
-        meta: { requiresAuth: true,
-          
-          allowedRoles: ['superadmin','bebidas-admin']
-        }
+        meta: { 
+          title: "Usuarios",
+          requiresAuth: true,
+          allowedRoles: ['superadmin','bebidas-admin'],
+        },
       },
       
       {
         path: 'statuses',
+        
         component: () => import('@/pages/iampos/statuses.vue'),
-        meta: { requiresAuth: true },
+        meta: { 
+          title: "Estados",
+          requiresAuth: true },
       },
 
       {
         path: 'paymentMethods',
+        
         component: () => import('@/pages/iampos/paymentMethods.vue'),
-        meta: { requiresAuth: true },
+        meta: { 
+          title: "Métodos de pago",
+          requiresAuth: true },
       },
 
 

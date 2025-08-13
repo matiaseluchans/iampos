@@ -289,6 +289,13 @@
 
               <!-- Opciones del menú -->
               <VList>
+                 <VListItem @click="editOrder(item)">
+                  <VListItemTitle>
+                    <IconBtn size="small" class="my-1" title="Editar">
+                      <VIcon icon="ri-pencil-line" /> </IconBtn
+                    >Editar
+                  </VListItemTitle>
+                </VListItem>
                 <VListItem @click="showRemito(item)">
                   <VListItemTitle>
                     <IconBtn size="small" class="my-1" title="Remito">
@@ -1388,6 +1395,27 @@ export default {
       } catch (error) {
         console.error("Error generando reporte:", error);
         this.showSnackbar("Error al generar la reporte", "error");
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    async editOrder(item) {
+      try {
+        this.loading = true;
+     
+        this.$router.push({
+          path: '/order-create',
+          query: {
+            edit: true,
+            orderId: item.id,
+       
+          }
+        });
+        
+      } catch (error) {
+        console.error("Error al obtener datos de la orden:", error);
+        this.showSnackbar("Error al cargar la orden para edición", "error");
       } finally {
         this.loading = false;
       }

@@ -303,6 +303,17 @@
                     <VRow>
                       <VCol cols="12" md="12">
                         <VTextField
+                          :model-value="formatCurrency(order.subtotal)"
+                          label="Subtotal" 
+                          readonly
+                          variant="outlined"
+                          density="compact" 
+                          class="custom-bg-gray number-end"
+                         
+                        />
+                      </VCol>
+                      <VCol cols="12" md="12">
+                        <VTextField
                           v-model="order.discount_amount"
                           label="Descuento"
                           type="number"
@@ -315,8 +326,8 @@
                       </VCol>
                       <VCol cols="12" md="12">
                         <VTextField
-                          v-model="order.tax_amount"
-                          label="Impuestos"
+                          v-model="order.aditional"
+                          label="Adicional"
                           type="number"
                           step="0.01"
                           prefix="$"
@@ -328,18 +339,8 @@
                     </VRow>
                     <VDivider class="my-4" />
                     <VRow>
-                      <VCol cols="12" md="12">
-                        <VTextField
-                          :model-value="formatCurrency(order.subtotal)"
-                          label="Subtotal" 
-                          readonly
-                          variant="outlined"
-                          density="compact" 
-                          class="custom-bg-gray number-end"
-                         
-                        />
-                      </VCol>
-                      <VCol cols="12" md="12">
+                      
+                      <!--<VCol cols="12" md="12">
                         <VTextField
                           :model-value="formatCurrency(order.discount_amount)"
                           label="Descuento"
@@ -356,7 +357,7 @@
                           />
                         </template></VTextField>
 
-                      </VCol>
+                      </VCol>-->
                       <VCol cols="12" md="12">
                         <VTextField
                           :model-value="formatCurrency(order.total_amount)"
@@ -416,7 +417,7 @@
           :disabled="!canCreateOrder"
         >
           <VIcon icon="ri-save-line" class="mr-2" />
-          Crear Orden
+          {{ saveButtonLabel }}
         </VBtn>
       </VCol>
     </VRow>
@@ -710,6 +711,8 @@ import { mapGetters } from 'vuex';
 export default {
   data() {
     return {
+      isEditing: false,
+      editingOrderId: null,
       keyOrderForm: 1,
       showFooter: false,
       validOrder: false,
@@ -738,7 +741,7 @@ export default {
         customer_id: null,
         shipping_address: "",
         subtotal: 0,
-        tax_amount: 0,
+        aditional: 0,
         discount_amount: 0,
         total_amount: 0,
         notes: "",
@@ -793,6 +796,7 @@ export default {
       change: 0,
       totalPaid: 0,
       isAdmibBebidas: false,
+      saveButtonLabel:"Crear Orden"
     };
   },
 
@@ -829,11 +833,74 @@ export default {
   },
 
   async created() {
+
+    // Verificar si estamos en modo edición
+    if (this.$route.query.edit && this.$route.query.orderId) {
+      this.isEditing = true;
+      this.editingOrderId = this.$route.query.orderId;
+      this.saveButtonLabel="Editar Orden";
+      this.$route.meta.title= "Editar Orden N° "+this.$route.query.orderId
+
+      document.title = this.$route.meta.title;
+     
+      await this.loadOrderData();
+    }
     await this.loadData();
+    this.$forceUpdate();
   },
 
   methods: {
 
+    async loadOrderData() {
+      try {
+        const response = await this.$axios.get(`${this.$routes["orders"]}/${this.editingOrderId}`);
+        const orderData = response.data.data || response.data;
+   
+ 
+        this.order = {
+          customer_id: orderData.customer.id,
+          shipping_address: orderData.shipping_address,
+          delivery_date: this.formatDateForInput(orderData.delivery_date),
+          subtotal: parseFloat(orderData.subtotal),
+          aditional: parseFloat(orderData.aditional),
+          discount_amount: parseFloat(orderData.discount_amount),
+          total_amount: parseFloat(orderData.total_amount),
+          notes: orderData.notes,
+          items: orderData.items.map(item => ({
+            product_id: item.product_id,
+            quantity: parseInt(item.quantity),
+            unit_price: parseFloat(item.unit_price),
+            unit_cost_price: parseFloat(item.unit_cost_price),
+            total_price: parseFloat(item.total_price),
+            total_profit: parseFloat(item.total_profit),
+          })),
+          shipping: orderData.shipping ? 1 : 0,
+        };
+        
+      } catch (error) {
+        console.error("Error al cargar datos de la orden:", error);
+        this.showSnackbar("Error al cargar la orden para edición", "error");
+        //this.$router.go(-1); // Volver atrás si hay error
+      }
+    },
+    
+    formatDateForInput(dateString) {
+      if (!dateString) return '';
+      const date = new Date(dateString);
+      return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
+    },
+    
+
+    async updateOrder()
+    {
+      alert("es un update");
+    },
+    async createOrder() {
+      if (this.isEditing) {
+        await this.updateOrder();
+        return;
+      }
+    },
     productTitle(item) {
 
       const currentUser = this.$store.getters.currentUser;
@@ -988,7 +1055,7 @@ export default {
       );
       this.order.total_amount =
         this.order.subtotal +
-        parseFloat(this.order.tax_amount || 0) -
+        parseFloat(this.order.aditional || 0) -
         parseFloat(this.order.discount_amount || 0);
     },
 
@@ -1034,8 +1101,16 @@ export default {
       }
     },
 
-    // Order methods
+    
     async createOrder() {
+
+      //si es edicion  updatea la orden
+      if (this.isEditing) {
+        await this.updateOrder();
+        return;
+      }
+ 
+
       const isValid = await this.$refs.orderForm.validate();
       if (!isValid) return;
 
@@ -1097,7 +1172,7 @@ export default {
         shipping_address: '',
         delivery_date:'',
         subtotal: 0,
-        tax_amount: 0,
+        aditional: 0,
         discount_amount: 0,
         total_amount: 0,
         notes: '',
