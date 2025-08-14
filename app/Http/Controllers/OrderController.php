@@ -42,6 +42,12 @@ class OrderController extends Controller
         return $this->repository->update($request, $id);
     }
 
+    public function updateOrder(Request $request, $id)
+    {
+
+        return $this->repository->updateOrder($request, $id);
+    }
+
     public function destroy($id)
     {
         return $this->repository->delete($id);

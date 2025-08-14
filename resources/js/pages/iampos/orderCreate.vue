@@ -1,17 +1,25 @@
-<template> 
+<template>
   <VForm :key="keyOrderForm" ref="orderForm" v-model="validOrder">
-   
     <VRow>
-      
-        
-      <VCol cols="12"  sm="12" md="6">
+      <VCol cols="12" sm="12" md="6">
         <VCard>
           <VCardText class="mb-0 pb-2">
-            <VRow class="mb-0 pb-0" >
-                <VCol  v-if="isAdminBebidas" cols="1" md="1" sm="1"  class="mb-0 pt-3 d-none d-sm-flex">
-                  <VAvatar icon="ri-user-line" class="text-error mr-2" variant="tonal" size="40"/> 
-                </VCol>
-                <VCol  v-if="isAdminBebidas" cols="9" sm="9" md="8" class="mb-0 pt-4 ml-3" >
+            <VRow class="mb-0 pb-0">
+              <VCol
+                v-if="isAdminBebidas"
+                cols="1"
+                md="1"
+                sm="1"
+                class="mb-0 pt-3 d-none d-sm-flex"
+              >
+                <VAvatar
+                  icon="ri-user-line"
+                  class="text-error mr-2"
+                  variant="tonal"
+                  size="40"
+                />
+              </VCol>
+              <VCol v-if="isAdminBebidas" cols="9" sm="9" md="8" class="mb-0 pt-4 ml-3">
                 <VAutocomplete
                   v-model="order.seller_id"
                   :items="sellers"
@@ -19,17 +27,22 @@
                   item-value="id"
                   label="Seleccionar Vendedor"
                   :rules="[(v) => !!v || 'Vendedor es requerido']"
-                  clearable                                     
+                  clearable
                   density="compact"
                   return-object
-                 />
-              </VCol>                            
-            </VRow>            
-              <VRow class="mb-0" :class="isAdminBebidas? 'pb-0':'py-8'">
-                <VCol cols="1" md="1" sm="1"  class="mb-0 pt-0 d-none d-sm-flex">
-                  <VAvatar icon="ri-user-line" class="text-info mr-2" variant="tonal" size="40"/> 
-                </VCol>
-                <VCol cols="9" sm="9" md="8" class="mb-0 pt-0 ml-3" >
+                />
+              </VCol>
+            </VRow>
+            <VRow class="mb-0" :class="isAdminBebidas ? 'pb-0' : 'py-8'">
+              <VCol cols="1" md="1" sm="1" class="mb-0 pt-0 d-none d-sm-flex">
+                <VAvatar
+                  icon="ri-user-line"
+                  class="text-info mr-2"
+                  variant="tonal"
+                  size="40"
+                />
+              </VCol>
+              <VCol cols="9" sm="9" md="8" class="mb-0 pt-0 ml-3">
                 <VAutocomplete
                   v-model="order.customer_id"
                   :items="customers"
@@ -39,38 +52,41 @@
                   :rules="[(v) => !!v || 'Cliente es requerido']"
                   clearable
                   @update:model-value="onCustomerChange"
-                   
                   density="compact"
-                  >
+                >
                   <template v-slot:item="{ props, item }">
-                    <v-sheet border="info md"> 
-                    <VListItem v-bind="props">
-                   
-                      <VListItemSubtitle class="text-caption"><strong>localidad:</strong>{{ item.raw.locality?.name}} - <strong>telefono:</strong>{{ item.raw.telephone }}</VListItemSubtitle>
-                   
-                    </VListItem>
+                    <v-sheet border="info md">
+                      <VListItem v-bind="props">
+                        <VListItemSubtitle class="text-caption"
+                          ><strong>localidad:</strong>{{ item.raw.locality?.name }} -
+                          <strong>telefono:</strong
+                          >{{ item.raw.telephone }}</VListItemSubtitle
+                        >
+                      </VListItem>
                     </v-sheet>
                   </template>
                 </VAutocomplete>
-              </VCol>              
+              </VCol>
               <VCol cols="auto" class="mb-0 pt-0">
-                <VBtn @click="openCustomerDialog" :color="$cv('principal')" title="nuevo cliente">
+                <VBtn
+                  @click="openCustomerDialog"
+                  :color="$cv('principal')"
+                  title="nuevo cliente"
+                >
                   <VIcon icon="ri-user-add-line" class="mr" />
                 </VBtn>
               </VCol>
             </VRow>
-            
           </VCardText>
         </VCard>
       </VCol>
 
-
       <VCol cols="12" sm="12" md="6">
         <VCard>
           <VCardText class="mb-0 pb-2">
-            <VRow class="mb-0 pb-0" >
-              <VCol cols="1" md="1" class="mb-0 pb-0 pt-2 d-none d-sm-flex" >
-                <VAvatar icon="ri-map-pin-line" class="text-info mr-2" variant="tonal"/> 
+            <VRow class="mb-0 pb-0">
+              <VCol cols="1" md="1" class="mb-0 pb-0 pt-2 d-none d-sm-flex">
+                <VAvatar icon="ri-map-pin-line" class="text-info mr-2" variant="tonal" />
               </VCol>
               <VCol cols="1" md="1" class="mb-0 pt-5 ml-1">
                 <VSwitch
@@ -78,8 +94,8 @@
                   :true-value="1"
                   :false-value="0"
                   color="primary"
-                  hide-details 
-                  title="Requiere Envío" 
+                  hide-details
+                  title="Requiere Envío"
                   @click="toggleShipping(order)"
                 />
               </VCol>
@@ -90,34 +106,29 @@
                   :rules="[(v) => !!v || 'Dirección de entrega es requerida']"
                   :disabled="!order.shipping"
                   density="compact"
-                  />
+                />
               </VCol>
-              <VCol cols="auto" md="auto" class="mb-0" >
+              <VCol cols="auto" md="auto" class="mb-0">
                 <VBtn
-                @click="useCustomerAddress"
-                :color="$cv('principal')"
-                title="Usar del cliente"
-              >
-                <VIcon icon="ri-refresh-line" class="mr-2" />
-              </VBtn>
+                  @click="useCustomerAddress"
+                  :color="$cv('principal')"
+                  title="Usar del cliente"
+                >
+                  <VIcon icon="ri-refresh-line" class="mr-2" />
+                </VBtn>
               </VCol>
-               
             </VRow>
             <VRow class="mb-0 pb-2">
-              <VCol cols="1" md="1" class="mb-0 pb-0 pt-0 d-none d-sm-flex" >
-                <VAvatar icon="ri-truck-line" class="text-info mr-2" variant="tonal"/> 
+              <VCol cols="1" md="1" class="mb-0 pb-0 pt-0 d-none d-sm-flex">
+                <VAvatar icon="ri-truck-line" class="text-info mr-2" variant="tonal" />
               </VCol>
-              <VCol cols="1" md="1" class=" ml-1">
-                 
-              </VCol>
+              <VCol cols="1" md="1" class="ml-1"> </VCol>
               <VCol cols="8" sm="8" md="8" class="mb-0 pt-0">
-               
-      
                 <VTextField
                   v-model="order.delivery_date"
                   label="Fecha de Entrega"
                   placeholder="dd/mm/yyyy"
-                  v-mask="'##/##/####'"              
+                  v-mask="'##/##/####'"
                   clearable
                   @focus="setDate(order.delivery_date)"
                   :disabled="!order.shipping"
@@ -128,53 +139,61 @@
           </VCardText>
         </VCard>
       </VCol>
-       
-
-     
     </VRow>
     <VRow>
       <VCol cols="12" sm="12" md="12">
-        <VCard> 
+        <VCard>
           <VCardText class="mb-0 pb-3">
             <!-- Agregar Producto -->
             <VRow class="mb-0 pb-0">
-              <VCol  class="mb-0 pb-0 pt-4  d-none d-sm-flex flex-grow-0" >
-                <VAvatar icon="ri-shopping-cart-line" class="text-info mr-2" variant="tonal" size="40" /> 
+              <VCol class="mb-0 pb-0 pt-4 d-none d-sm-flex flex-grow-0">
+                <VAvatar
+                  icon="ri-shopping-cart-line"
+                  class="text-info mr-2"
+                  variant="tonal"
+                  size="40"
+                />
               </VCol>
-              
-              
-              <VCol cols="8" md="5"  class="pt-5">
+
+              <VCol cols="8" md="5" class="pt-5">
                 <VAutocomplete
                   v-model="newItem.product_id"
                   :items="products"
                   :item-title="productTitle"
                   item-value="id"
-                  
                   label="Seleccionar Producto"
                   clearable
-                 
                   @update:model-value="onProductChange"
-                  density="compact">
+                  density="compact"
+                >
                   <template v-slot:item="{ props, item }">
-                    <v-sheet border="info md"> 
-                    <VListItem v-bind="props">
-                      <!--<VListItemTitle>{{ item.raw.name }}</VListItemTitle>-->
-            
-                        <VListItemSubtitle class="text-caption" >
-                       
-                        <VChip :color="getProductStock(item.raw.id) >0 ?'success':'error'">Stock: {{ getProductStock(item.raw.id) }} </VChip>
-                      
-               
+                    <v-sheet border="info md">
+                      <VListItem v-bind="props">
+                        <!--<VListItemTitle>{{ item.raw.name }}</VListItemTitle>-->
+
+                        <VListItemSubtitle class="text-caption">
+                          <VChip
+                            :color="
+                              getProductStock(item.raw.id) > 0 ? 'success' : 'error'
+                            "
+                            >Stock: {{ getProductStock(item.raw.id) }}
+                          </VChip>
                         </VListItemSubtitle>
-                    
-                    </VListItem>
-                  </v-sheet>
-                      
+                      </VListItem>
+                    </v-sheet>
                   </template>
                 </VAutocomplete>
               </VCol>
-              <VCol cols="4" md="1" class="pr-0" >
-                <div :class="newItem.product_id && showStockWarning(newItem.product_id, newItem.quantity) ? 'bg-warning-2 rounded-lg':''" class="px-2 pt-2">
+              <VCol cols="4" md="1" class="pr-0">
+                <div
+                  :class="
+                    newItem.product_id &&
+                    showStockWarning(newItem.product_id, newItem.quantity)
+                      ? 'bg-warning-2 rounded-lg'
+                      : ''
+                  "
+                  class="px-2 pt-2"
+                >
                   <VTextField
                     v-model="newItem.quantity"
                     label="Cant"
@@ -187,17 +206,23 @@
                     density="compact"
                   />
                   <div class="text-caption">
-                     En stock: {{ getProductStock(newItem.product_id) }}
+                    En stock: {{ getProductStock(newItem.product_id) }}
                   </div>
                 </div>
               </VCol>
-    
-                <div  class="text-warning pt-6"  style="width:15px !important">
-                     <VIcon v-if="newItem.product_id && showStockWarning(newItem.product_id, newItem.quantity)" icon="ri-error-warning-fill"  title="Stock Insuficiente"/>
-                     
-                  </div>
-            
-              <VCol cols="6" md="2" class="pt-5" >
+
+              <div class="text-warning pt-6" style="width: 15px !important">
+                <VIcon
+                  v-if="
+                    newItem.product_id &&
+                    showStockWarning(newItem.product_id, newItem.quantity)
+                  "
+                  icon="ri-error-warning-fill"
+                  title="Stock Insuficiente"
+                />
+              </div>
+
+              <VCol cols="6" md="2" class="pt-5">
                 <VTextField
                   v-model="newItem.unit_price"
                   label="Precio Unitario"
@@ -211,7 +236,7 @@
                   density="compact"
                 />
               </VCol>
-              <VCol cols="6" md="2"  class="pt-5"  >
+              <VCol cols="6" md="2" class="pt-5">
                 <VTextField
                   :model-value="calculateItemTotal()"
                   label="Total"
@@ -219,36 +244,41 @@
                   readonly
                   variant="outlined"
                   density="compact"
-                  
                 />
               </VCol>
-              <VCol cols="12" md="1"  class="pt-5" >
-                <VBtn   color="primary" @click="addItem" :disabled="!canAddItem" block>
+              <VCol cols="12" md="1" class="pt-5">
+                <VBtn color="primary" @click="addItem" :disabled="!canAddItem" block>
                   <VIcon icon="ri-add-line" />
                 </VBtn>
               </VCol>
             </VRow>
-             
+
             <VRow class="my-0">
               <VCol cols="12" sm="12" md="9">
-                <VCard> 
-                  <div class="v-card-item"> 
+                <VCard>
+                  <div class="v-card-item">
                     <div class="v-card-item__content">
-                      <div class="v-card-title"><h5 class="text-h5">
-                        <VAvatar icon="ri-luggage-cart-line" class="text-info mr-2" variant="tonal"/>Productos agregados</h5></div> 
-                    </div> 
-                  </div> 
+                      <div class="v-card-title">
+                        <h5 class="text-h5">
+                          <VAvatar
+                            icon="ri-luggage-cart-line"
+                            class="text-info mr-2"
+                            variant="tonal"
+                          />Productos agregados
+                        </h5>
+                      </div>
+                    </div>
+                  </div>
                   <VCardText>
-                    <div style="min-height: 280px;max-height: 270px; overflow-y: auto;">
+                    <div style="min-height: 280px; max-height: 270px; overflow-y: auto">
                       <VDataTable
                         :headers="itemHeaders"
                         :items="order.items"
                         class="elevation-1"
                         no-data-text="No hay productos agregados"
-                        
                         density="compact"
                       >
-                      <template #bottom v-if="!showFooter"></template>
+                        <template #bottom v-if="!showFooter"></template>
                         <template #item.product_name="{ item }">
                           {{ getProductById(item.product_id)?.name }}
                         </template>
@@ -262,7 +292,6 @@
                             hide-details
                             @input="updateItemTotal(index)"
                             class="ma-0 pa-0 text-sm"
-                        
                           />
                         </template>
                         <template #item.quantity="{ item, index }">
@@ -273,7 +302,7 @@
                             density="compact"
                             hide-details
                             @input="updateItemTotal(index)"
-                            style="width: 80px;"
+                            style="width: 80px"
                           />
                         </template>
                         <template #item.total_price="{ item }">
@@ -288,28 +317,33 @@
                     </div>
                   </VCardText>
                 </VCard>
-
               </VCol>
 
               <VCol cols="12" sm="12" md="3">
-                <VCard> 
-                  <div class="v-card-item"> 
+                <VCard>
+                  <div class="v-card-item">
                     <div class="v-card-item__content">
-                      <div class="v-card-title"><h5 class="text-h5">
-                        <VAvatar   icon="ri-calculator-line" class="text-info mr-2" variant="tonal"/>Totales</h5></div> 
-                    </div> 
-                  </div> 
+                      <div class="v-card-title">
+                        <h5 class="text-h5">
+                          <VAvatar
+                            icon="ri-calculator-line"
+                            class="text-info mr-2"
+                            variant="tonal"
+                          />Totales
+                        </h5>
+                      </div>
+                    </div>
+                  </div>
                   <VCardText>
                     <VRow>
                       <VCol cols="12" md="12">
                         <VTextField
                           :model-value="formatCurrency(order.subtotal)"
-                          label="Subtotal" 
+                          label="Subtotal"
                           readonly
                           variant="outlined"
-                          density="compact" 
+                          density="compact"
                           class="custom-bg-gray number-end"
-                         
                         />
                       </VCol>
                       <VCol cols="12" md="12">
@@ -339,7 +373,6 @@
                     </VRow>
                     <VDivider class="my-4" />
                     <VRow>
-                      
                       <!--<VCol cols="12" md="12">
                         <VTextField
                           :model-value="formatCurrency(order.discount_amount)"
@@ -365,8 +398,7 @@
                           readonly
                           variant="outlined"
                           class="text-h6 custom-bg-gray number-end"
-                          density="compact" 
-                          
+                          density="compact"
                         />
                       </VCol>
                     </VRow>
@@ -378,22 +410,33 @@
         </VCard>
       </VCol>
     </VRow>
-    
-    <VRow>           
-      <VCol cols="12" sm="12"  md="12">
-        <VCard>          
-          <div class="v-card-item"> 
+
+    <VRow>
+      <VCol cols="12" sm="12" md="12">
+        <VCard>
+          <div class="v-card-item">
             <div class="v-card-item__content">
-              <div class="v-card-title"><h5 class="text-h5">
-                <VAvatar   icon="ri-file-text-line" class="text-info mr-2" variant="tonal"/>Notas Adicionales</h5></div> 
-            </div> 
-          </div> 
+              <div class="v-card-title">
+                <h5 class="text-h5">
+                  <VAvatar
+                    icon="ri-file-text-line"
+                    class="text-info mr-2"
+                    variant="tonal"
+                  />Notas Adicionales
+                </h5>
+              </div>
+            </div>
+          </div>
           <VCardText>
-            <VTextarea v-model="order.notes" label="Notas de la orden" rows="2" style="height:80px" />
+            <VTextarea
+              v-model="order.notes"
+              label="Notas de la orden"
+              rows="2"
+              style="height: 80px"
+            />
           </VCardText>
         </VCard>
       </VCol>
-      
     </VRow>
     <!-- Sección Totales -->
 
@@ -406,7 +449,11 @@
           <VIcon icon="ri-close-circle-line" class="mr-2" />
           Cancelar
         </VBtn>
-        <VBtn color="primary"  class="mr-4" @click="$router.push({'path':'order-search'})">
+        <VBtn
+          color="primary"
+          class="mr-4"
+          @click="$router.push({ path: 'order-search' })"
+        >
           <VIcon icon="ri-shopping-bag-line" class="mr-2" />
           Ordenes
         </VBtn>
@@ -452,27 +499,22 @@
               </VCol>
 
               <VCol cols="12" sm="6">
-                <VTextField
-                  v-model="newCustomer.name"
-                  label="Nombre"
-                  density="compact"
-                />
+                <VTextField v-model="newCustomer.name" label="Nombre" density="compact" />
               </VCol>
               <VCol cols="12" sm="6">
                 <VAutocomplete
-                      v-model="newCustomer.locality_id"
-                      :items="localities"
-                      item-title="name"
-                      item-value="id"
-                      label="Localidad"
-                      clearable
-                      density="compact"
-                    />
+                  v-model="newCustomer.locality_id"
+                  :items="localities"
+                  item-title="name"
+                  item-value="id"
+                  label="Localidad"
+                  clearable
+                  density="compact"
+                />
               </VCol>
-              
-              
+
               <VCol cols="12" sm="6">
-                <VTextField v-model="newCustomer.email" label="Email" density="compact"/>
+                <VTextField v-model="newCustomer.email" label="Email" density="compact" />
               </VCol>
             </VRow>
           </VContainer>
@@ -482,7 +524,12 @@
           <VBtn variant="outlined" color="primary" @click="closeCustomerDialog">
             Cancelar
           </VBtn>
-          <VBtn color="white" class="bg-primary" @click="saveCustomer" :loading="savingCustomer">
+          <VBtn
+            color="white"
+            class="bg-primary"
+            @click="saveCustomer"
+            :loading="savingCustomer"
+          >
             Guardar Cliente
           </VBtn>
         </VCardActions>
@@ -492,92 +539,88 @@
 
   <!-- Dialog Confirmar Pago -->
   <VDialog v-model="paymentDialog" max-width="580px" persistent>
-  <VCard class="rounded-lg">
-    <!-- Header con estilo minimalista -->
-    <VToolbar color="primary" density="compact">
-      <VToolbarTitle class="text-white font-weight-medium">
-        <VBtn icon="ri-close-line" color="white" @click="paymentDialog = false" />
-         Confirmación de Pago
-      </VToolbarTitle>
-      <VSpacer />
-      <VBtn
-        icon
-        variant="text"
-        color="white"
-        @click="paymentDialog = false"
-        class="mr-1"
-      >
-        <VIcon>mdi-close</VIcon>
-      </VBtn>
-    </VToolbar>
+    <VCard class="rounded-lg">
+      <!-- Header con estilo minimalista -->
+      <VToolbar color="primary" density="compact">
+        <VToolbarTitle class="text-white font-weight-medium">
+          <VBtn icon="ri-close-line" color="white" @click="paymentDialog = false" />
+          Confirmación de Pago
+        </VToolbarTitle>
+        <VSpacer />
+        <VBtn
+          icon
+          variant="text"
+          color="white"
+          @click="paymentDialog = false"
+          class="mr-1"
+        >
+          <VIcon>mdi-close</VIcon>
+        </VBtn>
+      </VToolbar>
 
-    <VCardText class="px-4 pt-5 pb-2">
-      <!-- Mensaje de éxito más destacado -->
-      <div class="text-center mb-5">
-        <VAvatar color="success-lighten-5" size="56" class="mb-3">
-          <VIcon icon="ri-checkbox-circle-fill" color="success" size="80" />
-        </VAvatar>
-        <h3 class="text-h5 font-weight-medium text-success mb-2">
-          ¡Orden creada exitosamente!
-        </h3>
-        <p class="text-medium-emphasis mb-0">
-          ¿Deseas registrar un pago para esta orden?
-        </p>
-      </div>
+      <VCardText class="px-4 pt-5 pb-2">
+        <!-- Mensaje de éxito más destacado -->
+        <div class="text-center mb-5">
+          <VAvatar color="success-lighten-5" size="56" class="mb-3">
+            <VIcon icon="ri-checkbox-circle-fill" color="success" size="80" />
+          </VAvatar>
+          <h3 class="text-h5 font-weight-medium text-success mb-2">
+            ¡Orden creada exitosamente!
+          </h3>
+          <p class="text-medium-emphasis mb-0">
+            ¿Deseas registrar un pago para esta orden?
+          </p>
+        </div>
 
-      <!-- Detalles de la orden en tarjeta estilizada -->
-      <VCard flat border class="mb-4">
-        <VCardText class="pa-4">
-          <div class="d-flex justify-space-between align-center mb-3">
-            <span class="text-medium-emphasis">Número de Orden:</span>
-            <span class="font-weight-medium">
-              #{{ createdOrder?.order?.order_number }}
-            </span>
-          </div>
-          <div class="d-flex justify-space-between align-center">
-            <span class="text-medium-emphasis">Total:</span>
-            <span class="text-h5 font-weight-medium text-success">
-              {{ formatCurrency(createdOrder?.order?.total_amount) }}
-            </span>
-          </div>
-        </VCardText>
-      </VCard>
-    </VCardText>
+        <!-- Detalles de la orden en tarjeta estilizada -->
+        <VCard flat border class="mb-4">
+          <VCardText class="pa-4">
+            <div class="d-flex justify-space-between align-center mb-3">
+              <span class="text-medium-emphasis">Número de Orden:</span>
+              <span class="font-weight-medium">
+                #{{ createdOrder?.order?.order_number }}
+              </span>
+            </div>
+            <div class="d-flex justify-space-between align-center">
+              <span class="text-medium-emphasis">Total:</span>
+              <span class="text-h5 font-weight-medium text-success">
+                {{ formatCurrency(createdOrder?.order?.total_amount) }}
+              </span>
+            </div>
+          </VCardText>
+        </VCard>
+      </VCardText>
 
-    <!-- Acciones con mejor distribución -->
-    <VCardActions class="px-4 pb-4 pt-0">
-      <VRow>
+      <!-- Acciones con mejor distribución -->
+      <VCardActions class="px-4 pb-4 pt-0">
+        <VRow>
           <VCol cols="12" md="12" sm="12" class="pt-4 pb-0 my-0">
-      <VBtn
-        variant="outlined"
-        color="primary"
-        @click="finishOrder"
-        block
-        class="text-capitalize mr-2"
-      >
-        <VIcon icon="mdi-check" class="mr-1" />
-        Finalizar sin pago
-      </VBtn>
-      </VCol>
-      <VCol cols="12" md="12" sm="12" class="pt-1 pb-2 my-0">
-    
-      <VBtn
- 
-        color="white"
-        @click="openPaymentForm"
-        block
-        class="bg-primary text-capitalize"
-      >
-        <VIcon icon="mdi-cash-plus" class="mr-1" />
-        Registrar Pago
-      </VBtn>
-      </VCol>
-      </VRow>
-
-    </VCardActions>
-    
-  </VCard>
-</VDialog>
+            <VBtn
+              variant="outlined"
+              color="primary"
+              @click="finishOrder"
+              block
+              class="text-capitalize mr-2"
+            >
+              <VIcon icon="mdi-check" class="mr-1" />
+              Finalizar sin pago
+            </VBtn>
+          </VCol>
+          <VCol cols="12" md="12" sm="12" class="pt-1 pb-2 my-0">
+            <VBtn
+              color="white"
+              @click="openPaymentForm"
+              block
+              class="bg-primary text-capitalize"
+            >
+              <VIcon icon="mdi-cash-plus" class="mr-1" />
+              Registrar Pago
+            </VBtn>
+          </VCol>
+        </VRow>
+      </VCardActions>
+    </VCard>
+  </VDialog>
 
   <!-- Dialog Registrar Pago -->
   <VDialog v-model="paymentFormDialog" max-width="600px" persistent>
@@ -600,7 +643,6 @@
           <VCard flat class="border" color="surface">
             <VCardItem class="py-2">
               <VCardTitle class="text-subtitle-1 font-weight-medium d-flex align-center">
-                
                 <VAvatar
                   icon="ri-money-dollar-circle-line"
                   class="text-primary mr-2"
@@ -617,24 +659,33 @@
               <div class="d-flex flex-column gap-2">
                 <div class="d-flex justify-space-between">
                   <span class="text-caption text-medium-emphasis">Total Orden:</span>
-                  <span class="font-weight-medium">{{ formatCurrency(createdOrder?.order?.total_amount) }}</span>
+                  <span class="font-weight-medium">{{
+                    formatCurrency(createdOrder?.order?.total_amount)
+                  }}</span>
                 </div>
                 <div class="d-flex justify-space-between">
                   <span class="text-caption text-medium-emphasis">Total Pagado:</span>
-                  <span class="font-weight-medium text-primary">{{ formatCurrency(totalPaid) }}</span>
+                  <span class="font-weight-medium text-primary">{{
+                    formatCurrency(totalPaid)
+                  }}</span>
                 </div>
                 <div class="d-flex justify-space-between">
                   <span class="text-caption text-medium-emphasis">Saldo Pendiente:</span>
-                  <span class="font-weight-medium" :class="pendingAmount > 0 ? 'text-error' : 'text-success'">
+                  <span
+                    class="font-weight-medium"
+                    :class="pendingAmount > 0 ? 'text-error' : 'text-success'"
+                  >
                     {{ formatCurrency(pendingAmount) }}
                   </span>
                 </div>
-                
+
                 <VDivider class="my-1" />
-                
+
                 <div class="d-flex justify-space-between">
                   <span class="text-caption text-medium-emphasis">Vuelto:</span>
-                  <span class="font-weight-medium text-success">{{ formatCurrency(change) }}</span>
+                  <span class="font-weight-medium text-success">{{
+                    formatCurrency(change)
+                  }}</span>
                 </div>
               </div>
             </VCardText>
@@ -660,29 +711,25 @@
                 color="primary"
                 @click="closePaymentForm"
                 class="text-capitalize"
-              block
+                block
               >
                 Cancelar
-              </VBtn> 
+              </VBtn>
             </VCol>
             <VCol cols="12" md="12" sm="12" class="pt-1 my-0 pb-2">
               <VBtn
-              
                 @click="savePayment"
                 :loading="savingPayment"
                 :disabled="!validPayment"
                 color="white"
-                class="bg-primary  text-capitalize"
+                class="bg-primary text-capitalize"
                 block
               >
-              
                 <template v-if="!savingPayment">
                   <VIcon icon="mdi-check-circle-outline" class="mr-1" />
                   Confirmar Pago
                 </template>
-                <template v-else>
-                  Procesando...
-                </template>
+                <template v-else> Procesando... </template>
               </VBtn>
             </VCol>
           </VRow>
@@ -703,10 +750,8 @@
 <script>
 import { VAvatar, VCardItem, VTextField } from "vuetify/lib/components/index.mjs";
 import PaymentsRow from "@/components/PaymentsRow.vue";
- 
-import { mapGetters } from 'vuex';
 
- 
+import { mapGetters } from "vuex";
 
 export default {
   data() {
@@ -746,8 +791,8 @@ export default {
         total_amount: 0,
         notes: "",
         items: [],
-        shipping:0,
-        shipping_address_status:false
+        shipping: 0,
+        shipping_address_status: false,
       },
 
       // New item being added
@@ -763,7 +808,7 @@ export default {
         name: "",
         email: "",
         telephone: "",
-        locality_id:"",
+        locality_id: "",
         address: "",
       },
 
@@ -775,7 +820,7 @@ export default {
       },
 
       // Created order and payments
-      createdOrder: null,      
+      createdOrder: null,
 
       // Snackbar
       snackbar: false,
@@ -789,14 +834,13 @@ export default {
         { title: "Cantidad", key: "quantity", width: "80px" },
         { title: "Precio Unit.", key: "unit_price", width: "150px" },
         { title: "Total", key: "total_price", width: "150px", align: "end" },
-       
       ],
       localities: [],
       keyPayments: 0,
       change: 0,
       totalPaid: 0,
       isAdmibBebidas: false,
-      saveButtonLabel:"Crear Orden"
+      saveButtonLabel: "Crear Orden",
     };
   },
 
@@ -812,7 +856,8 @@ export default {
       return (
         this.newItem.product_id &&
         this.newItem.quantity > 0 &&
-        this.newItem.unit_price > 0 /*&&
+        this.newItem.unit_price >
+          0 /*&&
         this.newItem.quantity <= this.getProductStock(this.newItem.product_id)*/
       );
     },
@@ -825,38 +870,39 @@ export default {
       );
     },
 
-    
-
-    pendingAmount() {      
-      return this.createdOrder ? (this.totalPaid<this.createdOrder.order.total_amount)? this.createdOrder.order.total_amount - this.totalPaid : 0:0;
-    },   
+    pendingAmount() {
+      return this.createdOrder
+        ? this.totalPaid < this.createdOrder.order.total_amount
+          ? this.createdOrder.order.total_amount - this.totalPaid
+          : 0
+        : 0;
+    },
   },
 
   async created() {
-
     // Verificar si estamos en modo edición
     if (this.$route.query.edit && this.$route.query.orderId) {
       this.isEditing = true;
       this.editingOrderId = this.$route.query.orderId;
-      this.saveButtonLabel="Editar Orden";
-      this.$route.meta.title= "Editar Orden N° "+this.$route.query.orderId
+      this.saveButtonLabel = "Editar Orden";
 
-      document.title = this.$route.meta.title;
-     
       await this.loadOrderData();
     }
     await this.loadData();
-    this.$forceUpdate();
   },
 
   methods: {
-
     async loadOrderData() {
       try {
-        const response = await this.$axios.get(`${this.$routes["orders"]}/${this.editingOrderId}`);
+        const response = await this.$axios.get(
+          `${this.$routes["orders"]}/${this.editingOrderId}`
+        );
         const orderData = response.data.data || response.data;
-   
- 
+        console.log(orderData.order_number);
+        this.$route.meta.title = "Editar Orden N° " + orderData.order_number;
+
+        document.title = this.$route.meta.title;
+
         this.order = {
           customer_id: orderData.customer.id,
           shipping_address: orderData.shipping_address,
@@ -866,7 +912,7 @@ export default {
           discount_amount: parseFloat(orderData.discount_amount),
           total_amount: parseFloat(orderData.total_amount),
           notes: orderData.notes,
-          items: orderData.items.map(item => ({
+          items: orderData.items.map((item) => ({
             product_id: item.product_id,
             quantity: parseInt(item.quantity),
             unit_price: parseFloat(item.unit_price),
@@ -876,93 +922,75 @@ export default {
           })),
           shipping: orderData.shipping ? 1 : 0,
         };
-        
+
+        this.$forceUpdate();
       } catch (error) {
         console.error("Error al cargar datos de la orden:", error);
         this.showSnackbar("Error al cargar la orden para edición", "error");
         //this.$router.go(-1); // Volver atrás si hay error
       }
     },
-    
+
     formatDateForInput(dateString) {
-      if (!dateString) return '';
+      if (!dateString) return "";
       const date = new Date(dateString);
-      return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
+      return `${date.getDate().toString().padStart(2, "0")}/${(date.getMonth() + 1)
+        .toString()
+        .padStart(2, "0")}/${date.getFullYear()}`;
     },
-    
 
-    async updateOrder()
-    {
-      alert("es un update");
-    },
-    async createOrder() {
-      if (this.isEditing) {
-        await this.updateOrder();
-        return;
-      }
-    },
     productTitle(item) {
-
       const currentUser = this.$store.getters.currentUser;
- 
-      let title=item.name;
- 
-      if(currentUser.data.tenant.id ==2)
-      {
-        title =`[${item.code}] ${item.name} `;
+
+      let title = item.name;
+
+      if (currentUser.data.tenant.id == 2) {
+        title = `[${item.code}] ${item.name} `;
       }
 
-      
       return title;
     },
-    
-     
-     
-    setDate(value){
-      if(value) return
-      let tomorrow = this.getDateTimeTomorrow()
 
-      this.order.delivery_date = tomorrow
-    },  
-    updateTotal(newTotal) {      
-      this.totalPaid = newTotal
-      this.change = (this.totalPaid>this.createdOrder.order.total_amount)? this.totalPaid - this.createdOrder.order.total_amount:0;
+    setDate(value) {
+      if (value) return;
+      let tomorrow = this.getDateTimeTomorrow();
+
+      this.order.delivery_date = tomorrow;
+    },
+    updateTotal(newTotal) {
+      this.totalPaid = newTotal;
+      this.change =
+        this.totalPaid > this.createdOrder.order.total_amount
+          ? this.totalPaid - this.createdOrder.order.total_amount
+          : 0;
     },
     async loadData() {
       try {
         this.isAdminBebidas = this.$is(["bebidas-admin"]);
         //this.isAdmin = this.userIsAdmin;
 
-        const [
-          customersRes,
-          productsRes,
-          stockRes,                
-          localitiesRes,
-        ] = await Promise.all([
+        const [customersRes, productsRes, stockRes, localitiesRes] = await Promise.all([
           this.$axios.get(this.$routes["customers"]),
           this.$axios.get(this.$routes["products"]),
-          this.$axios.get(this.$routes["stocks"]),                    
+          this.$axios.get(this.$routes["stocks"]),
           this.$axios.get(this.$routes["localities"]),
         ]);
 
-        if(this.isAdminBebidas){
+        if (this.isAdminBebidas) {
           const usersRes = await this.$axios.get(this.$routes["usersList"]);
 
-          this.sellers = usersRes.data.data || usersRes.data; 
+          this.sellers = usersRes.data.data || usersRes.data;
         }
 
         this.customers = customersRes.data.data || customersRes.data;
         this.products = productsRes.data.data || productsRes.data;
-        this.stock = stockRes.data.data || stockRes.data;         
+        this.stock = stockRes.data.data || stockRes.data;
         this.localities = localitiesRes.data.data || localitiesRes.data;
 
-        if(this.$is("bebidas-admin") || this.$is("bebidas-user")) 
-        {
-          this.order.shipping=1
+        if (this.$is("bebidas-admin") || this.$is("bebidas-user")) {
+          this.order.shipping = 1;
         }
-          this.setDate(this.order.delivery_date);
-
-        
+        this.setDate(this.order.delivery_date);
       } catch (error) {
         console.error("Error loading data:", error);
         this.showSnackbar("Error al cargar los datos", "error");
@@ -1101,15 +1129,55 @@ export default {
       }
     },
 
-    
-    async createOrder() {
+    async updateOrder() {
+      const isValid = await this.$refs.orderForm.validate();
+      if (!isValid) return;
 
+      this.creatingOrder = true;
+      try {
+        const orderData = {
+          ...this.order,
+          quantity_products: this.order.items.reduce(
+            (sum, item) => sum + parseInt(item.quantity),
+            0
+          ),
+          total_cost: this.order.items.reduce(
+            (sum, item) => sum + item.quantity * item.unit_cost_price,
+            0
+          ),
+          total_profit: this.order.items.reduce(
+            (sum, item) => sum + parseFloat(item.total_profit),
+            0
+          ),
+          // Incluir seller_id si es necesario (como en createOrder)
+          seller_id: this.order.seller_id?.id || this.order.seller_id,
+        };
+
+        // Usamos PUT o PATCH para actualizar la orden existente
+        const response = await this.$axios.post(
+          `${this.$routes["orders"]}-update/${this.editingOrderId}`,
+          orderData
+        );
+
+        this.createdOrder = response.data.data || response.data;
+        this.showSnackbar("Orden actualizada exitosamente", "success");
+
+        // Redirigir al listado de órdenes o hacer lo que necesites
+        this.$router.push({ path: "/order-search" });
+      } catch (error) {
+        console.error("Error updating order:", error);
+        this.showSnackbar("Error al actualizar la orden", "error");
+      } finally {
+        this.creatingOrder = false;
+      }
+    },
+
+    async createOrder() {
       //si es edicion  updatea la orden
       if (this.isEditing) {
         await this.updateOrder();
         return;
       }
- 
 
       const isValid = await this.$refs.orderForm.validate();
       if (!isValid) return;
@@ -1134,7 +1202,6 @@ export default {
           ),
         };
 
-
         const response = await this.$axios.post(this.$routes["orders"], orderData);
 
         this.createdOrder = response.data.data || response.data;
@@ -1152,7 +1219,7 @@ export default {
     // Payment methods
     openPaymentForm() {
       this.paymentDialog = false;
-      
+
       this.paymentFormDialog = true;
     },
 
@@ -1166,19 +1233,19 @@ export default {
       };*/
     },
 
-    clearForm(){      
+    clearForm() {
       this.order = {
         customer_id: null,
-        shipping_address: '',
-        delivery_date:'',
+        shipping_address: "",
+        delivery_date: "",
         subtotal: 0,
         aditional: 0,
         discount_amount: 0,
         total_amount: 0,
-        notes: '',
+        notes: "",
         items: [],
       };
-      this.order.shipping_address = '';
+      this.order.shipping_address = "";
 
       // Paso 2: Forzar limpieza de validaciones
       this.$refs.orderForm.resetValidation();
@@ -1190,41 +1257,44 @@ export default {
       });
 
       this.loadData();
-
-      
-      
     },
 
-    async  validatePayments(payments) {                        
-      if(payments.length<=0){
-        return "Debe incluir al menos una modalidad de pago";        
+    async validatePayments(payments) {
+      if (payments.length <= 0) {
+        return "Debe incluir al menos una modalidad de pago";
       }
 
       const paymentMethod = new Set();
-      const total = payments.reduce((acc, payment) => acc + parseFloat(payment.amount), 0);
+      const total = payments.reduce(
+        (acc, payment) => acc + parseFloat(payment.amount),
+        0
+      );
       /*if (total > this.pendingAmount) {        
         return "El total excede el saldo pendiente";
       }*/
 
-      for (const payment of payments) {                
-        if((!payment.amount)||(!payment.payment_method_id)){
+      for (const payment of payments) {
+        if (!payment.amount || !payment.payment_method_id) {
           return "Verifique la informacion de los pagos";
         }
         // 1. Verificar paymentMethod duplicados
         if (paymentMethod.has(payment.payment_method_id.id)) {
-          return 'Ha seleccionado mas de una vez el mismo metodo de pago. Metodo de pago: '+payment.payment_method_id.name;          
+          return (
+            "Ha seleccionado mas de una vez el mismo metodo de pago. Metodo de pago: " +
+            payment.payment_method_id.name
+          );
         }
-        paymentMethod.add(payment.payment_method_id.id);        
-      }       
-      
+        paymentMethod.add(payment.payment_method_id.id);
+      }
+
       return true;
     },
 
     async savePayment() {
       //console.log("this.$refs.payments.personas");
       //console.log(this.$refs.paymentsRow.payments);
-      const isValid = await this.validatePayments(this.$refs.paymentsRow.payments);      
-          
+      const isValid = await this.validatePayments(this.$refs.paymentsRow.payments);
+
       if (isValid !== true) return this.showSnackbar(isValid, "error");
 
       this.savingPayment = true;
@@ -1237,7 +1307,7 @@ export default {
 
         const response = await this.$axios.post(this.$routes["payments"], paymentData);
         console.log(response);
-        if(response.status == 201){
+        if (response.status == 201) {
           this.showSnackbar("Pago registrado exitosamente", "success");
           this.finishOrder();
         }
@@ -1289,12 +1359,11 @@ export default {
       }
     },
 
-    finishOrder() {      
-      this.clearForm();      
+    finishOrder() {
+      this.clearForm();
       this.paymentDialog = false;
-      this.paymentFormDialog = false;      
+      this.paymentFormDialog = false;
       //this.$router.push({ path: "/order-create" });
-
     },
 
     // Utility methods
@@ -1318,33 +1387,29 @@ export default {
       this.snackbar = true;
     },
 
-    toggleShipping(order){
+    toggleShipping(order) {
       console.log(order.shipping);
       order.shipping_address_status = !order.shipping_address_status;
-    }
-
+    },
   },
 };
 </script>
 
 <style>
-
-
 .custom-bg-gray .v-field__overlay {
   background-color: #ddd !important;
-  
 }
 .cliente .v-autocomplete__selection {
-    font-size: 18px;
-    /*font-weight: bold;
+  font-size: 18px;
+  /*font-weight: bold;
     margin-top: 10px;
     margin-bottom: -10px;*/
 }
-.number-end .v-field__input{
+.number-end .v-field__input {
   text-align: end !important;
 }
 
-.bg-warning-2{
+.bg-warning-2 {
   background: #fdedb1;
 }
 
@@ -1354,9 +1419,7 @@ export default {
 }
 </style>
 <style scoped>
-
-
-tbody{
+tbody {
   font-size: 13px !important;
 }
 .v-card-title {
@@ -1365,17 +1428,14 @@ tbody{
 
 .v-data-table {
   border: 1px solid #e0e0e0;
-  
 }
-
 
 .v-field__field {
-    height: 35px !important;
-    font-size: 13px !important;
-    margin-top: 0px !important;
+  height: 35px !important;
+  font-size: 13px !important;
+  margin-top: 0px !important;
 }
-.v-data-table__tr{
+.v-data-table__tr {
   height: 43px !important;
 }
-
 </style>
