@@ -599,4 +599,70 @@ class OrderRepository extends BaseRepository
 
         DB::statement($sql);
     }
+
+    public function cancelOrder($request, $id)
+    {
+        DB::beginTransaction();
+
+        try {
+            // Datos del Usuario
+            $user = Auth::user();
+            // Datos del formulario
+            $formRequest = $request->all();
+            $form = $formRequest;                                
+            // Obtener la orden existente
+            $model = $this->model::findOrFail($id);
+
+            // 1. Eliminar todos los items anteriores y devolver el stock
+            $oldItems = $model->items()->get();
+
+            if ($oldItems->isNotEmpty()) {
+                // Devolver stock
+                $productIds = $oldItems->pluck('product_id')->toArray();
+                $quantities = $oldItems->pluck('quantity', 'product_id')->toArray();
+                $this->adjustStock($productIds, $quantities, 'increment');
+                // Eliminar items
+                $model->items()->delete();
+            }
+
+            // Actualizar estados       
+            $code = StatusEnum::CANCEL;
+            $shipmentStatus = ShipmentStatus::where('tenant_id', $user->tenant_id)
+                ->where('active', true)
+                ->where('code', $code)
+                ->first();
+            $form['shipment_status_id'] = $shipmentStatus ? $shipmentStatus->id : null;
+
+            if($model->paymentStatus->code == StatusEnum::PAID || $model->paymentStatus->code == StatusEnum::PARTIAL_PAYMENT) {
+                // Si la orden ya estaba pagada, se debe registrar un reembolso
+                $code = StatusEnum::REFUND;                
+            } else {
+                // Si no estaba pagada, se puede cancelar directamente
+                $code = StatusEnum::CANCEL;                                
+            }                
+            $paymentStatus = PaymentStatus::where('tenant_id', $user->tenant_id)->where('active', true)->where('code', $code)->first();
+            // Asignar el estado de envío y pago            
+            $form['payment_status_id'] = $paymentStatus ? $paymentStatus->id : null;
+            
+            // Actualizar campos de la orden
+            $model->fill([                
+                'shipment_status_id' => $form['shipment_status_id'],
+                'payment_status_id' => $form['payment_status_id'],
+            ]);
+
+            $model->save();            
+
+            DB::commit();
+            $this->cacheForget();
+
+            return $this->successResponse([
+                'order' => $model,
+                //'items' => $model->items()->get(),
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            report($e);
+            return $this->errorResponse($e);
+        }
+    }
 }

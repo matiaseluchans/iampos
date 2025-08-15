@@ -336,6 +336,19 @@
                     >Registrar Pago
                   </VListItemTitle>
                 </VListItem>
+                <VListItem                   
+                  @click="dialogCancelOrden(item)"
+                >
+                  <VListItemTitle>
+                    <IconBtn
+                      size="small"
+                      class="my-1"
+                      title="Cancelar Orden"
+                      @click="dialogCancelOrden(item)">
+                      <VIcon icon="ri-file-close-line" />
+                    </IconBtn>Cancelar Orden
+                  </VListItemTitle>                                                                
+                </VListItem>
               </VList>
             </VMenu>
           </div>
@@ -686,6 +699,17 @@
         </VCard>
       </VDialog>
 
+      <DialogConfirmar
+      v-if="dialogs['cancelOrden']"
+        v-model="dialogs['cancelOrden']"
+        @input="dialog = $event"
+        title="Cancelar Orden"
+        :info="'¿Estás seguro cancelar la orden <b>'+selectedOrder.order_number+'</b>? Esta acción no se puede deshacer.'"
+        icon="ri-file-close-line"
+        color="#F44336"
+        @confirm="confirmCancelOrden()"
+        @close="closeDialog('cancelOrden')"
+      />    
       <v-snackbar v-model="snackbar" :color="snackbarColor" :timeout="3000">
         {{ snackbarText }}
         <template v-slot:action="{ attrs }">
@@ -709,10 +733,11 @@
 <script>
 import DateRangeField from "@/components/DateRangeField.vue";
 import { mapGetters } from "vuex";
+import DialogConfirmar from "@/components/dialogs/Confirm.vue";
 //import { debounce } from 'lodash';
 
 export default {
-  components: { DateRangeField },
+  components: { DateRangeField, DialogConfirmar },
   data() {
     return {
       keyPayments: 1,
@@ -799,7 +824,9 @@ export default {
         last_page: 1,
       },
       isInitialLoad: true, // Bandera para identificar carga inicial
-      //searchDebounce: null, // Para el debounce de búsqueda
+      dialogs: {
+        cancelOrden: false,        
+      },
     };
   },
 
@@ -844,6 +871,46 @@ export default {
   },
 
   methods: {
+    closeDialog(dialog){
+      this.dialogs[dialog] = false   
+       this.selectedOrder = null   
+    },
+    dialogCancelOrden(item) {
+      if (!item) {
+        this.showSnackbar("No hay orden seleccionada para cancelar", "error")
+        return;
+      }
+      console.log("Abriendo diálogo de cancelación para la orden:", item);
+      this.selectedOrder = item; // Asegurarse de que la orden seleccionada esté definida      
+      this.dialogs['cancelOrden'] = true;
+    },
+    async confirmCancelOrden() {
+      console.log("Confirmando cancelación de orden:", this.selectedOrder);
+
+      try {
+        this.loading = true;
+        const response = await this.$axios.post(`${this.$routes["ordersCancel"]}/${this.selectedOrder.id}`, {
+          data: {
+            form: this.selectedOrder,
+          },
+          _method: 'PUT'
+        });
+
+        // Actualizar localmente para mejor experiencia de usuario        
+        this.showSnackbar("Se ha cancelado la orden", "success");
+      } catch (error) {
+        console.error("Error al actualizar estado:", error);
+        this.showSnackbar("Error al actualizar el estado", "error");
+        // Forzar recarga para sincronizar con el servidor        
+      } finally {        
+        this.closeDialog('cancelOrden')
+        this.loading = false;
+        this.fetchData();
+      }
+
+      
+      //this.openMovementDialog(this.selectedOrder, true); // true indica que es una cancelación
+    },
     calculateTotalAmount() {
       if (!this.orders.data) return 0;
 

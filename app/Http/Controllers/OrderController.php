@@ -190,4 +190,9 @@ class OrderController extends Controller
     {
         return $this->repository->latest($request);
     }
+
+    public function cancelOrder(Request $request, $id)
+    {
+        return $this->repository->cancelOrder($request, $id);
+    }
 }

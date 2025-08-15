@@ -233,7 +233,7 @@
                       <VIcon icon="ri-money-dollar-circle-line" />
                     </IconBtn>Registrar Pago
                   </VListItemTitle>                                                                
-                </VListItem>                
+                </VListItem>                                
               </VList>
             </VMenu>
           </div>
