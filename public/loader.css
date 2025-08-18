@@ -91,6 +91,21 @@ html {
 }
 
 
+.v-theme--dark .striped-table .v-data-table__tr:nth-child(even) {
+  background-color: rgb(49,
+    45,
+    75);
+  /* Color para filas pares en dark mode */
+}
+
+.v-theme--dark .striped-table .v-data-table__tr:nth-child(odd) {
+  background-color: rgb(40,
+    36,
+    61);
+  /* Color para filas impares en dark mode */
+}
+
+
 /* Estilo para el chip principal */
 .status-chip {
   cursor: pointer;

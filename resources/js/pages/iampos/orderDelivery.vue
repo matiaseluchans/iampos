@@ -198,6 +198,16 @@
             <strong>{{ formatCurrency(item.total_amount) }}</strong>
           </div>
         </template>
+        <template #item.total_paid="{ item }">
+          <div
+            :class="
+              item.total_paid > 0 ?  item.total_paid < item.total_amount ? 'text-right text-warning' : 'text-right text-success': 'text-right text-error'
+            "
+          >
+            <strong>{{ formatCurrency(item.total_paid) }}</strong>
+          </div>
+        </template>
+        
         <template #item.payment_status_id="{ item }">
           <div class="d-flex flex-column align-center gap-0">
             <!--
@@ -791,6 +801,7 @@ export default {
         { title: "Fecha", key: "order_date", align: "center", width: "60px" },
         { title: "Cliente", key: "customer", width: "70%" },
         { title: "Total", key: "total_amount", align: "end" },
+        { title: "Pagado", key: "total_paid", align: "end" },
         { title: "Vendedor", key: "seller_name", width: "10%" },
        
         { title: "Fecha Entrega", key: "delivery_date", align: "center", width: "100px" },
@@ -957,10 +968,11 @@ export default {
       } catch (error) {
         console.error("Error al actualizar estado:", error);
         this.showSnackbar("Error al actualizar el estado", "error");
-        // Forzar recarga para sincronizar con el servidor
-        this.fetchData();
+        
       } finally {
         this.loading = false;
+        // Forzar recarga para sincronizar con el servidor
+        this.fetchData();
       }
     },
 
@@ -1071,8 +1083,8 @@ export default {
         ]);
 
         this.customers = customersRes.data.data;
-        this.paymentStatuses = paymentStatusesRes.data.data;
-        this.shipmentStatuses = shipmentStatusesRes.data.data;
+        this.paymentStatuses = paymentStatusesRes.data.data.filter(item => item.code != "cancelled" && item.code != "refund");
+        this.shipmentStatuses = shipmentStatusesRes.data.data.filter(item => item.code != "cancelled");
       } catch (error) {
         console.error("Error fetching data:", error);
         this.showSnackbar("Error al cargar los datos", "error");
