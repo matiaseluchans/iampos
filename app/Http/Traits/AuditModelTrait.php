@@ -19,6 +19,7 @@ trait AuditModelTrait
         static::creating(function (Model $model) {
             $model->tenant_id = Auth::user()->tenant_id;
             $model->created_by = Auth::user()->id;
+            $model->last_modified_by = Auth::user()->id;
         });
 
         static::updating(function (Model $model) {

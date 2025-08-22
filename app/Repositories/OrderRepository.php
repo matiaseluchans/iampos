@@ -102,8 +102,14 @@ class OrderRepository extends BaseRepository
                 $sellerId = $user->id;
                 $sellerName = $user->name;
             } else {
-                $sellerId = $form['seller_id']['id'];
-                $sellerName = $form['seller_id']['name'];
+                if ($user->tenant_id == 3) //petshop
+                {
+                    $sellerId = $user->id;
+                    $sellerName = $user->name;
+                } else {
+                    $sellerId = $form['seller_id']['id'];
+                    $sellerName = $form['seller_id']['name'];
+                }
             }
             if (!isset($form['shipment_status_id'])) {
                 //si es con envio
@@ -609,7 +615,7 @@ class OrderRepository extends BaseRepository
             $user = Auth::user();
             // Datos del formulario
             $formRequest = $request->all();
-            $form = $formRequest;                                
+            $form = $formRequest;
             // Obtener la orden existente
             $model = $this->model::findOrFail($id);
 
@@ -633,24 +639,24 @@ class OrderRepository extends BaseRepository
                 ->first();
             $form['shipment_status_id'] = $shipmentStatus ? $shipmentStatus->id : null;
 
-            if($model->paymentStatus->code == StatusEnum::PAID || $model->paymentStatus->code == StatusEnum::PARTIAL_PAYMENT) {
+            if ($model->paymentStatus->code == StatusEnum::PAID || $model->paymentStatus->code == StatusEnum::PARTIAL_PAYMENT) {
                 // Si la orden ya estaba pagada, se debe registrar un reembolso
-                $code = StatusEnum::REFUND;                
+                $code = StatusEnum::REFUND;
             } else {
                 // Si no estaba pagada, se puede cancelar directamente
-                $code = StatusEnum::CANCEL;                                
-            }                
+                $code = StatusEnum::CANCEL;
+            }
             $paymentStatus = PaymentStatus::where('tenant_id', $user->tenant_id)->where('active', true)->where('code', $code)->first();
             // Asignar el estado de envío y pago            
             $form['payment_status_id'] = $paymentStatus ? $paymentStatus->id : null;
-            
+
             // Actualizar campos de la orden
-            $model->fill([                
+            $model->fill([
                 'shipment_status_id' => $form['shipment_status_id'],
                 'payment_status_id' => $form['payment_status_id'],
             ]);
 
-            $model->save();            
+            $model->save();
 
             DB::commit();
             $this->cacheForget();

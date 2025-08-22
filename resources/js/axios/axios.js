@@ -1,5 +1,7 @@
 import axios from 'axios';
-import router from '@/router'; 
+import { useRouter } from "vue-router";
+
+
 import { logout } from '@/api/auth'
 
 const instance = axios.create({
@@ -11,10 +13,13 @@ if (token) {
   instance.defaults.headers.common['Authorization'] = `Bearer ${token}`
 }
 
+
 // Interceptor para manejar respuestas con código 401
 instance.interceptors.response.use(
   response => response,
   error => {
+    const router = useRouter();
+    
     if (error.response && error.response.status === 401) {
       // Redirigir usando Vue Router
       localStorage.removeItem('token');
