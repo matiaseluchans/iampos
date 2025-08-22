@@ -894,6 +894,9 @@ export default {
   methods: {
     async loadOrderData() {
       try {
+
+        this.isAdminBebidas = this.$is(["bebidas-admin"]);
+
         const response = await this.$axios.get(
           `${this.$routes["orders"]}/${this.editingOrderId}`
         );
@@ -912,6 +915,7 @@ export default {
           discount_amount: parseFloat(orderData.discount_amount),
           total_amount: parseFloat(orderData.total_amount),
           notes: orderData.notes,
+          seller_id: orderData.seller_id,
           items: orderData.items.map((item) => ({
             product_id: item.product_id,
             quantity: parseInt(item.quantity),
@@ -922,6 +926,7 @@ export default {
           })),
           shipping: orderData.shipping ? 1 : 0,
         };
+        
 
         this.$forceUpdate();
       } catch (error) {
@@ -1150,7 +1155,7 @@ export default {
             0
           ),
           // Incluir seller_id si es necesario (como en createOrder)
-          seller_id: this.order.seller_id?.id || this.order.seller_id,
+          //seller_id: this.order.seller_id?.id || this.order.seller_id,
         };
 
         // Usamos PUT o PATCH para actualizar la orden existente

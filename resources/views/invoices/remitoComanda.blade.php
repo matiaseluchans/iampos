@@ -7,7 +7,7 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            font-size: 9px;
+            font-size: 11px;
 
             /* Ancho más estrecho como en la imagen */
         }
@@ -25,17 +25,18 @@
             margin-bottom: 1mm;
             padding-bottom: 1mm;
             border-bottom: 1px solid #000;
+            padding-left: 1mm;
         }
 
         .company-name {
             font-weight: bold;
-            font-size: 10px;
+            font-size: 11px;
             margin-bottom: 1mm;
         }
 
         .iva-info {
             text-align: center;
-            font-size: 8px;
+            font-size: 11px;
             margin: 1mm 0;
         }
 
@@ -43,12 +44,13 @@
             margin: 2mm 0;
             text-align: center;
             font-weight: bold;
-            font-size: 10px;
+            font-size: 11px;
         }
 
         .section-title {
             font-weight: bold;
             margin: 2mm 0 1mm 0;
+            padding-left: 1mm;
             border-bottom: 1px solid #000;
         }
 
@@ -59,6 +61,7 @@
         .client-row {
             display: flex;
             margin-bottom: 1mm;
+            padding-left: 1mm;
         }
 
         .client-label {
@@ -70,17 +73,21 @@
             width: 100%;
             border-collapse: collapse;
             margin: 1mm 0 2mm 0;
-            font-size: 8px;
+            font-size: 11px;
         }
 
         th {
             border-bottom: 1px solid #000;
             padding: 1mm 0;
+            padding-left: 1mm;
+            padding-right: 1mm;
             text-align: left;
         }
 
         td {
             padding: 1mm 0;
+            padding-left: 1mm;
+            padding-right: 1mm;
             border-bottom: 1px dotted #ccc;
             vertical-align: top;
         }
@@ -115,7 +122,7 @@
         .footer {
             margin-top: 2mm;
             text-align: center;
-            font-size: 7px;
+            font-size: 8px;
         }
 
         .barcode {
@@ -127,7 +134,7 @@
 
         .observaciones {
             margin-top: 2mm;
-            font-size: 8px;
+            font-size: 11px;
         }
     </style>
 </head>
@@ -159,7 +166,7 @@
 
 
         <div class="section-title">CLIENTE</div>
-        <div style="margin-bottom: 2mm;"><strong>{{ $order->customer->name ?? 'CONSUMIDOR FINAL' }}</strong></div>
+        <div style="margin-bottom: 2mm;padding-left: 1mm;"><strong>{{ $order->customer->name ?? 'CONSUMIDOR FINAL' }}</strong></div>
         <div class="client-row">
             <span class="client-label">Domicilio:</span>
             <span>{{ $order->customer->address }} - {{ $order->customer->locality ? $order->customer->locality->name :''}}</span>
@@ -179,15 +186,15 @@
                     <th style="width: 35mm;">PRODUCTO</th>
                     <th style="width: 8mm;" class="text-right">CANT</th>
                     <th style="width: 12mm;" class="text-right">PRECIO </th>
-                    <th style="width: 12mm;" class="text-right">MONTO </th>
+                    <th class="text-right" style="padding-right: 1mm;">MONTO </th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($order->items as $item)
                 <tr>
-                    <td>{{ $item->product->code }}</td>
+                    <td>{{ $item->product->code ?? '' }}</td>
                     <td>{{ $item->product->name }}</td>
-                    <td class="text-right">{{ $item->quantity }}</td>
+                    <td class=" text-right">{{ $item->quantity }}</td>
                     <td class="text-right">${{ number_format($item->unit_price, 2, ',', '.') }}</td>
                     <td class="text-right">${{ number_format($item->unit_price * $item->quantity, 2, ',', '.') }}</td>
                 </tr>
@@ -198,7 +205,7 @@
                     <td class="text-right total-row grand-total">TOTAL</td>
                     <td class="text-right total-row grand-total">{{ $order->items->sum('quantity') }} un</td>
                     <td class="text-right total-row grand-total"> </td>
-                    <td class="text-right total-row grand-total">${{ number_format($order->total_amount, 2, ',', '.') }}</td>
+                    <td class="text-right total-row grand-total" style="padding-right: 1mm;">${{ number_format($order->total_amount, 2, ',', '.') }}</td>
                 </tr>
             </tbody>
         </table>
@@ -270,7 +277,7 @@
 
 
         <div class="section-title">CLIENTE</div>
-        <div style="margin-bottom: 2mm;"><strong>{{ $order->customer->name ?? 'CONSUMIDOR FINAL' }}</strong></div>
+        <div style="margin-bottom: 2mm;padding-left: 1mm;"><strong>{{ $order->customer->name ?? 'CONSUMIDOR FINAL' }}</strong></div>
         <div class="client-row">
             <span class="client-label">Domicilio:</span>
             <span>{{ $order->customer->address }} - {{ $order->customer->locality ? $order->customer->locality->name :''}}</span>
@@ -290,7 +297,7 @@
                     <th style="width: 35mm;">PRODUCTO</th>
                     <th style="width: 8mm;" class="text-right">CANT</th>
                     <th style="width: 12mm;" class="text-right">PRECIO </th>
-                    <th style="width: 12mm;" class="text-right">MONTO </th>
+                    <th class="text-right" style="padding-right: 1mm;">MONTO </th>
                 </tr>
             </thead>
             <tbody>
@@ -309,7 +316,7 @@
                     <td class="text-right total-row grand-total">TOTAL</td>
                     <td class="text-right total-row grand-total">{{ $order->items->sum('quantity') }} un</td>
                     <td class="text-right total-row grand-total"> </td>
-                    <td class="text-right total-row grand-total">${{ number_format($order->total_amount, 2, ',', '.') }}</td>
+                    <td class="text-right total-row grand-total" style="padding-right: 1mm;">${{ number_format($order->total_amount, 2, ',', '.') }}</td>
                 </tr>
             </tbody>
         </table>

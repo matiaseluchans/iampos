@@ -498,13 +498,20 @@ class OrderRepository extends BaseRepository
             // Actualizar datos básicos de la orden
             $sellerId = '';
             $sellerName = '';
+
+
             if (!$user->roles()->where('name', 'like', '%-admin%')->exists()) {
                 $sellerId = $user->id;
                 $sellerName = $user->name;
             } else {
-                $sellerId = $form['seller_id']['id'];
-                $sellerName = $form['seller_id']['name'];
+
+                $sellerId = isset($form['seller_id']['id']) ? $form['seller_id']['id'] : $form['seller_id'];
+                if ($model->seller_id != $sellerId)
+                    $sellerName = $form['seller_id']['name'];
+                else
+                    $sellerName = $model->seller_name;
             }
+
 
             // Actualizar estados si no vienen en el request
             if (!isset($form['shipment_status_id'])) {
@@ -523,6 +530,8 @@ class OrderRepository extends BaseRepository
                     ->first();
                 $form['payment_status_id'] = $paymentStatus ? $paymentStatus->id : null;
             }
+
+
 
             // Actualizar campos de la orden
             $model->fill([
@@ -544,7 +553,6 @@ class OrderRepository extends BaseRepository
             ]);
 
             $model->save();
-
             // 2. Crear nuevos items y descontar stock
             if (!empty($items)) {
                 $data = array_map(function ($item) use ($model, $user) {
@@ -561,6 +569,8 @@ class OrderRepository extends BaseRepository
                         'created_at' => now(),
                     ];
                 }, $items);
+
+                var_dump($data);
 
                 OrderItem::insert($data);
 
