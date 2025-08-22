@@ -182,10 +182,10 @@
         <table>
             <thead>
                 <tr>
-                    <th style="width: 8mm;">COD</th>
-                    <th style="width: 35mm;">PRODUCTO</th>
-                    <th style="width: 8mm;" class="text-right">CANT</th>
-                    <th style="width: 12mm;" class="text-right">PRECIO </th>
+                    <th style="width: 12;">COD</th>
+                    <th style="width: 70mm;">PRODUCTO</th>
+                    <th style="width: 15mm;" class="text-right">CANT</th>
+                    <th style="width: 25mm;" class="text-right">PRECIO </th>
                     <th class="text-right" style="padding-right: 1mm;">MONTO </th>
                 </tr>
             </thead>
@@ -293,10 +293,10 @@
         <table>
             <thead>
                 <tr>
-                    <th style="width: 8mm;">COD</th>
-                    <th style="width: 35mm;">PRODUCTO</th>
-                    <th style="width: 8mm;" class="text-right">CANT</th>
-                    <th style="width: 12mm;" class="text-right">PRECIO </th>
+                    <th style="width: 12;">COD</th>
+                    <th style="width: 70mm;">PRODUCTO</th>
+                    <th style="width: 15mm;" class="text-right">CANT</th>
+                    <th style="width: 25mm;" class="text-right">PRECIO </th>
                     <th class="text-right" style="padding-right: 1mm;">MONTO </th>
                 </tr>
             </thead>
