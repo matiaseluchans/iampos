@@ -251,7 +251,11 @@
         </div>
     </div>
 
-    <div class="border">
+
+    @if(count($order->items) >=10)
+    <div style="page-break-after: always;"></div>
+    @endif
+    <div class=" border">
         <div class=" header">
             <table>
                 <tr>
