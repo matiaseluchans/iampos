@@ -29,7 +29,7 @@ class OrderItem extends Model
 
     protected static function booted(): void
     {
-        static::addGlobalScope(new TenantScope);        
+        static::addGlobalScope(new TenantScope);
     }
 
     /**
@@ -43,5 +43,12 @@ class OrderItem extends Model
     public function product()
     {
         return $this->belongsTo(Product::class)->withTrashed();
+    }
+
+    public function scopeOrderByProductName($query, $direction = 'asc')
+    {
+        return $query->join('products', 'order_items.product_id', '=', 'products.id')
+            ->orderBy('products.name', $direction)
+            ->select('order_items.*');
     }
 }
