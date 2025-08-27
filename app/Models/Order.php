@@ -96,7 +96,9 @@ class Order extends Model
 
     public function items()
     {
-        return $this->hasMany(OrderItem::class);
+        return $this->hasMany(OrderItem::class)->join('products', 'order_items.product_id', '=', 'products.id')
+            ->orderBy('products.name')
+            ->select('order_items.*');
     }
 
     /**

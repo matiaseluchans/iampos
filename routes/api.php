@@ -124,6 +124,15 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('stocks/reports/valuation', [App\Http\Controllers\StockController::class, 'valuationReport']);
 
     Route::apiResource('payments', \App\Http\Controllers\PaymentController::class);
+
+    Route::apiResource('price-lists', App\Http\Controllers\PriceListController::class);
+    Route::post('price-lists/{price_list}/products/sync', [App\Http\Controllers\PriceListController::class, 'syncProducts']);
+
+    Route::prefix('price-list-products')->group(function () {
+        Route::get('/', [App\Http\Controllers\PriceListProductController::class, 'index']);
+        Route::post('/bulk-update', [App\Http\Controllers\PriceListProductController::class, 'bulkUpdate']);
+        Route::get('/{priceListId}/{productId}', [App\Http\Controllers\PriceListProductController::class, 'getProductPrice']);
+    });
 });
 
 

@@ -968,10 +968,13 @@ export default {
     },
 
     formatCurrency(value) {
-      return new Intl.NumberFormat('es-AR', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      }).format(value || 0)
+      if (!value) return "$0";
+      return new Intl.NumberFormat("es-AR", {
+        style: "currency",
+        currency: "ARS",
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      }).format(value);
     },
 
     showSnackbar(text, color) {

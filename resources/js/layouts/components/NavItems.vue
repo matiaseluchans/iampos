@@ -91,6 +91,15 @@ const navItems = [
           icon: 'ri-stock-line',
       
         }
+      },
+      {
+        component: 'VerticalNavLink',
+        item: {
+          title: 'Lista de precios',
+          to: '/pricelist',
+          icon: 'ri-stock-line',
+      
+        }
       }
     ]
   },

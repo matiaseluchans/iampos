@@ -19,13 +19,13 @@
                   size="40"
                 />
               </VCol>
-              <VCol v-if="isAdminBebidas" cols="9" sm="9" md="8" class="mb-0 pt-4 ml-3">
+              <VCol v-if="isAdminBebidas" cols="12" sm="11" md="10" class="mb-0 pt-4 ml-0  pr-0 mr-0">
                 <VAutocomplete
                   v-model="order.seller_id"
                   :items="sellers"
                   item-title="name"
                   item-value="id"
-                  label="Seleccionar Vendedor"
+                  label="Vendedor"
                   :rules="[(v) => !!v || 'Vendedor es requerido']"
                   clearable
                   density="compact"
@@ -42,13 +42,13 @@
                   size="40"
                 />
               </VCol>
-              <VCol cols="9" sm="9" md="8" class="mb-0 pt-0 ml-3">
+              <VCol cols="9" sm="9" md="5" class="mb-0 pt-0 ml-0">
                 <VAutocomplete
                   v-model="order.customer_id"
                   :items="customers"
                   item-title="address"
                   item-value="id"
-                  label="Seleccionar Cliente"
+                  label="Cliente"
                   :rules="[(v) => !!v || 'Cliente es requerido']"
                   clearable
                   @update:model-value="onCustomerChange"
@@ -58,8 +58,8 @@
                     <v-sheet border="info md">
                       <VListItem v-bind="props">
                         <VListItemSubtitle class="text-caption"
-                          ><strong>localidad:</strong>{{ item.raw.locality?.name }} -
-                          <strong>telefono:</strong
+                          ><strong>Loc:</strong>{{ item.raw.locality?.name }} -
+                          <strong>Tel:</strong
                           >{{ item.raw.telephone }}</VListItemSubtitle
                         >
                       </VListItem>
@@ -73,8 +73,30 @@
                   :color="$cv('principal')"
                   title="nuevo cliente"
                 >
-                  <VIcon icon="ri-user-add-line" class="mr" />
+                  <VIcon icon="ri-user-add-line" class="" />
                 </VBtn>
+              </VCol>
+             
+              <!--<VCol cols="1" md="1" sm="1" class="mb-0 pt-0 d-none d-sm-flex">
+                <VAvatar
+                  icon="ri-price-tag-3-line"
+                  class="text-warning mr-2"
+                  variant="tonal"
+                  size="40"
+                />
+              </VCol>-->
+              <VCol cols="9" sm="6" md="4" class="mb-0 pt-0 ml-0">
+                <VAutocomplete
+                  v-model="selectedPriceList"
+                  :items="priceLists"
+                  item-title="name"
+                  item-value="id"
+                  label="Lista de Precios"
+                  :rules="[(v) => !!v || 'Lista de precios es requerida']"
+                  clearable
+                  @update:model-value="onPriceListChange"
+                  density="compact"
+                />
               </VCol>
             </VRow>
           </VCardText>
@@ -156,10 +178,10 @@
               </VCol>
 
               <VCol cols="8" md="5" class="pt-5">
-                <VAutocomplete
+                 <VAutocomplete
                   v-model="newItem.product_id"
                   :items="products"
-                  :item-title="productTitle"
+                  :item-title="productTitleWithPrice"
                   item-value="id"
                   label="Seleccionar Producto"
                   clearable
@@ -169,7 +191,7 @@
                   <template v-slot:item="{ props, item }">
                     <v-sheet border="info md">
                       <VListItem v-bind="props">
-                        <!--<VListItemTitle>{{ item.raw.name }}</VListItemTitle>-->
+                         
 
                         <VListItemSubtitle class="text-caption">
                           <VChip
@@ -178,11 +200,14 @@
                             "
                             >Stock: {{ getProductStock(item.raw.id) }}
                           </VChip>
+                           <span class="ml-2 text-success font-weight-bold">
+                            ${{ formatNumber(item.raw.display_price || item.raw.sale_price) }}
+                          </span>
                         </VListItemSubtitle>
                       </VListItem>
                     </v-sheet>
                   </template>
-                </VAutocomplete>
+                </VAutocomplete> 
               </VCol>
               <VCol cols="4" md="1" class="pr-0">
                 <div
@@ -277,6 +302,7 @@
                         class="elevation-1"
                         no-data-text="No hay productos agregados"
                         density="compact"
+                        :items-per-page="1000"
                       >
                         <template #bottom v-if="!showFooter"></template>
                         <template #item.product_name="{ item }">
@@ -841,6 +867,8 @@ export default {
       totalPaid: 0,
       isAdmibBebidas: false,
       saveButtonLabel: "Crear Orden",
+      priceLists: [],
+      selectedPriceList:1,
     };
   },
 
@@ -901,7 +929,11 @@ export default {
           `${this.$routes["orders"]}/${this.editingOrderId}`
         );
         const orderData = response.data.data || response.data;
-        console.log(orderData.order_number);
+        
+        if (orderData.items && orderData.items.length > 0) {
+          this.selectedPriceList = orderData.items[0].price_list_id;
+        }
+        
         this.$route.meta.title = "Editar Orden N° " + orderData.order_number;
 
         document.title = this.$route.meta.title;
@@ -974,11 +1006,12 @@ export default {
         this.isAdminBebidas = this.$is(["bebidas-admin"]);
         //this.isAdmin = this.userIsAdmin;
 
-        const [customersRes, productsRes, stockRes, localitiesRes] = await Promise.all([
+        const [customersRes, productsRes, stockRes, localitiesRes, priceListsRes] = await Promise.all([
           this.$axios.get(this.$routes["customers"]),
           this.$axios.get(this.$routes["products"]),
           this.$axios.get(this.$routes["stocks"]),
           this.$axios.get(this.$routes["localities"]),
+          this.$axios.get(this.$routes["priceLists"]),
         ]);
 
         if (this.isAdminBebidas) {
@@ -991,6 +1024,11 @@ export default {
         this.products = productsRes.data.data || productsRes.data;
         this.stock = stockRes.data.data || stockRes.data;
         this.localities = localitiesRes.data.data || localitiesRes.data;
+        this.priceLists = priceListsRes.data.data || priceListsRes.data;
+
+        
+        let is_default = this.priceLists.find((c) => c.is_default === 1);
+        this.selectedPriceList = is_default.id;
 
         if (this.$is("bebidas-admin") || this.$is("bebidas-user")) {
           this.order.shipping = 1;
@@ -1014,16 +1052,53 @@ export default {
       }
     },
 
+     
     onProductChange() {
       if (this.newItem.product_id) {
         const product = this.getProductById(this.newItem.product_id);
         if (product) {
-          this.newItem.unit_price = parseFloat(product.sale_price || 0);
+          // Usar el precio de la lista seleccionada o el precio por defecto
+          this.newItem.unit_price = parseFloat(product.display_price || product.sale_price || 0);
           this.newItem.unit_cost_price = parseFloat(product.purchase_price || 0);
         }
       }
     },
 
+ 
+
+    onPriceListChange() {
+      
+      this.products = this.products.map(product => {
+            // Encontrar el precio correspondiente a la lista seleccionada
+            const priceInfo = product.price_lists.find(pl => pl.id === this.selectedPriceList );
+            
+            return {
+                ...product,
+                // Si encontramos el precio, usar ese, sino mantener el original
+                sale_price: priceInfo ? priceInfo.pivot.sale_price : 0,
+                current_price_list: priceInfo || null
+            };
+        });
+      // Si hay un producto seleccionado, actualizar su precio
+      if (this.newItem.product_id) {
+        this.onProductChange();
+      }
+    },
+
+     
+
+    productTitleWithPrice(item) {
+      const currentUser = this.$store.getters.currentUser;
+      let title = item.name;
+      const price = item.display_price || item.sale_price;
+      
+      if (currentUser.data.tenant.id == 2) {
+        title = `[${item.code}] ${item.name} `;
+      }
+      
+      // Agregar el precio al título
+      return `${title} - $${this.formatNumber(price)}`;
+    },
     getProductById(productId) {
       return this.products.find((p) => p.id === productId);
     },
@@ -1042,6 +1117,33 @@ export default {
       return this.newItem.quantity * this.newItem.unit_price;
     },
 
+    /*addItem() {
+      if (!this.canAddItem) return;
+
+      const product = this.getProductById(this.newItem.product_id);
+      const totalPrice = this.newItem.quantity * this.newItem.unit_price;
+      const totalCost = this.newItem.quantity * this.newItem.unit_cost_price;
+
+      this.order.items.push({
+        product_id: this.newItem.product_id,
+        quantity: this.newItem.quantity,
+        unit_price: this.newItem.unit_price,
+        unit_cost_price: this.newItem.unit_cost_price,
+        total_price: totalPrice,
+        total_profit: totalPrice - totalCost,
+      });
+
+      // Reset new item
+      this.newItem = {
+        product_id: null,
+        quantity: 1,
+        unit_price: 0,
+        unit_cost_price: 0,
+      };
+
+      this.calculateTotals();
+    },*/
+
     addItem() {
       if (!this.canAddItem) return;
 
@@ -1056,6 +1158,7 @@ export default {
         unit_cost_price: this.newItem.unit_cost_price,
         total_price: totalPrice,
         total_profit: totalPrice - totalCost,
+        price_list_id: this.selectedPriceList, // Guardar la lista de precios usada
       });
 
       // Reset new item
@@ -1380,10 +1483,13 @@ export default {
     },
 
     formatCurrency(value) {
+      if (!value) return "$0";
       return new Intl.NumberFormat("es-AR", {
         style: "currency",
         currency: "ARS",
-      }).format(value || 0);
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      }).format(value);
     },
 
     showSnackbar(text, color) {

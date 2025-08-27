@@ -52,6 +52,14 @@ class Product extends Model
     {
         return $this->belongsTo(Brand::class, 'brand_id');
     }
+    // **Nueva relación de muchos a muchos con listas de precios**
+
+    public function priceLists()
+    {
+        return $this->belongsToMany(PriceList::class, 'price_list_product')
+            ->withPivot('sale_price')
+            ->withTimestamps();
+    }
 
 
     // Accesor para la URL de la imagen

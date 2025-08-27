@@ -1322,10 +1322,13 @@ export default {
         : customer.address || "Dirección no disponible";
     },
     formatCurrency(value) {
+      if (!value) return "$0";
       return new Intl.NumberFormat("es-AR", {
         style: "currency",
         currency: "ARS",
-      }).format(value || 0);
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      }).format(value);
     },
 
     // Movement Dialog Methods

@@ -135,7 +135,7 @@ export const routes = [
         meta: { 
           title: "Usuarios",
           requiresAuth: true,
-          allowedRoles: ['superadmin','bebidas-admin'],
+          allowedRoles: ['superadmin','bebidas-admin','petshop-admin'],
         },
       },
       
@@ -157,9 +157,16 @@ export const routes = [
           requiresAuth: true },
       },
 
-
-      
-
+      {
+        path: 'pricelist',
+        
+        component: () => import('@/pages/iampos/priceList.vue'),
+        meta: { 
+          title: "Lista de Precios",
+          requiresAuth: true,
+          allowedRoles: ['superadmin','bebidas-admin','petshop-admin']
+        },
+      },
       {
         path: 'account-settings',
         component: () => import('@/pages/account-settings.vue'),

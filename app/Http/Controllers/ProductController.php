@@ -16,7 +16,7 @@ class ProductController extends ApiController
     protected $model;
     private $relations;
 
-    public function __construct(array $relations = ['brand', 'category'])
+    public function __construct(array $relations = ['brand', 'category', 'priceLists'])
     {
         $this->model = new Product();
         $this->relations = $relations;
@@ -75,6 +75,18 @@ class ProductController extends ApiController
 
             $p = $this->model->create($data);
 
+            if ($request->has('price_lists')) {
+                $priceListsData = json_decode($request->price_lists, true);
+                $syncData = [];
+                foreach ($priceListsData as $priceListId => $salePrice) {
+                    // Solo sincronizar si hay un precio definido
+                    if ($salePrice !== null && $salePrice !== '') {
+                        $syncData[$priceListId] = ['sale_price' => $salePrice];
+                    }
+                }
+                $p->priceLists()->sync($syncData);
+            }
+
             DB::commit();
             return $this->successResponseCreate($p->load($this->relations));
         } catch (\Exception $e) {
@@ -127,6 +139,18 @@ class ProductController extends ApiController
 
             // Actualizar el modelo solo con los campos proporcionados
             $p->update($updateData);
+
+            if ($request->has('price_lists')) {
+                $priceListsData = json_decode($request->price_lists, true);
+                $syncData = [];
+                foreach ($priceListsData as $priceListId => $salePrice) {
+                    // Solo sincronizar si hay un precio definido
+                    if ($salePrice !== null && $salePrice !== '') {
+                        $syncData[$priceListId] = ['sale_price' => $salePrice];
+                    }
+                }
+                $p->priceLists()->sync($syncData);
+            }
 
             DB::commit();
             return $this->successResponse($p->fresh()->load($this->relations));

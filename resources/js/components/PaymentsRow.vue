@@ -192,10 +192,12 @@ export default {
       return method ? method.name : 'Método no encontrado';
     },
     formatCurrency(value) {
-      // Implementa tu formato de moneda aquí
-      return new Intl.NumberFormat('es-AR', {
-        style: 'currency',
-        currency: 'ARG'
+      if (!value) return "$0";
+      return new Intl.NumberFormat("es-AR", {
+        style: "currency",
+        currency: "ARS",
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
       }).format(value);
     },
     onlyNumberInput(event) {

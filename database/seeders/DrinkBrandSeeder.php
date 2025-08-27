@@ -11,7 +11,7 @@ class DrinkBrandSeeder extends Seeder
     {
         DB::table('brands')->insert([
             'id' => 1,
-            'name' => 'Coca Cola',
+            'name' => 'Bebidas',
             'active' => true,
             'tenant_id' => 2,
             'created_at' => now(),

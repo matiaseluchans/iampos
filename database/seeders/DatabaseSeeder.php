@@ -22,13 +22,14 @@ class DatabaseSeeder extends Seeder
             DrinkLocalitySeeder::class,
             DrinkWarehouseSeeder::class,
             DrinkStockSeeder::class,
-            DrinkStatusSeeder::class,            
-            DrinkOrderTypeSeeder::class,            
+            DrinkStatusSeeder::class,
+            DrinkOrderTypeSeeder::class,
             DrinkPaymentMethodSeeder::class,
             DrinkPaymentStatusSeeder::class,
             DrinkShipmentStatusSeeder::class,
             DrinkOrdersTableSeeder::class,
             DrinkOrderItemsTableSeeder::class,
+            DrinkSeeder::class,
 
             PetshopBrandSeeder::class,
             PetshopCategorySeeder::class,
@@ -46,8 +47,8 @@ class DatabaseSeeder extends Seeder
 
             StatusCodesSeeder::class,
 
-            
-                        
+
+
         ]);
     }
 }
