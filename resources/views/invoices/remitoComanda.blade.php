@@ -20,6 +20,14 @@
             border: 1px solid #000;
         }
 
+        .border-table-2 {
+            margin-top: 5mm;
+            margin-left: 15mm;
+            margin-right: 15mm;
+
+            border: 1px solid #000;
+        }
+
         .header {
             text-align: center;
             margin-bottom: 1mm;
@@ -165,13 +173,10 @@
 
 
 
-        <div class="section-title">CLIENTE</div>
-        <div style="margin-bottom: 2mm;padding-left: 1mm;"><strong>{{ $order->customer->name ?? 'CONSUMIDOR FINAL' }}</strong></div>
+        <div class="section-title">CLIENTE:{{ $order->customer->address ? $order->customer->address :'CONSUMIDOR FINAL' }}</strong></div>
         <div class="client-row">
             <span class="client-label">Domicilio:</span>
             <span>{{ $order->customer->address }} - {{ $order->customer->locality ? $order->customer->locality->name :''}}</span>
-        </div>
-        <div class="client-row">
             <span class="client-label">Teléfono:</span>
             <span>{{ $order->customer->telephone }}</span>
         </div>
@@ -244,18 +249,18 @@
         </table>
         @endif
 
-        <div class="footer">
+        <!--<div class="footer">
             <div>¡GRACIAS POR SU COMPRA!</div>
             <div>Documento no válido como factura</div>
             <div class="barcode">*{{ $order->order_number }}*</div>
-        </div>
+        </div>-->
     </div>
 
 
-    @if(count($order->items) >=10)
+    @if(count($order->items) >=15)
     <div style="page-break-after: always;"></div>
     @endif
-    <div class=" border">
+    <div class="border-table-2">
         <div class=" header">
             <table>
                 <tr>
@@ -280,13 +285,10 @@
 
 
 
-        <div class="section-title">CLIENTE</div>
-        <div style="margin-bottom: 2mm;padding-left: 1mm;"><strong>{{ $order->customer->name ?? 'CONSUMIDOR FINAL' }}</strong></div>
+        <div class="section-title">CLIENTE:{{ $order->customer->address ? $order->customer->address :'CONSUMIDOR FINAL' }}</strong></div>
         <div class="client-row">
             <span class="client-label">Domicilio:</span>
             <span>{{ $order->customer->address }} - {{ $order->customer->locality ? $order->customer->locality->name :''}}</span>
-        </div>
-        <div class="client-row">
             <span class="client-label">Teléfono:</span>
             <span>{{ $order->customer->telephone }}</span>
         </div>
@@ -358,11 +360,11 @@
         </table>
         @endif
 
-        <div class="footer">
+        <!--<div class="footer">
             <div>¡GRACIAS POR SU COMPRA!</div>
             <div>Documento no válido como factura</div>
             <div class="barcode">*{{ $order->order_number }}*</div>
-        </div>
+        </div>-->
     </div>
 </body>
 

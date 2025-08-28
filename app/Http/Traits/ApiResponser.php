@@ -12,7 +12,7 @@ use Illuminate\Http\Response;
 trait ApiResponser
 {
 
-    protected function successResponse($data, $message = null, $code = 200)
+    public function successResponse($data, $message = null, $code = 200)
     {
         return response()->json([
             'status' =>  'Success',
@@ -22,7 +22,7 @@ trait ApiResponser
         ], $code);
     }
 
-    protected function successResponseCreate($data, $message = null)
+    public function successResponseCreate($data, $message = null)
     {
         return response()->json([
             'status' =>  'Success',
@@ -32,7 +32,7 @@ trait ApiResponser
         ], 201);
     }
 
-    protected function errorResponse($ex, $message = null, $code = Response::HTTP_INTERNAL_SERVER_ERROR)
+    public function errorResponse($ex, $message = null, $code = Response::HTTP_INTERNAL_SERVER_ERROR)
     {
 
         if ($ex instanceof ValidationException) {

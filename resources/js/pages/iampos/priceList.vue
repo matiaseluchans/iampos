@@ -38,7 +38,7 @@
                   </VAutocomplete>
                 </VCol>
                 <VCol sm="1" class="pt-20 py-2">
-                  <v-dialog v-model="dialog" max-width="400px">
+                  <v-dialog v-model="dialog" max-width="1000px" persistent="true">
                     <template v-slot:activator="{ props: activatorProps }">
                       <VBtn
                         v-bind="activatorProps"
@@ -64,26 +64,54 @@
                         <VCard-text>
                           <v-container>
                             <VRow>
-                              <VCol cols="12" sm="12">
+                              <VCol cols="12" sm="6">
                                 <VTextField
                                   v-model="editedItem.name"
                                   label="Nombre de la Lista"
                                   required
                                 />
                               </VCol>
-                              <VCol cols="12" sm="12">
+                              <!--<VCol cols="12" sm="12">
                                 <VTextField
                                   v-model="editedItem.description"
                                   label="Descripción"
                                 />
-                              </VCol>
-                              <VCol cols="12" sm="12">
+                              </VCol>-->
+                              <VCol cols="12" sm="6">
                                 <VCheckbox
                                   v-model="editedItem.is_default"
                                   :label="'Lista por defecto'"
                                 ></VCheckbox>
                               </VCol>
                             </VRow>
+
+                            <VRow v-if="editedItem.products"  class="py-0 my-0">
+                              <VCol cols="12">
+                                <VDataTable
+                                  style="height: 300px;"
+                                  :headers="productsHeaders"
+                                  :items="editedItem.products"
+                                  :hide-default-footer="true"
+                                  :items-per-page="10000"
+                                  class="elevation-1">
+                                  <template #item.name="{ item }">
+                                    {{ item.name }}
+                                  </template>
+                                  <template #item.sale_price="{ item }">
+                                    <VTextField
+                                      v-model="item.pivot.sale_price"
+                                      :label="'Precio'"
+                                      type="number"
+                                      density="compact"
+                                      prefix="$"
+                                      hide-details
+                                    />
+                                  </template>
+                                  <template #bottom></template>
+                                </VDataTable>
+                              </VCol>
+                            </VRow>
+
                           </v-container>
                         </VCard-text>
                       </v-form>
@@ -186,7 +214,7 @@ export default {
         width: "150px",
       },
       { title: "Nombre", filterable: true, key: "name" },
-      { title: "Descripción", filterable: true, key: "description" },
+      //{ title: "Descripción", filterable: true, key: "description" },
       { title: "Defecto", key: "is_default", width: "100px" },
       { title: "Estado", key: "active", width: "150px" },
     ],
@@ -214,6 +242,10 @@ export default {
     },
     filterKey: [],
     selectedHeaders: [],
+    productsHeaders:[{ title: 'Producto', key: 'name', sortable: false },
+      { title: 'Precio de Venta', key: 'sale_price', sortable: false, width: '200px' },
+    ],
+    productsWithprice:[],
   }),
 
   computed: {
@@ -251,6 +283,12 @@ export default {
   watch: {
     dialog(val) {
       val || this.$close();
+
+      if(val && this.editedItem.id)
+      {
+        
+      }
+    
     },
   },
 

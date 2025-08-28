@@ -64,9 +64,10 @@ class OrderController extends Controller
 
         $order = Order::with([
             'customer',
-            'items' => function ($query) {
+            'items',
+            /*'items' => function ($query) {
                 $query->orderByProductName('asc');
-            },
+            },*/
             'payment',
             'payment.paymentMethod'
         ])->findOrFail($id);
@@ -114,12 +115,14 @@ class OrderController extends Controller
     {
         $order = Order::with([
             'customer',
-            'items' => function ($query) {
+            'items' /*=> function ($query) {
                 $query->orderByProductName('asc');
-            },
+            }*/,
             'payment',
             'payment.paymentMethod'
         ])->findOrFail($id);
+
+
 
 
         // Configuración de mPDF

@@ -31,7 +31,11 @@ class PriceListController extends Controller
 
     public function store(Request $request)
     {
-        return $this->repository->save($request);
+        $jsonData = $request->getContent();
+
+        $modelData = json_decode($jsonData, true);
+
+        return $this->repository->save($modelData);
     }
 
     public function update(Request $request, $id)

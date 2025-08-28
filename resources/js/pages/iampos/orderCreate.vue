@@ -819,6 +819,7 @@ export default {
         items: [],
         shipping: 0,
         shipping_address_status: false,
+        seller_id :"",
       },
 
       // New item being added
@@ -1032,6 +1033,10 @@ export default {
 
         if (this.$is("bebidas-admin") || this.$is("bebidas-user")) {
           this.order.shipping = 1;
+        }
+        if ((this.$is("superadmin") || this.$is("bebidas-admin")|| this.$is("petshop-admin")) &&  this.order.seller_id == "")// si es admin de bebidas y es un orden nueva le pone el vendedor por default
+        {
+          this.order.seller_id =this.$store.getters.currentUser.data.id;
         }
         this.setDate(this.order.delivery_date);
       } catch (error) {
