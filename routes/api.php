@@ -68,6 +68,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::apiResource('customers', App\Http\Controllers\CustomerController::class);
     Route::apiResource('categories', App\Http\Controllers\CategoryController::class);
     Route::apiResource('products', App\Http\Controllers\ProductController::class);
+    /*
+        Route::post('products/{id}', [App\Http\Controllers\OrderController::class, 'update']);
+    Route::apiResource('products', App\Http\Controllers\ProductController::class)->except(['update']);
+     */
     Route::apiResource('brands', App\Http\Controllers\BrandController::class);
     Route::apiResource('localities', App\Http\Controllers\LocalityController::class);
     Route::apiResource('statuses', App\Http\Controllers\StatusController::class);

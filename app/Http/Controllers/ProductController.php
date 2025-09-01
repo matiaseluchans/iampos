@@ -75,17 +75,9 @@ class ProductController extends ApiController
 
             $p = $this->model->create($data);
 
-            if ($request->has('price_lists')) {
-                $priceListsData = json_decode($request->price_lists, true);
-                $syncData = [];
-                foreach ($priceListsData as $priceListId => $salePrice) {
-                    // Solo sincronizar si hay un precio definido
-                    if ($salePrice !== null && $salePrice !== '') {
-                        $syncData[$priceListId] = ['sale_price' => $salePrice];
-                    }
-                }
-                $p->priceLists()->sync($syncData);
-            }
+
+
+            $this->syncPriceLists($p, $request);
 
             DB::commit();
             return $this->successResponseCreate($p->load($this->relations));
@@ -93,6 +85,45 @@ class ProductController extends ApiController
             DB::rollBack();
             report($e);
             return $this->errorResponse($e->getMessage());
+        }
+    }
+
+
+    private function syncPriceLists($product, Request $request)
+    {
+        if (!$request->has('price_lists')) {
+            return;
+        }
+
+        $priceListsData = $request->input('price_lists');
+
+        // Debug: Verificar qué tipo de datos llegan
+        \Log::info('Price lists data type: ' . gettype($priceListsData));
+        \Log::info('Price lists data: ', (array) $priceListsData);
+
+        // Si es string, intentar decodificar como JSON
+        if (is_string($priceListsData)) {
+            $decoded = json_decode($priceListsData, true);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                $priceListsData = $decoded;
+            }
+        }
+
+        $syncData = [];
+
+        foreach ($priceListsData as $priceListId => $salePrice) {
+            // Validar que el priceListId sea numérico y el precio sea válido
+            if (is_numeric($priceListId) && $salePrice !== null && $salePrice !== '' && is_numeric($salePrice)) {
+                $syncData[$priceListId] = [
+                    'sale_price' => (float) $salePrice,
+                    'tenant_id' => auth()->user()->tenant_id ?? null,
+                    'created_by' => auth()->id()
+                ];
+            }
+        }
+
+        if (!empty($syncData)) {
+            $product->priceLists()->sync($syncData);
         }
     }
 
@@ -140,17 +171,7 @@ class ProductController extends ApiController
             // Actualizar el modelo solo con los campos proporcionados
             $p->update($updateData);
 
-            if ($request->has('price_lists')) {
-                $priceListsData = json_decode($request->price_lists, true);
-                $syncData = [];
-                foreach ($priceListsData as $priceListId => $salePrice) {
-                    // Solo sincronizar si hay un precio definido
-                    if ($salePrice !== null && $salePrice !== '') {
-                        $syncData[$priceListId] = ['sale_price' => $salePrice];
-                    }
-                }
-                $p->priceLists()->sync($syncData);
-            }
+            $this->syncPriceLists($p, $request);
 
             DB::commit();
             return $this->successResponse($p->fresh()->load($this->relations));
