@@ -1318,8 +1318,9 @@ export default {
           let arrayRoutes = Vue.config.globalProperties.$routes;
 
           let url = arrayRoutes[this.route];
-          const response = await this.$axios.put(url+'/'+item.id, {
+          const response = await this.$axios.post(url+'/'+item.id, {
             data: {
+              _method:"PUT",
               active: item.active === 1 ? 0 : 1
             }
           });

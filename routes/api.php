@@ -67,21 +67,37 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::apiResource('tenants', App\Http\Controllers\TenantController::class);
     Route::apiResource('customers', App\Http\Controllers\CustomerController::class);
     Route::apiResource('categories', App\Http\Controllers\CategoryController::class);
+
+    //Route::post('products/{id}', [App\Http\Controllers\ProductController::class, 'update']);
     Route::apiResource('products', App\Http\Controllers\ProductController::class);
+    Route::put('products_changestatus/{id}', [App\Http\Controllers\ProductController::class, 'changestatus']);
     /*
         Route::post('products/{id}', [App\Http\Controllers\OrderController::class, 'update']);
     Route::apiResource('products', App\Http\Controllers\ProductController::class)->except(['update']);
      */
     Route::apiResource('brands', App\Http\Controllers\BrandController::class);
+    Route::post('brands/{id}', [App\Http\Controllers\BrandController::class, "update"]);
+
     Route::apiResource('localities', App\Http\Controllers\LocalityController::class);
+    Route::post('localities/{id}', [App\Http\Controllers\LocalityController::class, "update"]);
     Route::apiResource('statuses', App\Http\Controllers\StatusController::class);
+    Route::post('statuses/{id}', [App\Http\Controllers\StatusController::class, "update"]);
+
     Route::apiResource('payment-methods', App\Http\Controllers\PaymentMethodController::class);
+    Route::post('payment-methods/{id}', [App\Http\Controllers\PaymentMethodController::class, "update"]);
+
+    Route::apiResource('shipment-statuses', App\Http\Controllers\ShipmentStatusController::class);
+    Route::post('shipment-statuses/{id}', [App\Http\Controllers\ShipmentStatusController::class, "update"]);
+
+    Route::apiResource('payment-statuses', App\Http\Controllers\PaymentStatusController::class);
+    Route::post('payment-statuses/{id}', [App\Http\Controllers\PaymentStatusController::class, "update"]);
+
+
     Route::post('orders/{order}', [App\Http\Controllers\OrderController::class, 'update']);
     Route::post('orders-update/{order}', [App\Http\Controllers\OrderController::class, 'updateOrder']);
     Route::put('orders-cancel/{order}', [App\Http\Controllers\OrderController::class, 'cancelOrder']);
     Route::apiResource('orders', App\Http\Controllers\OrderController::class)->except(['update']);
-    Route::apiResource('shipment-statuses', App\Http\Controllers\ShipmentStatusController::class);
-    Route::apiResource('payment-statuses', App\Http\Controllers\PaymentStatusController::class);
+
     //reports
     Route::get('orders/remito/{id}', [App\Http\Controllers\OrderController::class, "generateRemito"]);
     Route::get('orders/remito-comanda/{id}', [App\Http\Controllers\OrderController::class, "generateRemitoComanda"]);
@@ -91,8 +107,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('orders-latest', [App\Http\Controllers\OrderController::class, "latest"]);
 
     Route::apiResource('roles', App\Http\Controllers\RoleController::class);
+    Route::post('roles/{id}', [App\Http\Controllers\RoleController::class, "update"]);
 
-    Route::apiResource('users', App\Http\Controllers\UserController::class);
+
+
+    Route::put('users_changestatus/{id}', [App\Http\Controllers\UserController::class, 'changestatus']);
+
+    Route::apiResource('users', App\Http\Controllers\UserController::class)/*->except(['update'])*/;
     Route::get('users/tenants', [App\Http\Controllers\UserController::class, 'getTenants']);
     Route::get('users/roles', [App\Http\Controllers\UserController::class, 'getRoles']);
     Route::get('users-list', [App\Http\Controllers\UserController::class, 'getListUsers']);
@@ -101,6 +122,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
 
     Route::apiResource('warehouses', App\Http\Controllers\WarehouseController::class);
+    Route::post('warehouses/{id}', [App\Http\Controllers\WarehouseController::class, "update"]);
 
 
     Route::get('stocks/summary', [App\Http\Controllers\StockController::class, 'summary']);

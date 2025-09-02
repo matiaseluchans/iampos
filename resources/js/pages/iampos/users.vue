@@ -289,14 +289,14 @@
               color="primary"
               hide-details
               title="Activar o Inactivar"
-              @click="$toggleActive(item)"
+              @click="toggleActive(item)"
             />
 
             <IconBtn
               size="small"
               title="Eliminar"
               class="my-1"
-              @click="$deleteItem(item)"
+              @click="$deleteItem(item.id, item.name)"
             >
               <VIcon icon="ri-delete-bin-line" />
             </IconBtn>
@@ -602,6 +602,55 @@ export default {
      
       return colors[item.roles[0].id];
     },
+
+    async toggleActive(item)  {
+        Swal.alertGetInfo("Actualizando información");
+        const originalState = item.active; // Guarda el estado original
+
+        console.log("item.active");
+        console.log(item.active);
+        try {
+          //let arrayRoutes = Vue.config.globalProperties.$routes;
+
+          let route= this.$routes['users'];
+
+          //let url = arrayRoutes[this.route];
+          let formData = new FormData();
+           Object.keys(this.editedItem).forEach(key => {
+            if (key !== 'imageFiles' && key !== 'image') {
+              formData.append(key, this.editedItem[key]);
+            }
+          });
+          
+          formData.append('_method', 'PUT');
+          
+
+          const response = await this.$axios.post(route+'_changestatus/'+item.id, formData );
+
+          if (response.data.code == 200) {
+            this.snackbar = true;
+            this.text = "Se modificó el estado con exito.";
+            this.color = "success";
+          } else {
+            item.active = originalState;
+            this.snackbar = true;
+            this.text = "Error al cambiar el estado";
+            this.color = "error";
+          }
+          this.initialize();
+        } catch (error) {
+          item.active = originalState;
+          console.error("Error al cambiar el estado:", error);
+          this.snackbar = true;
+          this.text = "Error al cambiar el estado:" + error;
+          this.color = "error";
+          this.initialize();
+        } finally {
+          Swal.close();
+        }
+      }
+
+  
   },
 };
 </script>

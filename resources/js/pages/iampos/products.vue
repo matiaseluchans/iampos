@@ -270,7 +270,7 @@
               size="small"
               title="Eliminar"
               class="my-1"
-              @click="deleteItem(item.id, item.name)"
+              @click="$deleteItem(item.id, item.name)"
             >
               <VIcon icon="ri-delete-bin-line" />
             </IconBtn>
