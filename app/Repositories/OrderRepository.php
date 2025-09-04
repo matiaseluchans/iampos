@@ -242,13 +242,14 @@ class OrderRepository extends BaseRepository
             ->where('shipping', 1);
         //     ->whereBetween('delivery_date', [Carbon::parse($startDate)->startOfDay(), Carbon::parse($endDate)->endOfDay()]);
 
-        $deliveryStartDate = $request->input('delivery_start_date'); // Formato: Y-m-d
-        $deliveryEndDate = $request->input('delivery_end_date');
+        $deliveryStartDate = $request->input('start_date'); // Formato: Y-m-d
+        $deliveryEndDate = $request->input('end_date');
         $dates = '';
         if ($deliveryStartDate && $deliveryEndDate) {
             $ordersQuery->whereBetween('delivery_date', [Carbon::parse($deliveryStartDate)->startOfDay(), Carbon::parse($deliveryEndDate)->endOfDay()]);
             $dates = Carbon::parse($deliveryStartDate)->format('d/m/Y') . ' - ' . Carbon::parse($deliveryEndDate)->format('d/m/Y');
         }
+
         if ($request->input('shipment_status_id')) {
             $ordersQuery->where('shipment_status_id', $request->input('shipment_status_id'));
         }
