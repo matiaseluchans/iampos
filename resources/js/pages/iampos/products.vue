@@ -104,13 +104,22 @@
 
                              
                             <VRow class="py-0  my-0">
-                              <VCol cols="12" sm="12">
+                              <VCol cols="12" sm="6">
                                 <VTextField
                                   v-model.number="editedItem.purchase_price"
                                   label="Precio de Compra"
                                   type="number"
                                   density="compact"
                                   prefix="$"
+                                />
+                              </VCol>
+                              <VCol cols="12" sm="6">
+                                <VTextField
+                                  v-model.number="editedItem.order"
+                                  label="Orden"
+                                  type="number"
+                                  density="compact"
+                                  
                                 />
                               </VCol>
                             </VRow>
@@ -312,6 +321,7 @@ export default {
       id: "",
       name: "",
       code: "",
+      order:"",
       category_id: null,
       brand_id: null,
       purchase_price: "",
@@ -325,6 +335,7 @@ export default {
       id: "",
       name: "",
       code: "",
+      order:"",
       category_id: null,
       brand_id: null,
       purchase_price: "",
@@ -364,7 +375,7 @@ export default {
       return this.desserts.filter(
         (item) =>
           item.name.toLowerCase().includes(searchTerm) ||
-          item.code?.toLowerCase().includes(searchTerm)
+          item.code?.toLowerCase().includes(searchTerm)  
       );
     },
   },
@@ -452,6 +463,7 @@ export default {
           class: "column-code",
         },
         { title: "Nombre", filterable: true, key: "name" },
+        { title: "Orden", filterable: true, key: "order" },
         { title: "Imagen", key: "image", sortable: false },
         
       ];
@@ -493,6 +505,7 @@ export default {
           id: item.id,
           name: item.name,
           code: item.code,
+          order: item.order,
           category_id: item.category_id,
           brand_id: item.brand_id,
           purchase_price: item.purchase_price,
@@ -596,6 +609,9 @@ export default {
     },
     filterByActive(item) {
       return this.$filterBy(item, "active");
+    },
+    filterByOrder(item) {
+      return this.$filterBy(item, "order");
     },
   },
 };

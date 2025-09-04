@@ -278,7 +278,7 @@
                     <td class="text-right">{{ $item->total_quantity }}</td>
                     <td>{{ $item->address }}</td>
                     <td>{{ $item->locality }}</td>
-                    <td class="text-right">$ {{ number_format($item->total_amount, 2, ',', '.') }}</td>
+                    <td class="text-right">$ {{ number_format($item->total_amount, 0, ',', '.') }}</td>
                     <td style="width: 50mm;" class="text-right">&nbsp;</td>
                 </tr>
                 @endforeach
@@ -288,7 +288,7 @@
                     <th class="text-right">{{ $totalProducts }}</th>
                     <th>&nbsp;</th>
                     <th>&nbsp;</th>
-                    <th class="text-right">${{ number_format($totalAmount, 2, ',', '.')  }}</th>
+                    <th class="text-right">${{ number_format($totalAmount, 0, ',', '.')  }}</th>
                     <th>&nbsp;</th>
                 </tr>
             </tfoot>

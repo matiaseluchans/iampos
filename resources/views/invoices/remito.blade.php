@@ -335,9 +335,9 @@
                         <td> {{ $item->product->code }}</td>
                         <td>{{ $item->product->name }}</td>
                         <td class="text-right">{{ $item->quantity }}</td>
-                        <td class="text-right">${{ number_format($item->unit_price, 2, ',', '.') }}</td>
+                        <td class="text-right">${{ number_format($item->unit_price, 0, ',', '.') }}</td>
 
-                        <td class="text-right">${{ number_format($item->unit_price * $item->quantity, 2, ',', '.') }}</td>
+                        <td class="text-right">${{ number_format($item->unit_price * $item->quantity, 0, ',', '.') }}</td>
                     </tr>
                     @endforeach
                     <br>
@@ -345,7 +345,7 @@
                         <td colspan="2" class="text-right"><strong>Cantidad Total</strong></td>
                         <td class="text-right"><strong>{{ $order->items->sum('quantity') }}</strong></td>
                         <td class="text-right"><strong>Total</strong></td>
-                        <td class="text-right"><strong>${{ number_format($order->items->sum(function($item) { return $item->unit_price * $item->quantity; }), 2, ',', '.') }}</strong></td>
+                        <td class="text-right"><strong>${{ number_format($order->items->sum(function($item) { return $item->unit_price * $item->quantity; }), 0, ',', '.') }}</strong></td>
                     </tr>
                 </tbody>
             </table>
@@ -368,7 +368,7 @@
                                 <td class="total-row subtotal">
                                     <span class="total-label">Subtotal:</span>
                                 </td>
-                                <td class="total-value subtotal">${{ number_format($order->subtotal, 2, ',', '.') }}</td>
+                                <td class="total-value subtotal">${{ number_format($order->subtotal, 0, ',', '.') }}</td>
                             </tr>
 
                             @if($order->discount > 0)
@@ -376,7 +376,7 @@
                                 <td class="total-row">
                                     <span class="total-label">Descuento:</span>
                                 </td>
-                                <td class="total-value">-${{ number_format($order->discount, 2, ',', '.') }}</td>
+                                <td class="total-value">-${{ number_format($order->discount, 0, ',', '.') }}</td>
                             </tr>
                             @endif
 
@@ -385,7 +385,7 @@
                                 <td class="total-row taxes">
                                     <span class="total-label">Adicional:</span>
                                 </td>
-                                <td class="total-value">${{ number_format($order->aditional, 2, ',', '.') }}</td>
+                                <td class="total-value">${{ number_format($order->aditional, 0, ',', '.') }}</td>
 
                             </tr>
 
@@ -395,7 +395,7 @@
                                 <td class="total-row">
                                     <span class="total-label">Envío:</span>
                                 </td>
-                                <td class="total-value">${{ number_format($order->shipping_cost, 2, ',', '.') }}</td>
+                                <td class="total-value">${{ number_format($order->shipping_cost, 0, ',', '.') }}</td>
                             </tr>
                             @endif
 
@@ -406,7 +406,7 @@
                                     <span class=" total-label">TOTAL:</span>
                                 </td>
                                 <td class="grand-total" style="text-align: right;padding-right:2mm">
-                                    ${{ number_format($order->total_amount, 2, ',', '.') }}
+                                    ${{ number_format($order->total_amount, 0, ',', '.') }}
                                 </td>
                             </tr>
                         </table>
@@ -435,7 +435,7 @@
                         <td> {{ $item->paymentMethod->name }}</td>
 
 
-                        <td class="text-right">${{ number_format($item->amount, 2, ',', '.') }}</td>
+                        <td class="text-right">${{ number_format($item->amount, 0, ',', '.') }}</td>
 
                     </tr>
                     @endforeach
@@ -443,7 +443,7 @@
                     <tr>
 
                         <td colspan="2" class="text-right"><strong>Total Pagado</strong></td>
-                        <td class="text-right"><strong>${{ number_format( $order->payment->sum('amount'), 2, ',', '.') }}</strong></td>
+                        <td class="text-right"><strong>${{ number_format( $order->payment->sum('amount'), 0, ',', '.') }}</strong></td>
 
                     </tr>
                 </tbody>

@@ -23,6 +23,7 @@ class Product extends Model
         'purchase_price',
         'sale_price',
         'active',
+        'order',
         'tenant_id',
         'created_by',
         'last_modified_by'

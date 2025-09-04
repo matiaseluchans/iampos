@@ -262,6 +262,7 @@ class OrderRepository extends BaseRepository
             $ordersQuery->where('payment_status_id', $request->input('payment_status_id'));
         }
 
+        $ordersQuery->orderBy('products.order', 'asc');
         $orders = $ordersQuery->groupBy('order_items.product_id', 'products.name')->get();
 
         //dd($orders);

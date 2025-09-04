@@ -21,7 +21,7 @@
         }
 
         .border-table-2 {
-            margin-top: 5mm;
+            margin-top: 15mm;
             margin-left: 15mm;
             margin-right: 15mm;
 
@@ -200,8 +200,8 @@
                     <td>{{ $item->product->code ?? '' }}</td>
                     <td>{{ $item->product->name }}</td>
                     <td class=" text-right">{{ $item->quantity }}</td>
-                    <td class="text-right">${{ number_format($item->unit_price, 2, ',', '.') }}</td>
-                    <td class="text-right">${{ number_format($item->unit_price * $item->quantity, 2, ',', '.') }}</td>
+                    <td class="text-right">${{ number_format($item->unit_price, 0, ',', '.') }}</td>
+                    <td class="text-right">${{ number_format($item->unit_price * $item->quantity, 0, ',', '.') }}</td>
                 </tr>
                 @endforeach
 
@@ -210,7 +210,7 @@
                     <td class="text-right total-row grand-total">TOTAL</td>
                     <td class="text-right total-row grand-total">{{ $order->items->sum('quantity') }} un</td>
                     <td class="text-right total-row grand-total"> </td>
-                    <td class="text-right total-row grand-total" style="padding-right: 1mm;">${{ number_format($order->total_amount, 2, ',', '.') }}</td>
+                    <td class="text-right total-row grand-total" style="padding-right: 1mm;">${{ number_format($order->total_amount, 0, ',', '.') }}</td>
                 </tr>
             </tbody>
         </table>
@@ -234,7 +234,7 @@
                     <td> {{ $item->paymentMethod->name }}</td>
 
 
-                    <td class="text-right">${{ number_format($item->amount, 2, ',', '.') }}</td>
+                    <td class="text-right">${{ number_format($item->amount, 0, ',', '.') }}</td>
 
                 </tr>
                 @endforeach
@@ -242,7 +242,7 @@
                 <tr>
 
                     <td colspan="2" class="text-right"><strong>Total Pagado</strong></td>
-                    <td class="text-right"><strong>${{ number_format( $order->payment->sum('amount'), 2, ',', '.') }}</strong></td>
+                    <td class="text-right"><strong>${{ number_format( $order->payment->sum('amount'), 0, ',', '.') }}</strong></td>
 
                 </tr>
             </tbody>
@@ -312,8 +312,8 @@
                     <td>{{ $item->product->code }}</td>
                     <td>{{ $item->product->name }}</td>
                     <td class="text-right">{{ $item->quantity }}</td>
-                    <td class="text-right">${{ number_format($item->unit_price, 2, ',', '.') }}</td>
-                    <td class="text-right">${{ number_format($item->unit_price * $item->quantity, 2, ',', '.') }}</td>
+                    <td class="text-right">${{ number_format($item->unit_price, 0, ',', '.') }}</td>
+                    <td class="text-right">${{ number_format($item->unit_price * $item->quantity, 0, ',', '.') }}</td>
                 </tr>
                 @endforeach
 
@@ -322,7 +322,7 @@
                     <td class="text-right total-row grand-total">TOTAL</td>
                     <td class="text-right total-row grand-total">{{ $order->items->sum('quantity') }} un</td>
                     <td class="text-right total-row grand-total"> </td>
-                    <td class="text-right total-row grand-total" style="padding-right: 1mm;">${{ number_format($order->total_amount, 2, ',', '.') }}</td>
+                    <td class="text-right total-row grand-total" style="padding-right: 1mm;">${{ number_format($order->total_amount, 0, ',', '.') }}</td>
                 </tr>
             </tbody>
         </table>
@@ -345,7 +345,7 @@
                     <td> {{ $item->paymentMethod->name }}</td>
 
 
-                    <td class="text-right">${{ number_format($item->amount, 2, ',', '.') }}</td>
+                    <td class="text-right">${{ number_format($item->amount, 0, ',', '.') }}</td>
 
                 </tr>
                 @endforeach
@@ -353,7 +353,7 @@
                 <tr>
 
                     <td colspan="2" class="text-right"><strong>Total Pagado</strong></td>
-                    <td class="text-right"><strong>${{ number_format( $order->payment->sum('amount'), 2, ',', '.') }}</strong></td>
+                    <td class="text-right"><strong>${{ number_format( $order->payment->sum('amount'), 0, ',', '.') }}</strong></td>
 
                 </tr>
             </tbody>
