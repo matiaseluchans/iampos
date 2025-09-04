@@ -316,7 +316,7 @@ class OrderRepository extends BaseRepository
             'customers.id',
             'customers.address',
             'localities.name as locality',
-            DB::raw('SUM(orders.total_amount) as total_amount'),
+            DB::raw('SUM(order_items.total_price) as total_amount'),
             DB::raw('SUM(order_items.quantity) as total_quantity')
         ])
             ->join('customers', 'customers.id', '=', 'orders.customer_id')
@@ -494,7 +494,7 @@ class OrderRepository extends BaseRepository
                 $this->adjustStock($productIds, $quantities, 'increment');
 
                 // Eliminar items
-                $model->items()->delete();
+                $model->items()->forceDelete();
             }
 
             // Actualizar datos básicos de la orden
@@ -534,7 +534,6 @@ class OrderRepository extends BaseRepository
             }
 
 
-
             // Actualizar campos de la orden
             $model->fill([
                 'delivery_date' => isset($form['delivery_date']) ? Carbon::createFromFormat('d/m/Y', $form['delivery_date'])->format('Y-m-d') : null,
@@ -572,7 +571,7 @@ class OrderRepository extends BaseRepository
                     ];
                 }, $items);
 
-                var_dump($data);
+
 
                 OrderItem::insert($data);
 

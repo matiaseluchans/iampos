@@ -942,7 +942,7 @@ export default {
         this.order = {
           customer_id: orderData.customer.id,
           shipping_address: orderData.shipping_address,
-          delivery_date: this.formatDateForInput(orderData.delivery_date),
+          delivery_date: orderData.delivery_date,
           subtotal: parseFloat(orderData.subtotal),
           aditional: parseFloat(orderData.aditional),
           discount_amount: parseFloat(orderData.discount_amount),
