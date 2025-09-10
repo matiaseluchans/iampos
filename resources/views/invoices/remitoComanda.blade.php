@@ -7,7 +7,7 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            font-size: 11px;
+            font: size: 12px;
 
             /* Ancho más estrecho como en la imagen */
         }
@@ -38,13 +38,13 @@
 
         .company-name {
             font-weight: bold;
-            font-size: 11px;
+            font: size: 12px;
             margin-bottom: 1mm;
         }
 
         .iva-info {
             text-align: center;
-            font-size: 11px;
+            font: size: 12px;
             margin: 1mm 0;
         }
 
@@ -52,7 +52,7 @@
             margin: 2mm 0;
             text-align: center;
             font-weight: bold;
-            font-size: 11px;
+            font-size: 13px;
         }
 
         .section-title {
@@ -81,7 +81,7 @@
             width: 100%;
             border-collapse: collapse;
             margin: 1mm 0 2mm 0;
-            font-size: 11px;
+            font-size: 13px;
         }
 
         th {
@@ -142,7 +142,7 @@
 
         .observaciones {
             margin-top: 2mm;
-            font-size: 11px;
+            font-size: 13px;
         }
     </style>
 </head>

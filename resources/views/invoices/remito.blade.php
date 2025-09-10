@@ -8,7 +8,7 @@
         /* Estilos optimizados para mPDF 150mm */
         body {
             font-family: 'dejavusans', sans-serif;
-            font-size: 10pt;
+            font-size: 13px;
             color: #333;
             margin: 0;
             padding: 0;
