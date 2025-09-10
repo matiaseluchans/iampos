@@ -9,9 +9,35 @@ use Illuminate\Support\Facades\Auth;
 class PriceListRepository extends BaseRepository
 {
 
+    private $relations = ['products'];
+
     public function __construct(PriceList $m, array $relations = ['products'])
     {
         parent::__construct($m, $relations);
+    }
+
+
+    public function all()
+    {
+        try {
+
+            $roles = Auth::user()->roles()->get();
+
+
+            $query = $this->model->query();
+            // Si es vendedor de bebidas (rol ID 3), solo ve sus lista de precios
+            if ($roles[0]->id == 3) {
+                $query->where('id', 2);
+            }
+            if (!empty($this->relations)) {
+                $query = $query->with($this->relations);
+            }
+
+            return $this->successResponse($query->get());
+        } catch (\Exception $e) {
+            report($e);
+            return $this->errorResponse($e);
+        }
     }
 
     public function save($data)

@@ -53,7 +53,7 @@ export const routes = [
         meta: { 
           title: "Ordenes pendientes de entrega",
           requiresAuth: true, 
-          allowedRoles: ['*'],
+          allowedRoles: ['superadmin','bebidas-admin','petshop-admin'],
         },
       },      
       {
@@ -63,7 +63,7 @@ export const routes = [
         meta: { 
           title: "Clientes",
           requiresAuth: true,
-          allowedRoles: ['superadmin','bebidas-admin','petshop-admin'], 
+          
         },
       }, 
       {
@@ -81,6 +81,7 @@ export const routes = [
         meta: { 
           title: "Productos",
           requiresAuth: true, 
+          allowedRoles: ['superadmin','bebidas-admin','petshop-admin']
         },
       }, 
       {
@@ -90,6 +91,7 @@ export const routes = [
         meta: { 
           title: "Stock",
           requiresAuth: true,
+          allowedRoles: ['superadmin','bebidas-admin','petshop-admin']
         },
       },
       {
@@ -98,6 +100,7 @@ export const routes = [
         meta: { 
           title: "Depositos",
           requiresAuth: true, 
+          allowedRoles: ['superadmin','bebidas-admin','petshop-admin']
         },
       }, 
       {
@@ -106,6 +109,7 @@ export const routes = [
         meta: { 
           title: "Categorias",
           requiresAuth: true ,
+          allowedRoles: ['superadmin','bebidas-admin','petshop-admin']
         },
       }, 
       {
@@ -115,6 +119,7 @@ export const routes = [
         meta: { 
           title: "Marcas",
           requiresAuth: true,
+          allowedRoles: ['superadmin','bebidas-admin','petshop-admin']
         },
       }, 
       {
@@ -135,7 +140,7 @@ export const routes = [
         meta: { 
           title: "Usuarios",
           requiresAuth: true,
-          allowedRoles: ['superadmin','bebidas-admin','petshop-admin'],
+          allowedRoles: ['superadmin'],
         },
       },
       
@@ -145,7 +150,10 @@ export const routes = [
         component: () => import('@/pages/iampos/statuses.vue'),
         meta: { 
           title: "Estados",
-          requiresAuth: true },
+          requiresAuth: true,
+          allowedRoles: ['superadmin' ]
+       },
+          
       },
 
       {
@@ -154,7 +162,9 @@ export const routes = [
         component: () => import('@/pages/iampos/paymentMethods.vue'),
         meta: { 
           title: "Métodos de pago",
-          requiresAuth: true },
+          requiresAuth: true,
+          allowedRoles: ['superadmin']
+        },
       },
 
       {

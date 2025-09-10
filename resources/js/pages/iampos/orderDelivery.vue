@@ -17,6 +17,15 @@
         <VBtn
           color="success"
           variant="outlined"
+          @click="getDeliveryReport(3)"
+          prepend-icon="ri-file-excel-line"
+          size="small"
+        >
+          Por Producto
+        </VBtn>
+        <VBtn
+          color="error"
+          variant="outlined"
           @click="getDeliveryReport(1)"
           prepend-icon="ri-file-pdf-2-line"
           size="small"
@@ -24,7 +33,7 @@
           Por Producto
         </VBtn>
         <VBtn
-          color="success"
+          color="error"
           variant="outlined"
           @click="getDeliveryReport(2)"
           prepend-icon="ri-file-pdf-2-line"
@@ -201,13 +210,17 @@
         <template #item.total_paid="{ item }">
           <div
             :class="
-              item.total_paid > 0 ?  item.total_paid < item.total_amount ? 'text-right text-warning' : 'text-right text-success': 'text-right text-error'
+              item.total_paid > 0
+                ? item.total_paid < item.total_amount
+                  ? 'text-right text-warning'
+                  : 'text-right text-success'
+                : 'text-right text-error'
             "
           >
             <strong>{{ formatCurrency(item.total_paid) }}</strong>
           </div>
         </template>
-        
+
         <template #item.payment_status_id="{ item }">
           <div class="d-flex flex-column align-center gap-0">
             <!--
@@ -387,22 +400,29 @@
 
         <template #tfoot>
           <tfoot>
-            <tr class="bg-grey-lighten-4 font-weight-bold" style="background:#ccc">
-              <td class="text-left">
-                
-              </td>
-              <td :colspan="showHeaders.length - (this.isAdmin? 7:5)" class="text-right">
-                <div class="d-flex align-center mx-0 px-0" style="width: 100px">                  
+            <tr class="bg-grey-lighten-4 font-weight-bold" style="background: #ccc">
+              <td class="text-left"></td>
+              <td
+                :colspan="showHeaders.length - (this.isAdmin ? 7 : 5)"
+                class="text-right"
+              >
+                <div class="d-flex align-center mx-0 px-0" style="width: 100px">
                   <div class="d-flex flex-column text-start">
-                    <span class="d-block font-weight-medium text-high-emphasis text-truncate">Facturas Totales: {{
-                      orders.data.length
-                    }}</span>
-                    <small>Productos Totales: {{ calculateTotalProducts() }}</small>              
+                    <span
+                      class="d-block font-weight-medium text-high-emphasis text-truncate"
+                      >Facturas Totales: {{ orders.data.length }}</span
+                    >
+                    <small>Productos Totales: {{ calculateTotalProducts() }}</small>
                   </div>
-                </div></td>              
-      
-              <td v-if="this.isAdmin" class="text-right">{{ formatCurrency(calculateTotalCost()) }}</td>
-              <td v-if="this.isAdmin" class="text-right">{{ formatCurrency(calculateTotalProfit()) }}</td>
+                </div>
+              </td>
+
+              <td v-if="this.isAdmin" class="text-right">
+                {{ formatCurrency(calculateTotalCost()) }}
+              </td>
+              <td v-if="this.isAdmin" class="text-right">
+                {{ formatCurrency(calculateTotalProfit()) }}
+              </td>
               <td class="text-right">{{ formatCurrency(calculateTotalAmount()) }}</td>
               <td class="text-right"></td>
               <td class="text-right"></td>
@@ -418,24 +438,23 @@
           <VToolbar color="primary" density="compact">
             <VToolbarTitle class="text-white font-weight-medium">
               <VBtn icon variant="text" color="white" @click="closeMovementDialog">
-              <VIcon>ri-close-line</VIcon>
-            </VBtn>
+                <VIcon>ri-close-line</VIcon>
+              </VBtn>
               {{ movementFormTitle }}
             </VToolbarTitle>
-            
           </VToolbar>
 
           <VForm ref="movementForm" v-model="validMovement">
             <VCardText class="px-4 pt-4 pb-2">
               <!-- Sección de orden con iconos Remix -->
               <VCard flat border class="mb-4" color="primary-lighten-5">
-                <VCardItem class="py-0 mt-2 ">
+                <VCardItem class="py-0 mt-2">
                   <VCardTitle class="d-flex align-center">
-                     <VAvatar
-                            icon="ri-inbox-unarchive-line"
-                            class="text-info mr-2"
-                            variant="tonal"
-                          />
+                    <VAvatar
+                      icon="ri-inbox-unarchive-line"
+                      class="text-info mr-2"
+                      variant="tonal"
+                    />
                     <span>Detalles de la Orden</span>
                     <div class="d-flex flex-wrap gap-2 ml-3">
                       <VChip
@@ -443,15 +462,17 @@
                         size="small"
                         class="font-weight-medium"
                       >
-                        <VIcon  icon="ri-money-dollar-circle-line" class="mr-1"/>
+                        <VIcon icon="ri-money-dollar-circle-line" class="mr-1" />
                         {{ selectedOrder.payment_status.name }}
                       </VChip>
                       <VChip
-                        :color="getStatusCodeColorShipping(selectedOrder.shipment_status.code)"
+                        :color="
+                          getStatusCodeColorShipping(selectedOrder.shipment_status.code)
+                        "
                         size="small"
                         class="font-weight-medium"
                       >
-                        <VIcon  icon="ri-truck-line" class="mr-1"/>
+                        <VIcon icon="ri-truck-line" class="mr-1" />
                         {{ selectedOrder.shipment_status.name }}
                       </VChip>
                     </div>
@@ -463,36 +484,45 @@
                     <VCol cols="6" sm="3">
                       <div class="d-flex flex-column">
                         <span class="text-caption text-medium-emphasis">
-                          <VIcon icon="ri-hashtag" size="14" class="mr-1"/>
+                          <VIcon icon="ri-hashtag" size="14" class="mr-1" />
                           Número
                         </span>
-                        <span class="font-weight-medium">{{ selectedOrder.order_number }}</span>
+                        <span class="font-weight-medium">{{
+                          selectedOrder.order_number
+                        }}</span>
                       </div>
                     </VCol>
                     <VCol cols="6" sm="3">
                       <div class="d-flex flex-column">
                         <span class="text-caption text-medium-emphasis">
-                          <VIcon icon="ri-calendar-line" size="14" class="mr-1"/>
+                          <VIcon icon="ri-calendar-line" size="14" class="mr-1" />
                           Fecha
                         </span>
-                        <span class="font-weight-medium">{{ selectedOrder.order_date }}</span>
+                        <span class="font-weight-medium">{{
+                          selectedOrder.order_date
+                        }}</span>
                       </div>
                     </VCol>
                     <VCol cols="6" sm="3">
                       <div class="d-flex flex-column">
                         <span class="text-caption text-medium-emphasis">
-                          <VIcon icon="ri-archive-line" size="14" class="mr-1"/>
+                          <VIcon icon="ri-archive-line" size="14" class="mr-1" />
                           Productos
                         </span>
                         <span class="font-weight-medium">
-                          {{ selectedOrder.quantity_products }} <small class="text-caption">items</small>
+                          {{ selectedOrder.quantity_products }}
+                          <small class="text-caption">items</small>
                         </span>
                       </div>
                     </VCol>
                     <VCol cols="6" sm="3">
                       <div class="d-flex flex-column">
                         <span class="text-caption text-medium-emphasis">
-                          <VIcon icon="ri-money-dollar-circle-line" size="14" class="mr-1"/>
+                          <VIcon
+                            icon="ri-money-dollar-circle-line"
+                            size="14"
+                            class="mr-1"
+                          />
                           Total
                         </span>
                         <span class="font-weight-medium text-success">
@@ -508,8 +538,7 @@
               <VCard flat border class="mb-4" color="grey-lighten-4">
                 <VCardItem class="py-0 mt-2">
                   <VCardTitle class="d-flex align-center">
-                   
-                      <VAvatar icon="ri-user-line" class="text-info mr-2" variant="tonal" />
+                    <VAvatar icon="ri-user-line" class="text-info mr-2" variant="tonal" />
 
                     <span>Información del Cliente</span>
                   </VCardTitle>
@@ -520,36 +549,40 @@
                     <VCol cols="12" md="4">
                       <div class="d-flex flex-column">
                         <span class="text-caption text-medium-emphasis">
-                          <VIcon icon="ri-user-3-line" size="14" class="mr-1"/>
+                          <VIcon icon="ri-user-3-line" size="14" class="mr-1" />
                           Nombre
                         </span>
                         <span class="font-weight-medium">
-                          {{ selectedOrder.customer.firstname }} {{ selectedOrder.customer.lastname }}
+                          {{ selectedOrder.customer.firstname }}
+                          {{ selectedOrder.customer.lastname }}
                         </span>
                       </div>
                     </VCol>
                     <VCol cols="12" md="4">
                       <div class="d-flex flex-column">
                         <span class="text-caption text-medium-emphasis">
-                          <VIcon icon="ri-map-pin-line" size="14" class="mr-1"/>
+                          <VIcon icon="ri-map-pin-line" size="14" class="mr-1" />
                           Dirección
                         </span>
                         <span class="font-weight-medium">
-                          {{ selectedOrder.customer.address || 'No especificada' }}
+                          {{ selectedOrder.customer.address || "No especificada" }}
                         </span>
                       </div>
                     </VCol>
                     <VCol cols="12" md="4">
                       <div class="d-flex flex-column">
                         <span class="text-caption text-medium-emphasis">
-                          <VIcon icon="ri-phone-line" size="14" class="mr-1"/>
+                          <VIcon icon="ri-phone-line" size="14" class="mr-1" />
                           Contacto
                         </span>
                         <span class="font-weight-medium">
-                          {{ selectedOrder.customer.telephone || 'Sin teléfono' }}
+                          {{ selectedOrder.customer.telephone || "Sin teléfono" }}
                         </span>
-                        <span v-if="selectedOrder.customer.email" class="text-primary text-caption">
-                          <VIcon icon="ri-mail-line" size="12" class="mr-1"/>
+                        <span
+                          v-if="selectedOrder.customer.email"
+                          class="text-primary text-caption"
+                        >
+                          <VIcon icon="ri-mail-line" size="12" class="mr-1" />
                           {{ selectedOrder.customer.email }}
                         </span>
                       </div>
@@ -557,7 +590,7 @@
                   </VRow>
                 </VCardText>
               </VCard>
-        
+
               <VRow>
                 <VCol cols="12" md="6" sm="6">
                   <VAutocomplete
@@ -627,8 +660,9 @@
               <!-- Resumen de pagos en tarjeta compacta -->
               <VCard flat class="border" color="surface">
                 <VCardItem class="py-2">
-                  <VCardTitle class="text-subtitle-1 font-weight-medium d-flex align-center">
-                    
+                  <VCardTitle
+                    class="text-subtitle-1 font-weight-medium d-flex align-center"
+                  >
                     <VAvatar
                       icon="ri-money-dollar-circle-line"
                       class="text-primary mr-2"
@@ -645,24 +679,35 @@
                   <div class="d-flex flex-column gap-2">
                     <div class="d-flex justify-space-between">
                       <span class="text-caption text-medium-emphasis">Total Orden:</span>
-                      <span class="font-weight-medium">{{ formatCurrency(createdOrder?.order?.total_amount) }}</span>
+                      <span class="font-weight-medium">{{
+                        formatCurrency(createdOrder?.order?.total_amount)
+                      }}</span>
                     </div>
                     <div class="d-flex justify-space-between">
                       <span class="text-caption text-medium-emphasis">Total Pagado:</span>
-                      <span class="font-weight-medium text-primary">{{ formatCurrency(totalPaid) }}</span>
+                      <span class="font-weight-medium text-primary">{{
+                        formatCurrency(totalPaid)
+                      }}</span>
                     </div>
                     <div class="d-flex justify-space-between">
-                      <span class="text-caption text-medium-emphasis">Saldo Pendiente:</span>
-                      <span class="font-weight-medium" :class="pendingAmount > 0 ? 'text-error' : 'text-success'">
+                      <span class="text-caption text-medium-emphasis"
+                        >Saldo Pendiente:</span
+                      >
+                      <span
+                        class="font-weight-medium"
+                        :class="pendingAmount > 0 ? 'text-error' : 'text-success'"
+                      >
                         {{ formatCurrency(pendingAmount) }}
                       </span>
                     </div>
-                    
+
                     <VDivider class="my-1" />
-                    
+
                     <div class="d-flex justify-space-between">
                       <span class="text-caption text-medium-emphasis">Vuelto:</span>
-                      <span class="font-weight-medium text-success">{{ formatCurrency(change) }}</span>
+                      <span class="font-weight-medium text-success">{{
+                        formatCurrency(change)
+                      }}</span>
                     </div>
                   </div>
                 </VCardText>
@@ -689,29 +734,25 @@
                     color="primary"
                     @click="closePaymentForm"
                     class="text-capitalize"
-                  block
+                    block
                   >
                     Cancelar
-                  </VBtn> 
+                  </VBtn>
                 </VCol>
                 <VCol cols="12" md="12" sm="12" class="pt-1 my-0 pb-2">
                   <VBtn
-                  
                     @click="savePayment"
                     :loading="savingPayment"
                     :disabled="!validPayment"
                     color="white"
-                    class="bg-primary  text-capitalize"
+                    class="bg-primary text-capitalize"
                     block
                   >
-                  
                     <template v-if="!savingPayment">
                       <VIcon icon="mdi-check-circle-outline" class="mr-1" />
                       Confirmar Pago
                     </template>
-                    <template v-else>
-                      Procesando...
-                    </template>
+                    <template v-else> Procesando... </template>
                   </VBtn>
                 </VCol>
               </VRow>
@@ -793,21 +834,26 @@ export default {
 
       // Headers
       headers: [
-        { title: "", key: "actions", sortable: false, align: "left", width: "0px",  cellProps: { 
-          class: "actions-cell",  /* Clase aplicada vía cellProps*/
-          /*style: { padding: "0", margin: "0" },*/  // Estilos inline
-        }},
+        {
+          title: "",
+          key: "actions",
+          sortable: false,
+          align: "left",
+          width: "0px",
+          cellProps: {
+            class: "actions-cell" /* Clase aplicada vía cellProps*/,
+            /*style: { padding: "0", margin: "0" },*/ // Estilos inline
+          },
+        },
         { title: "Orden", key: "order_number", width: "60px" },
         { title: "Fecha", key: "order_date", align: "center", width: "60px" },
         { title: "Cliente", key: "customer", width: "70%" },
         { title: "Total", key: "total_amount", align: "end" },
         { title: "Pagado", key: "total_paid", align: "end" },
         { title: "Vendedor", key: "seller_name", width: "10%" },
-       
+
         { title: "Fecha Entrega", key: "delivery_date", align: "center", width: "100px" },
         { title: "Estados", key: "payment_status_id", align: "center" },
-
-        
       ],
       isAdmin: false,
       createdOrder: { order: {} },
@@ -867,38 +913,45 @@ export default {
   },
 
   methods: {
-
     calculateTotalAmount() {
       if (!this.orders.data) return 0;
 
-      return this.orders.data.reduce((total, item) => {
-        return total + (parseFloat(item.total_amount) || 0);
-      }, 0).toFixed(2); // Formats to 2 decimal places
+      return this.orders.data
+        .reduce((total, item) => {
+          return total + (parseFloat(item.total_amount) || 0);
+        }, 0)
+        .toFixed(2); // Formats to 2 decimal places
     },
     calculateTotalPaid() {
       if (!this.orders.data) return 0;
-      
-      return this.orders.data.reduce((total, item) => {
-        return total + (parseFloat(item.total_paid) || 0);
-      }, 0).toFixed(2); // Formats to 2 decimal places
+
+      return this.orders.data
+        .reduce((total, item) => {
+          return total + (parseFloat(item.total_paid) || 0);
+        }, 0)
+        .toFixed(2); // Formats to 2 decimal places
     },
     calculateTotalCost() {
       if (!this.orders.data) return 0;
-      
-      return this.orders.data.reduce((total, item) => {
-        return total + (parseFloat(item.total_cost) || 0);
-      }, 0).toFixed(2); // Formats to 2 decimal places
+
+      return this.orders.data
+        .reduce((total, item) => {
+          return total + (parseFloat(item.total_cost) || 0);
+        }, 0)
+        .toFixed(2); // Formats to 2 decimal places
     },
     calculateTotalProfit() {
       if (!this.orders.data) return 0;
-      
-      return this.orders.data.reduce((total, item) => {
-        return total + (parseFloat(item.total_profit) || 0);
-      }, 0).toFixed(2); // Formats to 2 decimal places
+
+      return this.orders.data
+        .reduce((total, item) => {
+          return total + (parseFloat(item.total_profit) || 0);
+        }, 0)
+        .toFixed(2); // Formats to 2 decimal places
     },
     calculateTotalProducts() {
       if (!this.orders.data) return 0;
-      
+
       return this.orders.data.reduce((total, item) => {
         return total + (item.quantity_products || 0);
       }, 0);
@@ -922,18 +975,17 @@ export default {
       // No hacer nada si es el mismo estado
       if (newStatus.id === item.payment_status.id) return;
 
-      if(newStatus.id == 5) 
-      {
+      if (newStatus.id == 5) {
         alert("esta intentando cancelar una orden");
         return;
       }
       try {
         this.loading = true;
-        
+
         const response = await this.$axios.post(`${this.$routes["orders"]}/${item.id}`, {
           data: {
             payment_status_id: newStatus.id,
-            _method: 'PUT'
+            _method: "PUT",
           },
         });
 
@@ -958,7 +1010,7 @@ export default {
         const response = await this.$axios.post(`${this.$routes["orders"]}/${item.id}`, {
           data: {
             shipment_status_id: newStatus.id,
-            _method: 'PUT'
+            _method: "PUT",
           },
         });
 
@@ -968,7 +1020,6 @@ export default {
       } catch (error) {
         console.error("Error al actualizar estado:", error);
         this.showSnackbar("Error al actualizar el estado", "error");
-        
       } finally {
         this.loading = false;
         // Forzar recarga para sincronizar con el servidor
@@ -1083,8 +1134,12 @@ export default {
         ]);
 
         this.customers = customersRes.data.data;
-        this.paymentStatuses = paymentStatusesRes.data.data.filter(item => item.code != "cancelled" && item.code != "refund");
-        this.shipmentStatuses = shipmentStatusesRes.data.data.filter(item => item.code != "cancelled");
+        this.paymentStatuses = paymentStatusesRes.data.data.filter(
+          (item) => item.code != "cancelled" && item.code != "refund"
+        );
+        this.shipmentStatuses = shipmentStatusesRes.data.data.filter(
+          (item) => item.code != "cancelled"
+        );
       } catch (error) {
         console.error("Error fetching data:", error);
         this.showSnackbar("Error al cargar los datos", "error");
@@ -1227,7 +1282,7 @@ export default {
         style: "currency",
         currency: "ARS",
         minimumFractionDigits: 0,
-        maximumFractionDigits: 0
+        maximumFractionDigits: 0,
       }).format(value);
     },
 
@@ -1262,7 +1317,7 @@ export default {
             payment_status_id: this.movement.payment_status_id,
             shipment_status_id: this.movement.shipment_status_id,
           },
-          _method: 'PUT'
+          _method: "PUT",
         };
 
         await this.$axios.post(endpoint, data);
@@ -1363,60 +1418,89 @@ export default {
       return pendingId || null;
     },
     async getDeliveryReport(type) {
-      try {
-        // Mostrar loader mientras se genera el PDF
-        this.loading = true;
+  try {
+    this.loading = true;
 
-        const urlReport =
-          type == 1
-            ? `${this.$routes["ordersDelivery"]}`
-            : `${this.$routes["ordersCustomersDelivery"]}`;
+    const urlReport =
+      type == 1
+        ? `${this.$routes["ordersDelivery"]}`
+        : type == 2
+        ? `${this.$routes["ordersCustomersDelivery"]}`
+        : `${this.$routes["ordersDeliveryExcel"]}`;
 
-        const params = {
-          start_date: this.dateRange.start, // Formato: YYYY-MM-DD
-          end_date: this.dateRange.end,
-          shipment_status_id: this.selectedShipmentStatus,
-          customers: this.selectedCustomer,
-          order_number: this.search || undefined,
-          payment_status_id: this.selectedPaymentStatus || undefined,
-          shipping: 1 || undefined, //filtro por los que requieren envio
-        };
+    const params = {
+      start_date: this.dateRange.start,
+      end_date: this.dateRange.end,
+      shipment_status_id: this.selectedShipmentStatus,
+      customers: this.selectedCustomer,
+      order_number: this.search || undefined,
+      payment_status_id: this.selectedPaymentStatus || undefined,
+      shipping: 1 || undefined,
+    };
 
-        // Llamar al endpoint de Laravel que genera el PDF
-        const response = await this.$axios.get(urlReport, {
-          params,
-          responseType: "blob",
-        });
+    // Configuración diferente para Excel
+    if (type == 3) {
+      // Para Excel, hacemos una petición normal y manejamos la descarga
+      const response = await this.$axios.get(urlReport, {
+        params,
+        responseType: 'blob' // Importante mantener blob
+      });
 
-        var blob = new Blob([response.data], { type: "application/pdf" });
-        const url = window.URL.createObjectURL(blob, { oneTimeOnly: true });
-        const link = document.createElement("a");
-        link.target = "_blank";
+      // Crear el blob para Excel
+      const blob = new Blob([response.data], { 
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+      });
+      
+      // Crear URL y enlace para descarga
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'reporte_entrega_productos.xlsx');
+      document.body.appendChild(link);
+      link.click();
+      
+      // Limpiar
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(link);
+      
+    } else {
+      // Para PDF (tipos 1 y 2) - mantener tu código actual
+      const response = await this.$axios.get(urlReport, {
+        params,
+        responseType: "blob",
+      });
 
-        link.href = url;
+      const blob = new Blob([response.data], { type: "application/pdf" });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.target = "_blank";
+      link.href = url;
+      document.body.appendChild(link);
+      link.click();
+      
+      // Limpiar
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(link);
+    }
 
-        document.body.appendChild(link);
-        link.click();
-      } catch (error) {
-        console.error("Error generando reporte:", error);
-        this.showSnackbar("Error al generar la reporte", "error");
-      } finally {
-        this.loading = false;
-      }
-    },
+  } catch (error) {
+    console.error("Error generando reporte:", error);
+    this.showSnackbar("Error al generar el reporte", "error");
+  } finally {
+    this.loading = false;
+  }
+},
     async editOrder(item) {
       try {
         this.loading = true;
-     
+
         this.$router.push({
-          path: '/order-create',
+          path: "/order-create",
           query: {
             edit: true,
             orderId: item.id,
-       
-          }
+          },
         });
-        
       } catch (error) {
         console.error("Error al obtener datos de la orden:", error);
         this.showSnackbar("Error al cargar la orden para edición", "error");

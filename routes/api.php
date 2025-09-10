@@ -103,6 +103,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('orders/remito-comanda/{id}', [App\Http\Controllers\OrderController::class, "generateRemitoComanda"]);
     Route::get('orders-delivery', [App\Http\Controllers\OrderController::class, "generateDeliveryReport"]);
     Route::get('orders-customers-delivery', [App\Http\Controllers\OrderController::class, "generateCustomerDeliveryReport"]);
+    Route::get('orders-delivery-excel', [App\Http\Controllers\OrderController::class, "generateDeliveryReportExcel"]);
     Route::get('orders-search', [App\Http\Controllers\OrderController::class, "search"]);
     Route::get('orders-latest', [App\Http\Controllers\OrderController::class, "latest"]);
 

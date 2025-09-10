@@ -320,9 +320,10 @@
                     >Comanda
                   </VListItemTitle>
                 </VListItem>
-                <VListItem @click="openMovementDialog(item)">
+                <VListItem @click="openMovementDialog(item)"  v-if="$is('bebidas-user')==false">
                   <VListItemTitle>
                     <IconBtn
+                     
                       size="small"
                       class="my-1"
                       title="Cambiar el estado de la orden"
@@ -851,7 +852,7 @@ export default {
         { title: "Vendedor", key: "seller_name", width: "10%" },
 
         { title: "Fecha Entrega", key: "delivery_date", align: "center", width: "100px" },
-        { title: "Estados", key: "payment_status_id", align: "center" },
+        
       ],
       isAdmin: false,
       createdOrder: { order: {} },
@@ -905,7 +906,11 @@ export default {
         { title: "Costo", key: "total_cost", align: "end" },
         { title: "Ganancia", key: "total_profit", align: "end" }
       );
+
+      this.headers.push({ title: "Estados", key: "payment_status_id", align: "center" });
     }
+
+      
 
     // Solo establecer fechas por defecto en la carga inicial
     if (this.isInitialLoad) {

@@ -195,6 +195,7 @@
 
                         <VListItemSubtitle class="text-caption">
                           <VChip
+                          v-if="$is('bebidas-user')==false"
                             :color="
                               getProductStock(item.raw.id) > 0 ? 'success' : 'error'
                             "
@@ -517,7 +518,7 @@
               </VCol>
               <VCol cols="12" sm="6">
                 <VTextField
-                  v-model="newCustomer.phone"
+                  v-model="newCustomer.telephone"
                   label="Teléfono"
                   :rules="[(v) => !!v || 'Teléfono es requerido']"
                   density="compact"
@@ -525,7 +526,7 @@
               </VCol>
 
               <VCol cols="12" sm="6">
-                <VTextField v-model="newCustomer.name" label="Nombre" density="compact" />
+                <VTextField v-model="newCustomer.firstname" label="Nombre" density="compact" />
               </VCol>
               <VCol cols="12" sm="6">
                 <VAutocomplete
@@ -1020,6 +1021,7 @@ export default {
 
           this.sellers = usersRes.data.data || usersRes.data;
         }
+        
 
         this.customers = customersRes.data.data || customersRes.data;
         this.products = productsRes.data.data || productsRes.data;
@@ -1028,8 +1030,16 @@ export default {
         this.priceLists = priceListsRes.data.data || priceListsRes.data;
 
         
-        let is_default = this.priceLists.find((c) => c.is_default === 1);
-        this.selectedPriceList = is_default.id;
+        if (this.$is(["bebidas-user"])) {
+          this.selectedPriceList = 2;
+          this.onPriceListChange();
+        }
+        else
+        {
+          let is_default = this.priceLists.find((c) => c.is_default === 1);
+          this.selectedPriceList = is_default.id;
+        }
+
 
         if (this.$is("bebidas-admin") || this.$is("bebidas-user")) {
           this.order.shipping = 1;
@@ -1039,6 +1049,8 @@ export default {
           this.order.seller_id =this.$store.getters.currentUser.data.id;
         }
         this.setDate(this.order.delivery_date);
+
+        this.$forceUpdate();
       } catch (error) {
         console.error("Error loading data:", error);
         this.showSnackbar("Error al cargar los datos", "error");
@@ -1102,7 +1114,8 @@ export default {
       }
       
       // Agregar el precio al título
-      return `${title} - $${this.formatNumber(price)}`;
+      //return `${title} - $${this.formatNumber(price)}`;
+      return `${title}`;
     },
     getProductById(productId) {
       return this.products.find((p) => p.id === productId);

@@ -17,6 +17,9 @@ use Mpdf\Mpdf;
 use Mpdf\Config\ConfigVariables;
 use Mpdf\Config\FontVariables;
 
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\DeliveryReportExcelExport;
+
 
 class OrderRepository extends BaseRepository
 {
@@ -347,7 +350,7 @@ class OrderRepository extends BaseRepository
         }
 
         //$orders = $ordersQuery->groupBy('customers.id', 'customers.address', 'order_items.product_id', 'products.name')->orderBy('customers.id', 'desc')->get();
-        $orders = $ordersQuery->groupBy('orders.id', 'customers.id', 'customers.address', 'localities.name')->orderBy('customers.id', 'desc')->get();
+        $orders = $ordersQuery->groupBy('orders.id', 'customers.id', 'customers.address', 'localities.name')->orderBy('orders.id', 'asc')->get();
 
         $totalQuantity = $orders->sum('total_quantity');
 
@@ -395,6 +398,57 @@ class OrderRepository extends BaseRepository
         return $mpdf->Output("orden_entrega.pdf", \Mpdf\Output\Destination::INLINE);
     }
 
+
+
+    public function generateDeliveryReportExcel($request)
+    {
+        $ordersQuery = $this->model::select([
+            'order_items.product_id',
+            'products.name as product_name', // Nombre del producto
+            DB::raw('SUM(order_items.quantity) as total_quantity')
+        ])
+            ->join('order_items', 'orders.id', '=', 'order_items.order_id')
+            ->join('products', 'order_items.product_id', '=', 'products.id')
+            ->where('shipping', 1);
+
+        $deliveryStartDate = $request->input('start_date');
+        $deliveryEndDate = $request->input('end_date');
+        $dates = '';
+
+        if ($deliveryStartDate && $deliveryEndDate) {
+            $ordersQuery->whereBetween('delivery_date', [
+                Carbon::parse($deliveryStartDate)->startOfDay(),
+                Carbon::parse($deliveryEndDate)->endOfDay()
+            ]);
+            $dates = Carbon::parse($deliveryStartDate)->format('d/m/Y') . ' - ' . Carbon::parse($deliveryEndDate)->format('d/m/Y');
+        }
+
+        if ($request->input('shipment_status_id')) {
+            $ordersQuery->where('shipment_status_id', $request->input('shipment_status_id'));
+        }
+        if ($request->input('customers')) {
+            $ordersQuery->whereIn('customer_id', $request->input('customers'));
+        }
+        if ($request->input('order_number')) {
+            $ordersQuery->where('order_number', 'LIKE', '%' . $request->input('order_number') . '%');
+        }
+        if ($request->input('payment_status_id')) {
+            $ordersQuery->where('payment_status_id', $request->input('payment_status_id'));
+        }
+
+        $ordersQuery->orderBy('products.order', 'asc');
+        $orders = $ordersQuery->groupBy('order_items.product_id', 'products.name')->get();
+
+        $totalQuantity = $orders->sum('total_quantity');
+        $user = auth()->user();
+
+        // Generar y descargar el Excel
+        return Excel::download(
+            new DeliveryReportExcelExport($orders, $dates, $totalQuantity, $user),
+            'reporte_entrega_productos.xlsx'
+        );
+    }
+
     public function search($request)
     {
         try {
@@ -429,6 +483,13 @@ class OrderRepository extends BaseRepository
             }
             if ($orderStartDate && $orderEndDate) {
                 $query->whereBetween('order_date', [Carbon::parse($orderStartDate)->startOfDay(), Carbon::parse($orderEndDate)->endOfDay()]);
+            }
+
+
+            $roles = Auth::user()->roles()->get();
+            // Si es vendedor de bebidas (rol ID 3), solo ve sus clientes
+            if ($roles[0]->id == 3) {
+                $query->where('seller_id', Auth::id());
             }
 
             $query->orderBy('order_date', 'desc');
