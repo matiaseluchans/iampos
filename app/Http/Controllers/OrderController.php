@@ -188,9 +188,9 @@ class OrderController extends Controller
         return $this->repository->generateDeliveryReportExcel($request);
     }
 
-    public function generateCustomerDeliveryExcel(Request $request)
+    public function generateDeliveryReport(Request $request)
     {
-        return $this->repository->generateCustomerDeliveryExcel($request);
+        return $this->repository->generateDeliveryReport($request);
     }
 
 
