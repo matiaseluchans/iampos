@@ -59,14 +59,27 @@
           <VCard flat color="white">
             <VCardText class="mx-0 px-0">
               <VRow dense class="mx-0 px-0">
-                <VCol cols="12" md="3">
+                <VCol cols="12" md="1">
                   <VTextField
                     v-model="search"
-                    label="Buscar orden"
+                    label="N° orden"
                     placeholder="Número de orden"
                     density="compact"
                     clearable
                     hide-details
+                  />
+                </VCol>
+                <VCol cols="12" md="3">
+                  <VAutocomplete
+                    v-model="selectedSeller"
+                    :items="sellers"
+                    :item-title="sellers.name ? 'name' : 'email'"
+                    item-value="id"
+                    label="Vendedores"
+                   
+                    clearable
+                    class="mt-0"
+                    density="compact"
                   />
                 </VCol>
                 <VCol cols="12" md="3">
@@ -82,7 +95,7 @@
                     density="compact"
                   />
                 </VCol>
-                <VCol cols="12" md="3">
+                <VCol cols="12" md="2">
                   <VAutocomplete
                     v-model="selectedPaymentStatus"
                     :items="paymentStatuses"
@@ -804,6 +817,8 @@ export default {
       loading: false,
       search: "",
       customers: [],
+      sellers:[],
+      selectedSeller:null,
       //orders: [],
       paymentStatuses: [],
       shipmentStatuses: [],
@@ -1070,6 +1085,7 @@ export default {
         const params = {
           order_number: this.search || undefined,
           customers: this.selectedCustomer || undefined,
+          sellers: this.selectedSeller || undefined,
           payment_status_id: this.selectedPaymentStatus || undefined,
           shipment_status_id: this.selectedShipmentStatus || undefined,
           shipping: 1 || undefined, //filtro por los que requieren envio
@@ -1127,13 +1143,16 @@ export default {
           customersRes,
           paymentStatusesRes,
           shipmentStatusesRes,
+          sellersRes
         ] = await Promise.all([
           this.$axios.get(this.$routes["customers"]),
           this.$axios.get(this.$routes["paymentStatuses"]),
           this.$axios.get(this.$routes["shipmentStatuses"]),
+          this.$axios.get(this.$routes["usersList"]),
         ]);
 
         this.customers = customersRes.data.data;
+        this.sellers = sellersRes.data.data;
         this.paymentStatuses = paymentStatusesRes.data.data.filter(
           (item) => item.code != "cancelled" && item.code != "refund"
         );
@@ -1433,6 +1452,7 @@ export default {
       end_date: this.dateRange.end,
       shipment_status_id: this.selectedShipmentStatus,
       customers: this.selectedCustomer,
+      sellers: this.selectedSeller,
       order_number: this.search || undefined,
       payment_status_id: this.selectedPaymentStatus || undefined,
       shipping: 1 || undefined,

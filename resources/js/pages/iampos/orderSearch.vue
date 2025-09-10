@@ -29,7 +29,7 @@
                 <VCol cols="12" md="4" sm="12" class="pl-0 pt-0">
                   <VTextField
                     v-model="search"
-                    label="Número de Orden"
+                    label="N° Orden"
                     class="mt-0"
                     density="compact"
                   />
@@ -46,16 +46,34 @@
                   />
                 </VCol>
                 <VCol cols="12" md="4" sm="12" class="pl-0 pt-0">
-                  <VAutocomplete
-                    v-model="selectedPaymentStatus"
-                    :items="paymentStatuses"
-                    item-title="name"
-                    item-value="id"
-                    label="Estado del pago"
-                    clearable
-                    class="mt-0"
-                    density="compact"
-                  />
+
+                  <VRow dense class="mx-0 px-0">
+                    <VCol cols="12" md="6" sm="12"  class="mx-0 px-0 pr-1" >
+                      <VAutocomplete
+                        v-model="selectedPaymentStatus"
+                        :items="paymentStatuses"
+                        item-title="name"
+                        item-value="id"
+                        label="Estado del pago"
+                        clearable
+                        class="mt-0"
+                        density="compact"
+                      />
+                      </VCol>
+                      <VCol cols="12" md="6" sm="12"  class="mr-0 pr-0" >
+                      <VAutocomplete
+                        v-model="selectedSeller"
+                        :items="sellers"
+                        :item-title="sellers.name ? 'name' : 'email'"
+                        item-value="id"
+                        label="Vendedores"
+                      
+                        clearable
+                        class="mt-0"
+                        density="compact"
+                      />
+                      </VCol>
+                  </VRow>
                   <DateRangeField
                     class="mt-0"
                     ref="dateOrderRange"
@@ -803,6 +821,8 @@ export default {
       loading: false,
       search: "",
       customers: [],
+      sellers:[],
+      selectedSeller:null,
       //orders: [],
       paymentStatuses: [],
       shipmentStatuses: [],
@@ -1075,6 +1095,7 @@ export default {
 
     reset() {
       this.selectedCustomer = null;
+      this.selectedSeller = null;
       this.selectedPaymentStatus = null;
       this.selectedShipmentStatus = null;
       this.search = "";
@@ -1115,6 +1136,7 @@ export default {
         const params = {
           order_number: this.search || undefined,
           customers: this.selectedCustomer || undefined,
+          sellers: this.selectedSeller || undefined,
           payment_status_id: this.selectedPaymentStatus || undefined,
           shipment_status_id: this.selectedShipmentStatus || undefined,
           page: this.pagination.page,
@@ -1179,13 +1201,16 @@ export default {
           customersRes,
           paymentStatusesRes,
           shipmentStatusesRes,
+          sellersRes
         ] = await Promise.all([
           this.$axios.get(this.$routes["customers"]),
           this.$axios.get(this.$routes["paymentStatuses"]),
           this.$axios.get(this.$routes["shipmentStatuses"]),
+          this.$axios.get(this.$routes["usersList"]),
         ]);
 
         this.customers = customersRes.data.data;
+        this.sellers = sellersRes.data.data;
         this.paymentStatuses = paymentStatusesRes.data.data.filter(item => item.code != "cancelled" && item.code != "refund");
         this.shipmentStatuses = shipmentStatusesRes.data.data.filter(item => item.code != "cancelled");
       } catch (error) {
@@ -1504,6 +1529,7 @@ export default {
           end_date: this.dateRange.end,
           shipment_status_id: this.selectedShipmentStatus,
           customers: this.selectedCustomer,
+          sellers: this.selectedSeller,
         };
 
         // Llamar al endpoint de Laravel que genera el PDF

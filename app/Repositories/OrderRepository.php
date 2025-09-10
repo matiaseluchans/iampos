@@ -266,6 +266,10 @@ class OrderRepository extends BaseRepository
             $ordersQuery->where('payment_status_id', $request->input('payment_status_id'));
         }
 
+        if ($request->input('sellers')) {
+            $ordersQuery->where('seller_id', $request->input('sellers'));
+        }
+
         $ordersQuery->orderBy('products.order', 'asc');
         $orders = $ordersQuery->groupBy('order_items.product_id', 'products.name')->get();
 
@@ -313,6 +317,7 @@ class OrderRepository extends BaseRepository
     }
 
     public function generateCustomerDeliveryReport($request)
+
     {
         $ordersQuery = $this->model::select([
             'orders.id',
@@ -347,6 +352,10 @@ class OrderRepository extends BaseRepository
         }
         if ($request->input('payment_status_id')) {
             $ordersQuery->where('payment_status_id', $request->input('payment_status_id'));
+        }
+
+        if ($request->input('sellers')) {
+            $ordersQuery->where('seller_id', $request->input('sellers'));
         }
 
         //$orders = $ordersQuery->groupBy('customers.id', 'customers.address', 'order_items.product_id', 'products.name')->orderBy('customers.id', 'desc')->get();
@@ -436,6 +445,10 @@ class OrderRepository extends BaseRepository
             $ordersQuery->where('payment_status_id', $request->input('payment_status_id'));
         }
 
+        if ($request->input('sellers')) {
+            $ordersQuery->where('seller_id', $request->input('sellers'));
+        }
+
         $ordersQuery->orderBy('products.order', 'asc');
         $orders = $ordersQuery->groupBy('order_items.product_id', 'products.name')->get();
 
@@ -485,6 +498,9 @@ class OrderRepository extends BaseRepository
                 $query->whereBetween('order_date', [Carbon::parse($orderStartDate)->startOfDay(), Carbon::parse($orderEndDate)->endOfDay()]);
             }
 
+            if ($request->input('sellers')) {
+                $query->where('seller_id', $request->input('sellers'));
+            }
 
             $roles = Auth::user()->roles()->get();
             // Si es vendedor de bebidas (rol ID 3), solo ve sus clientes

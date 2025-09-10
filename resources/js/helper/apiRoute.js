@@ -7,7 +7,7 @@ export const apiRoute = Object.freeze({
   personalPsa:"api/personalPsa",
   partes: "api/partes",*/
   tenants: "api/tenants",
-  customers: "api/customers",
+  customers: "api/customers", 
   products: "api/products",
   categories: "api/categories",
   brands: "api/brands",

@@ -178,9 +178,9 @@ class OrderController extends Controller
         $mpdf->Output("remito_{$order->order_number}.pdf", \Mpdf\Output\Destination::INLINE);
     }
 
-    public function generateDeliveryReport(Request $request)
+    public function generateCustomerDeliveryReport(Request $request)
     {
-        return $this->repository->generateDeliveryReport($request);
+        return $this->repository->generateCustomerDeliveryReport($request);
     }
 
     public function generateDeliveryReportExcel(Request $request)
