@@ -28,6 +28,7 @@ class PriceListRepository extends BaseRepository
             // Si es vendedor de bebidas (rol ID 3), solo ve sus lista de precios
             if ($roles[0]->id == 3) {
                 $query->where('id', 2);
+                $query->orWhere('id', 21);
             }
             if (!empty($this->relations)) {
                 $query = $query->with($this->relations);
