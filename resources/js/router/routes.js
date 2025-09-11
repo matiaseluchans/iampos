@@ -177,6 +177,17 @@ export const routes = [
           allowedRoles: ['superadmin','bebidas-admin','petshop-admin']
         },
       },
+
+      {
+        path: 'turner',
+        
+        component: () => import('@/pages/iampos/turner.vue'),
+        meta: { 
+          title: "Turnos",
+          requiresAuth: true,
+          allowedRoles: ['superadmin'],
+        },
+      },
       {
         path: 'account-settings',
         component: () => import('@/pages/account-settings.vue'),

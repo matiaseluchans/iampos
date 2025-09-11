@@ -34,10 +34,10 @@ onMounted(() => {
             cols="12"
             sm="10"> 
             
-          <span class="mt-0 pt-0 align-center">
-                  <small> 
-                  <strong>TAG:</strong> {{ version.tag}} - <strong>MSG:</strong>{{ version.mensaje_tag}} - <strong>AUTOR:</strong>{{ cleanAuthor(version.tag_autor)}} <br>
-                  <strong>COMMIT:</strong> {{ version.commit?.slice(-7) }} - <strong>MSG:</strong>{{ version.mensaje_commit }} - <strong>AUTOR:</strong>{{ cleanAuthor(version.commit_autor)}}</small>
+          <span class="mt-0 pt-0  align-center">
+                  <small > 
+                  <strong class="ml-2">TAG:</strong> {{ version.tag}} - <strong>MSG:</strong>{{ version.mensaje_tag}} - <strong>AUTOR:</strong>{{ cleanAuthor(version.tag_autor)}} <br>
+                  <strong class="ml-2">COMMIT:</strong> {{ version.commit?.slice(-7) }} - <strong>MSG:</strong>{{ version.mensaje_commit }} - <strong>AUTOR:</strong>{{ cleanAuthor(version.commit_autor)}}</small>
           
                 </span>
           </VCol>

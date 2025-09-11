@@ -190,6 +190,16 @@ const navItems = [
       
         }
       }
+      ,
+      {
+        component: 'VerticalNavLink',
+        item: {
+          title: 'Turnos',
+          to: '/turner',
+          icon: 'ri-user-line',
+      
+        }
+      }
     ]
   } ,
   /*{

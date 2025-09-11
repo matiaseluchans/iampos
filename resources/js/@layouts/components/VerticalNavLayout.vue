@@ -69,8 +69,9 @@ export default defineComponent({
         isCollapsed: isCollapsed.value,
         isMenuPinned: isMenuPinned.value,
         toggleMenuPin,
-        onMouseenter: () => !isMenuPinned.value && (isCollapsed.value = false),
-        onMouseleave: () => !isMenuPinned.value && (isCollapsed.value = lgAndUp.value)
+        //mouseover del navbar
+        //onMouseenter: () => !isMenuPinned.value && (isCollapsed.value = false),
+        //onMouseleave: () => !isMenuPinned.value && (isCollapsed.value = lgAndUp.value)
       }, {
         'nav-header': () => slots['vertical-nav-header']?.(navHeaderSlotProps),
         'before-nav-items': () => slots['before-vertical-nav-items']?.(),
