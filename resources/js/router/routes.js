@@ -179,11 +179,21 @@ export const routes = [
       },
 
       {
-        path: 'turner',
+        path: 'turner-calendar',
+        
+        component: () => import('@/pages/iampos/turnerCalendar.vue'),
+        meta: { 
+          title: "Turnos",
+          requiresAuth: true,
+          allowedRoles: ['superadmin'],
+        },
+      },
+      {
+        path: 'turner-grid',
         
         component: () => import('@/pages/iampos/turner.vue'),
         meta: { 
-          title: "Turnos",
+          title: "Turnos Grilla",
           requiresAuth: true,
           allowedRoles: ['superadmin'],
         },

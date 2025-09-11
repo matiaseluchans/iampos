@@ -24,6 +24,13 @@ import moment from 'moment'
 
 import axios from './axios/axios'
 
+import VCalendar from 'v-calendar';
+import 'v-calendar/style.css';
+
+
+
+
+
 const vMaskV2 = VueMaskDirective
 
 const vMaskV3 = {
@@ -42,6 +49,7 @@ app.use(ClientVar)
 app.use(Can)
 app.use(Rules)
 app.use(CrudRequest)
+app.use(VCalendar)
 app.config.globalProperties.moment = moment
 app.component('filter-component', './components/Filter.vue');
 app.config.globalProperties.$axios = axios  

@@ -195,8 +195,17 @@ const navItems = [
         component: 'VerticalNavLink',
         item: {
           title: 'Turnos',
-          to: '/turner',
-          icon: 'ri-user-line',
+          to: '/turner-grid',
+          icon: 'ri-calendar-line',
+      
+        }
+      },
+      {
+        component: 'VerticalNavLink',
+        item: {
+          title: 'Turnos Calendario',
+          to: '/turner-calendar',
+          icon: 'ri-calendar-line',
       
         }
       }
