@@ -26,9 +26,13 @@ class PriceListRepository extends BaseRepository
 
             $query = $this->model->query();
             // Si es vendedor de bebidas (rol ID 3), solo ve sus lista de precios
-            if ($roles[0]->id == 3) {
+            // Si es vendedor de bebidas (user ID 9), solo ve sus lista de precios
+            if (Auth::user()->id == 9) {
                 $query->where('id', 2);
                 $query->orWhere('id', 21);
+            }
+            if (Auth::user()->id == 3) {
+                $query->where('id', 1);
             }
             if (!empty($this->relations)) {
                 $query = $query->with($this->relations);

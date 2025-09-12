@@ -1030,7 +1030,7 @@ export default {
         this.priceLists = priceListsRes.data.data || priceListsRes.data;
 
         
-        if (this.$is(["bebidas-user"])) {
+        if (this.$store.getters.currentUser.data.id ==9) {
           this.selectedPriceList = 2;
           this.onPriceListChange();
         }

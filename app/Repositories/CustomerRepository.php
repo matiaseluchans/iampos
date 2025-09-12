@@ -22,7 +22,7 @@ class CustomerRepository extends  BaseRepository
 
             $query = $this->model->query();
             // Si es vendedor de bebidas (rol ID 3), solo ve sus clientes
-            if ($roles[0]->id == 3) {
+            if (Auth::id() == 9) {
                 $query->where('created_by', Auth::id());
             }
             if (!empty($this->relations)) {

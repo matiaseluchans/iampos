@@ -7,7 +7,7 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            font: size: 12px;
+            font-size: 13px;
 
             /* Ancho más estrecho como en la imagen */
         }
@@ -169,11 +169,11 @@
 
         </div>
 
-        <div class="section-title">VENDEDOR: <strong>{{ $order->seller_name }}</strong></div>
+        <div class="section-title">VENDEDOR: <strong style="font-size:14px">{{ $order->seller_name }}</strong></div>
 
 
 
-        <div class="section-title">CLIENTE:{{ $order->customer->address ? $order->customer->address :'CONSUMIDOR FINAL' }}</strong></div>
+        <div class="section-title">CLIENTE:<strong style="font-size:14px">{{ $order->customer->address ? $order->customer->address :'CONSUMIDOR FINAL' }}</strong></div>
         <div class="client-row">
             <span class="client-label">Domicilio:</span>
             <span>{{ $order->customer->address }} - {{ $order->customer->locality ? $order->customer->locality->name :''}}</span>
