@@ -76,4 +76,35 @@ class User extends Authenticatable
                     ->where('name', 'like', '%-admin%')
                     ->exists();
     }
+
+    public function reservations()
+    {
+        return $this->hasMany(Reservation::class);
+    }
+
+    public function upcomingReservations()
+    {
+        return $this->reservations()
+            ->where('start_time', '>', now())
+            ->where('status', 'confirmed')
+            ->orderBy('start_time')
+            ->get();
+    }
+
+    public function pastReservations()
+    {
+        return $this->reservations()
+            ->where('end_time', '<', now())
+            ->orderBy('start_time', 'desc')
+            ->get();
+    }
+
+    public function activeReservations()
+    {
+        return $this->reservations()
+            ->where('status', 'confirmed')
+            ->where('start_time', '<=', now())
+            ->where('end_time', '>=', now())
+            ->get();
+    }
 }
