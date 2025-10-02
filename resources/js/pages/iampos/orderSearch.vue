@@ -46,9 +46,8 @@
                   />
                 </VCol>
                 <VCol cols="12" md="4" sm="12" class="pl-0 pt-0">
-
                   <VRow dense class="mx-0 px-0">
-                    <VCol cols="12" md="6" sm="12"  class="mx-0 px-0 pr-1" >
+                    <VCol cols="12" md="6" sm="12" class="mx-0 px-0 pr-1">
                       <VAutocomplete
                         v-model="selectedPaymentStatus"
                         :items="paymentStatuses"
@@ -59,20 +58,19 @@
                         class="mt-0"
                         density="compact"
                       />
-                      </VCol>
-                      <VCol cols="12" md="6" sm="12"  class="mr-0 pr-0" >
+                    </VCol>
+                    <VCol cols="12" md="6" sm="12" class="mr-0 pr-0">
                       <VAutocomplete
                         v-model="selectedSeller"
                         :items="sellers"
                         :item-title="sellers.name ? 'name' : 'email'"
                         item-value="id"
                         label="Vendedores"
-                      
                         clearable
                         class="mt-0"
                         density="compact"
                       />
-                      </VCol>
+                    </VCol>
                   </VRow>
                   <DateRangeField
                     class="mt-0"
@@ -173,7 +171,11 @@
         <template #item.total_paid="{ item }">
           <div
             :class="
-              item.total_paid > 0 ?  item.total_paid < item.total_amount ? 'text-right text-warning' : 'text-right text-success': 'text-right text-error'
+              item.total_paid > 0
+                ? item.total_paid < item.total_amount
+                  ? 'text-right text-warning'
+                  : 'text-right text-success'
+                : 'text-right text-error'
             "
           >
             <strong>{{ formatCurrency(item.total_paid) }}</strong>
@@ -338,10 +340,12 @@
                     >Comanda
                   </VListItemTitle>
                 </VListItem>
-                <VListItem @click="openMovementDialog(item)"  v-if="$is('bebidas-user')==false">
+                <VListItem
+                  @click="openMovementDialog(item)"
+                  v-if="$is('bebidas-user') == false"
+                >
                   <VListItemTitle>
                     <IconBtn
-                     
                       size="small"
                       class="my-1"
                       title="Cambiar el estado de la orden"
@@ -821,8 +825,8 @@ export default {
       loading: false,
       search: "",
       customers: [],
-      sellers:[],
-      selectedSeller:null,
+      sellers: [],
+      selectedSeller: null,
       //orders: [],
       paymentStatuses: [],
       shipmentStatuses: [],
@@ -872,7 +876,6 @@ export default {
         { title: "Vendedor", key: "seller_name", width: "10%" },
 
         { title: "Fecha Entrega", key: "delivery_date", align: "center", width: "100px" },
-        
       ],
       isAdmin: false,
       createdOrder: { order: {} },
@@ -919,7 +922,7 @@ export default {
   },
   async created() {
     this.checkAdmin();
-    if (this.isAdmin) {
+    if (this.isAdmin || this.$is("petshop-user")) {
       this.headers.splice(
         4,
         0,
@@ -929,8 +932,6 @@ export default {
 
       this.headers.push({ title: "Estados", key: "payment_status_id", align: "center" });
     }
-
-      
 
     // Solo establecer fechas por defecto en la carga inicial
     if (this.isInitialLoad) {
@@ -1084,8 +1085,6 @@ export default {
       } catch (error) {
         console.error("Error al actualizar estado:", error);
         this.showSnackbar("Error al actualizar el estado", "error");
-        
-        
       } finally {
         this.loading = false;
         // Forzar recarga para sincronizar con el servidor
@@ -1201,7 +1200,7 @@ export default {
           customersRes,
           paymentStatusesRes,
           shipmentStatusesRes,
-          sellersRes
+          sellersRes,
         ] = await Promise.all([
           this.$axios.get(this.$routes["customers"]),
           this.$axios.get(this.$routes["paymentStatuses"]),
@@ -1211,8 +1210,12 @@ export default {
 
         this.customers = customersRes.data.data;
         this.sellers = sellersRes.data.data;
-        this.paymentStatuses = paymentStatusesRes.data.data.filter(item => item.code != "cancelled" && item.code != "refund");
-        this.shipmentStatuses = shipmentStatusesRes.data.data.filter(item => item.code != "cancelled");
+        this.paymentStatuses = paymentStatusesRes.data.data.filter(
+          (item) => item.code != "cancelled" && item.code != "refund"
+        );
+        this.shipmentStatuses = shipmentStatusesRes.data.data.filter(
+          (item) => item.code != "cancelled"
+        );
       } catch (error) {
         console.error("Error fetching data:", error);
         this.showSnackbar("Error al cargar los datos", "error");
@@ -1357,7 +1360,7 @@ export default {
         style: "currency",
         currency: "ARS",
         minimumFractionDigits: 0,
-        maximumFractionDigits: 0
+        maximumFractionDigits: 0,
       }).format(value);
     },
 
