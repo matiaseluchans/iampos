@@ -92,11 +92,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::apiResource('payment-statuses', App\Http\Controllers\PaymentStatusController::class);
     Route::post('payment-statuses/{id}', [App\Http\Controllers\PaymentStatusController::class, "update"]);
 
-
+    Route::apiResource('orders', App\Http\Controllers\OrderController::class)->except(['update']);
     Route::post('orders/{order}', [App\Http\Controllers\OrderController::class, 'update']);
     Route::post('orders-update/{order}', [App\Http\Controllers\OrderController::class, 'updateOrder']);
-    Route::put('orders-cancel/{order}', [App\Http\Controllers\OrderController::class, 'cancelOrder']);
-    Route::apiResource('orders', App\Http\Controllers\OrderController::class)->except(['update']);
+    Route::post('orders-cancel/{order}', [App\Http\Controllers\OrderController::class, 'cancelOrder']);
 
     //reports
     Route::get('orders/remito/{id}', [App\Http\Controllers\OrderController::class, "generateRemito"]);

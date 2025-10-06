@@ -69,7 +69,8 @@ return new class extends Migration
                 ->on('stocks')
                 ->onDelete('cascade');
 
-            $table->enum('movement_type', ['entrada', 'salida', 'ajuste', 'transferencia']);
+            //$table->enum('movement_type', ['entrada', 'salida', 'ajuste', 'transferencia']);
+            $table->string('movement_type', 50)->nullable();
             $table->integer('quantity');
             $table->integer('previous_quantity');
             $table->integer('new_quantity');

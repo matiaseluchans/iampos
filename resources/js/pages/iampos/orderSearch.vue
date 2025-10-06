@@ -43,6 +43,8 @@
                     clearable
                     class="mt-1"
                     density="compact"
+                    ref="autocompleteRef"
+                    @update:model-value="handleSelection"
                   />
                 </VCol>
                 <VCol cols="12" md="4" sm="12" class="pl-0 pt-0">
@@ -157,6 +159,7 @@
             </VCol>
           </VRow>-->
         </template>
+        
 
         <template #item.total_cost="{ item }">
           <div class="text-right text-error">
@@ -182,7 +185,12 @@
           </div>
         </template>
         <template #item.customer="{ item }">
-          <strong>{{ getCustomer(item.customer) }}</strong>
+          <div class="d-flex flex-column text-start">
+            <span class="d-block font-weight-medium text-high-emphasis text-truncate">
+              {{ item.customer.address }}
+            </span>
+            <small>{{ getCustomer(item.customer) }}, {{ item.customer.telephone  }}</small>
+          </div>
         </template>
         <template #item.total_amount="{ item }">
           <div
@@ -410,18 +418,19 @@
                   </div>
                 </div>
               </td>
-
+              <td v-if="!this.isAdmin" class="text-right"></td>
+              <td class="text-right">{{ formatCurrency(calculateTotalAmount()) }}</td>
               <td v-if="this.isAdmin" class="text-right">
                 {{ formatCurrency(calculateTotalCost()) }}
               </td>
               <td v-if="this.isAdmin" class="text-right">
                 {{ formatCurrency(calculateTotalProfit()) }}
               </td>
-              <td class="text-right">{{ formatCurrency(calculateTotalAmount()) }}</td>
+              
               <td class="text-right">{{ formatCurrency(calculateTotalPaid()) }}</td>
+              <td v-if="this.isAdmin" class="text-right"></td>
               <td class="text-right"></td>
-              <td class="text-right"></td>
-              <td class="text-right"></td>
+              <td class="text-right"></td> 
             </tr>
           </tfoot>
         </template>
@@ -870,7 +879,7 @@ export default {
         },
         { title: "Orden", key: "order_number", width: "60px" },
         { title: "Fecha", key: "order_date", align: "center", width: "60px" },
-        { title: "Cliente", key: "customer", width: "70%" },
+        { title: "Cliente", key: "customer", width: "70%" }, 
         { title: "Total", key: "total_amount", align: "end" },
         { title: "Pagado", key: "total_paid", align: "end" },
         { title: "Vendedor", key: "seller_name", width: "10%" },
@@ -922,16 +931,19 @@ export default {
   },
   async created() {
     this.checkAdmin();
-    if (this.isAdmin || this.$is("petshop-user")) {
+    if (this.isAdmin /*|| this.$is("petshop-user")*/) {
       this.headers.splice(
-        4,
+        5,
         0,
         { title: "Costo", key: "total_cost", align: "end" },
         { title: "Ganancia", key: "total_profit", align: "end" }
       );
 
-      this.headers.push({ title: "Estados", key: "payment_status_id", align: "center" });
     }
+     if (this.isAdmin || this.$is("petshop-user")) {
+      this.headers.push({ title: "Estados", key: "payment_status_id", align: "center" });
+
+     }
 
     // Solo establecer fechas por defecto en la carga inicial
     if (this.isInitialLoad) {
@@ -941,6 +953,16 @@ export default {
   },
 
   methods: {
+
+    handleSelection() {
+      // Limpiar el texto de búsqueda después de una selección
+      setTimeout(() => {
+        if (this.$refs.autocompleteRef) {
+          this.$refs.autocompleteRef.blur();
+          this.$refs.autocompleteRef.focus();
+        }
+      }, 100);
+    },
     closeDialog(dialog) {
       this.dialogs[dialog] = false;
       this.selectedOrder = null;
@@ -964,8 +986,9 @@ export default {
           {
             data: {
               form: this.selectedOrder,
+              _method: "PUT",
             },
-            _method: "PUT",
+            
           }
         );
 
@@ -1050,8 +1073,9 @@ export default {
         const response = await this.$axios.post(`${this.$routes["orders"]}/${item.id}`, {
           data: {
             payment_status_id: newStatus.id,
+            _method: "PUT",
           },
-          _method: "PUT",
+          
         });
 
         // Actualizar localmente para mejor experiencia de usuario
@@ -1075,8 +1099,9 @@ export default {
         const response = await this.$axios.post(`${this.$routes["orders"]}/${item.id}`, {
           data: {
             shipment_status_id: newStatus.id,
+            _method: "PUT",
           },
-          _method: "PUT",
+          
         });
 
         // Actualizar localmente para mejor experiencia de usuario
@@ -1394,8 +1419,9 @@ export default {
           data: {
             payment_status_id: this.movement.payment_status_id,
             shipment_status_id: this.movement.shipment_status_id,
+            _method: "PUT",
           },
-          _method: "PUT",
+          
         };
 
         await this.$axios.post(endpoint, data);

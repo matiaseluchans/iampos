@@ -93,6 +93,8 @@
                     clearable
                     class="mt-0"
                     density="compact"
+                     ref="autocompleteRef"
+                    @update:model-value="handleSelection"
                   />
                 </VCol>
                 <VCol cols="12" md="2">
@@ -169,10 +171,14 @@
             </div>
           </div>
         </template>
-        <template #item.customer.firstname="{ item }">
-          <span v-if="item.customer.firstname">{{
-            item.customer.firstname + " " + item.customer.lastname
-          }}</span>
+        <template #item.customer="{ item }">
+          <div class="d-flex flex-column text-start">
+            <span class="d-block font-weight-medium text-high-emphasis text-truncate">
+              {{ item.customer.address }}
+            </span>
+            <small>{{ getCustomer(item.customer) }}, {{ item.customer.telephone  }}</small>
+          </div>
+
         </template>
         <template #item.order_date="{ item }">
           <div class="d-flex flex-column">
@@ -208,9 +214,7 @@
             <strong>{{ formatCurrency(item.total_profit) }}</strong>
           </div>
         </template>
-        <template #item.customer="{ item }">
-          <strong>{{ getCustomer(item.customer) }}</strong>
-        </template>
+        
         <template #item.total_amount="{ item }">
           <div
             :class="
@@ -414,7 +418,7 @@
         <template #tfoot>
           <tfoot>
             <tr class="bg-grey-lighten-4 font-weight-bold" style="background: #ccc">
-              <td class="text-left"></td>
+              
               <td
                 :colspan="showHeaders.length - (this.isAdmin ? 7 : 5)"
                 class="text-right"
@@ -437,6 +441,8 @@
                 {{ formatCurrency(calculateTotalProfit()) }}
               </td>
               <td class="text-right">{{ formatCurrency(calculateTotalAmount()) }}</td>
+              <td class="text-right">{{ formatCurrency(calculateTotalPaid()) }}</td>
+              
               <td class="text-right"></td>
               <td class="text-right"></td>
               <td class="text-right"></td>
@@ -862,7 +868,7 @@ export default {
         },
         { title: "Orden", key: "order_number", width: "60px" },
         { title: "Fecha", key: "order_date", align: "center", width: "60px" },
-        { title: "Cliente", key: "customer", width: "70%" },
+        { title: "Cliente", key: "customer", width: "70%" }, 
         { title: "Total", key: "total_amount", align: "end" },
         { title: "Pagado", key: "total_paid", align: "end" },
         { title: "Vendedor", key: "seller_name", width: "10%" },
@@ -915,7 +921,7 @@ export default {
     this.checkAdmin();
     if (this.isAdmin) {
       this.headers.splice(
-        4,
+        5,
         0,
         { title: "Costo", key: "total_cost", align: "end" },
         { title: "Ganancia", key: "total_profit", align: "end" }
@@ -928,6 +934,15 @@ export default {
   },
 
   methods: {
+    handleSelection() {
+      // Limpiar el texto de búsqueda después de una selección
+      setTimeout(() => {
+        if (this.$refs.autocompleteRef) {
+          this.$refs.autocompleteRef.blur();
+          this.$refs.autocompleteRef.focus();
+        }
+      }, 100);
+    },
     calculateTotalAmount() {
       if (!this.orders.data) return 0;
 
@@ -1024,8 +1039,7 @@ export default {
         this.loading = true;
         const response = await this.$axios.post(`${this.$routes["orders"]}/${item.id}`, {
           data: {
-            shipment_status_id: newStatus.id,
-            _method: "PUT",
+            shipment_status_id: newStatus.id 
           },
         });
 
@@ -1088,7 +1102,7 @@ export default {
           sellers: this.selectedSeller || undefined,
           payment_status_id: this.selectedPaymentStatus || undefined,
           shipment_status_id: this.selectedShipmentStatus || undefined,
-          shipping: 1 || undefined, //filtro por los que requieren envio
+          //shipping: 1 || undefined, //filtro por los que requieren envio
           page: this.pagination.page,
           per_page: this.pagination.itemsPerPage,
           sort_by: this.pagination.sortBy.length ? this.pagination.sortBy[0] : undefined,
@@ -1335,8 +1349,7 @@ export default {
           data: {
             payment_status_id: this.movement.payment_status_id,
             shipment_status_id: this.movement.shipment_status_id,
-          },
-          _method: "PUT",
+          } 
         };
 
         await this.$axios.post(endpoint, data);

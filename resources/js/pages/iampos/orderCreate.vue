@@ -870,7 +870,7 @@ export default {
       isAdmibBebidas: false,
       saveButtonLabel: "Crear Orden",
       priceLists: [],
-      selectedPriceList:1,
+      selectedPriceList:"",
     };
   },
 
@@ -908,6 +908,9 @@ export default {
         : 0;
     },
   },
+
+  beforeMount(){},
+  
 
   async created() {
     // Verificar si estamos en modo edición
