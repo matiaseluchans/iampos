@@ -73,7 +73,7 @@ export const routes = [
         meta: { 
           title: "Pagos",
           requiresAuth: true,
-          
+          allowedRoles: ['superadmin','bebidas-admin','petshop-admin','petshop-user'],
         },
       }, 
       {
