@@ -67,6 +67,16 @@ export const routes = [
         },
       }, 
       {
+        path: 'payments',
+        
+        component: () => import('@/pages/iampos/payments.vue'),
+        meta: { 
+          title: "Pagos",
+          requiresAuth: true,
+          
+        },
+      }, 
+      {
         path: 'localities',
         
         component: () => import('@/pages/iampos/localities.vue'),

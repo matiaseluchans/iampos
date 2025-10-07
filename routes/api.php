@@ -159,6 +159,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/bulk-update', [App\Http\Controllers\PriceListProductController::class, 'bulkUpdate']);
         Route::get('/{priceListId}/{productId}', [App\Http\Controllers\PriceListProductController::class, 'getProductPrice']);
     });
+
+
+    Route::get('/payments-summary', [App\Http\Controllers\PaymentSummaryController::class, 'getSummary']);
+    Route::get('/payments-summary/detail', [App\Http\Controllers\PaymentSummaryController::class, 'getDetail']);
 });
 
 
