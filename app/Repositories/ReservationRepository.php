@@ -85,8 +85,7 @@ class ReservationRepository extends  BaseRepository
     {
         DB::beginTransaction();
 
-        try {
-           // dd($request->all());
+        try {           
             // Obtener el tipo de servicio
             $serviceType = ServiceType::findOrFail($request->service_type_id);
             
@@ -141,6 +140,108 @@ class ReservationRepository extends  BaseRepository
         }
     }
 
+    /**
+     * Update the specified resource in storage.
+     */
+    public function updateReservation(UpdateReservationRequest $request, Reservation $reservation)
+    {
+        try {
+            $validated = $request->validated();
+            
+            // Actualizar la reserva
+            $reservation->update($validated);
+            
+            // Si se cambió el estado a confirmado, actualizar capacidad del recurso
+            if ($request->has('status') && $request->status === Reservation::STATUS_CONFIRMED) {
+                if ($reservation->resource && $reservation->resource->is_shared) {
+                    $reservation->resource->updateCurrentUsage();
+                }
+            }
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Reserva actualizada exitosamente',
+                'data' => [
+                    'reservation' => $reservation->load(['customer', 'serviceType', 'resource'])
+                ]
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al actualizar la reserva',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Cancel the specified reservation.
+     */
+    public function cancel(CancelReservationRequest $request, Reservation $reservation)
+    {
+        try {
+            $validated = $request->validated();
+            
+            // Cancelar la reserva
+            $reservation->cancel($validated['cancellation_reason']);
+            
+            // Enviar notificación si se solicitó
+            if ($request->boolean('send_notification')) {
+                // Aquí iría la lógica para enviar notificación al cliente
+                // Notification::send($reservation->customer, new ReservationCancelled($reservation));
+            }
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Reserva cancelada exitosamente',
+                'data' => [
+                    'reservation' => $reservation->fresh(['customer', 'serviceType', 'resource'])
+                ]
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al cancelar la reserva',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Update only reservation time (for calendar drag & drop)
+     */
+    public function updateTime(Request $request, Reservation $reservation)
+    {
+        $request->validate([
+            'start_time' => 'required|date|after_or_equal:now',
+            'end_time' => 'required|date|after:start_time',
+        ]);
+
+        try {
+            $reservation->update([
+                'start_time' => $request->start_time,
+                'end_time' => $request->end_time,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Horario de reserva actualizado exitosamente',
+                'data' => [
+                    'reservation' => $reservation
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al actualizar el horario',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+/*
     public function update($request, $reservation)
     {
         $validated = $request->validated();
@@ -177,6 +278,7 @@ class ReservationRepository extends  BaseRepository
             'reservation' => $reservation->load(['customer', 'serviceType', 'resource'])
         ]);
     }
+    */
 
     public function destroy(Reservation $reservation)
     {
@@ -186,7 +288,7 @@ class ReservationRepository extends  BaseRepository
             'message' => 'Reserva cancelada exitosamente'
         ]);
     }
-
+/*
     public function cancel($request, $reservation)
     {
         $reservation->cancel($request->reason);
@@ -195,7 +297,7 @@ class ReservationRepository extends  BaseRepository
             'message' => 'Reserva cancelada exitosamente'
         ]);
     }
-
+*/
     public function confirm(Reservation $reservation)
     {
         $reservation->confirm();

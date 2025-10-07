@@ -35,4 +35,6 @@ export const apiRoute = Object.freeze({
   servicesTypes: '/api/service-types',
   reservations: '/api/reservations',
   resources: '/api/resources',  
+  resourceTypes: '/api/resource-types',
+  
 })

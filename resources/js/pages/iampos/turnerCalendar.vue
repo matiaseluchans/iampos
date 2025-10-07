@@ -13,14 +13,14 @@
       />
     </VCardText>
 
-    <VDialog v-model="dialog" max-width="90%">
+    <VDialog v-model="dialog" max-width="90%" persistent>
       <VCard>
         <VToolbar color="primary" density="compact">
           <VToolbarTitle class="text-white">
             {{ reservationData.id ? "Editar Turno" : "Nuevo Turno" }}
           </VToolbarTitle>
           <VSpacer />
-          <VBtn icon color="white" @click="dialog = false">
+          <VBtn icon color="white" @click="closeDialog">
             <VIcon>ri-close-line</VIcon>
           </VBtn>
         </VToolbar>
@@ -33,8 +33,8 @@
             :initial-data="reservationFormData"
             :preloaded-data="preloadedData"
             :submit-button-text="reservationData.id ? 'Actualizar Reserva' : 'Crear Reserva'"
-            :on-success="handleFormSuccess"
-            :on-cancel="handleFormCancel"
+            @success="handleFormSuccess"
+            @cancel="handleFormCancel"
             @submit="handleFormSubmit"
             @update:form-data="handleFormUpdate"
           />
@@ -47,6 +47,7 @@
       :color="snackbar.color"
     >
       {{ snackbar.text }}
+      <!--
       <template #actions>
         <VBtn 
           variant="text" 
@@ -55,6 +56,7 @@
           Cerrar
         </VBtn>
       </template>
+      -->
     </VSnackbar>
   </VCard>
 </template>
@@ -68,12 +70,14 @@ import interactionPlugin from "@fullcalendar/interaction"
 import { apiRoute } from '@/helper/apiRoute'
 import axios from '@/axios/axios'
 import ReservationForm from '@/components/ReservationForm.vue'
+import { id } from "vuetify/lib/locale/index.mjs"
 
 const calendarRef = ref(null)
 const dialog = ref(false)
 const snackbar = ref({ show: false, text: "", color: "success" })
 const formKey = ref(0)
 const calendarApi = ref(null)
+const isLoading = ref(false)
 
 // Datos para el formulario
 const reservationData = ref({})
@@ -85,14 +89,97 @@ const preloadedData = ref({
 
 // Colores según el estado de la reserva
 const statusColors = {
-  pending: '#ff9800',     // Naranja
-  confirmed: '#4caf50',   // Verde
-  cancelled: '#f44336',   // Rojo
-  completed: '#2196f3',   // Azul
-  no_show: '#9e9e9e',     // Gris
+  pending: '#ff9800',
+  confirmed: '#4caf50',
+  cancelled: '#f44336',
+  completed: '#2196f3',
+  no_show: '#9e9e9e',
 }
 
 const events = ref([])
+
+// Función para convertir fecha a formato local sin ajuste de zona horaria
+const formatDateForInput = (date) => {
+  if (!date) return null
+  
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  const hours = String(date.getHours()).padStart(2, '0')
+  const minutes = String(date.getMinutes()).padStart(2, '0')
+  
+  return `${year}-${month}-${day}T${hours}:${minutes}`
+}
+
+// Función para parsear fechas del formulario al calendario
+const parseDateFromInput = (dateString) => {
+  if (!dateString) return null
+  
+  // Asumir que la fecha del formulario está en hora local
+  const date = new Date(dateString + ':00')
+  return date
+}
+
+// Cerrar diálogo y limpiar datos
+const closeDialog = () => {
+  dialog.value = false
+  setTimeout(() => {
+    reservationData.value = {}
+    reservationFormData.value = transformToFormData(null)
+    formKey.value++
+  }, 300)
+}
+
+// Manejar éxito del formulario
+const handleFormSuccess = (result) => {
+  console.log('✅ Reserva guardada exitosamente:', result)
+  showSnackbar(
+    reservationData.value.id ? 'Reserva actualizada exitosamente' : 'Reserva creada exitosamente', 
+    'success'
+  )
+  closeDialog()
+  setTimeout(() => {
+    loadReservations()
+  }, 500)
+}
+
+// Manejar cancelación del formulario
+const handleFormCancel = () => {
+  console.log('❌ Formulario cancelado')
+  closeDialog()
+}
+
+// Manejar envío del formulario
+const handleFormSubmit = async (formData) => {
+  try {
+    isLoading.value = true
+    
+    // Ajustar las fechas antes de enviar (si es necesario)
+    const adjustedFormData = {
+      ...formData,
+      start_time: formData.start_time ? formData.start_time + ':00' : null,
+      end_time: formData.end_time ? formData.end_time + ':00' : null
+    }
+    
+    if (reservationData.value.id) {
+      const response = await axios.put(`${apiRoute.reservations}/${reservationData.value.id}`, adjustedFormData)
+      return { success: true, data: response.data }
+    } else {
+      const response = await axios.post(`${apiRoute.reservations}`, adjustedFormData)
+      return { success: true, data: response.data }
+    }
+  } catch (error) {
+    console.error('❌ Error guardando reserva:', error)
+    showSnackbar('Error al guardar la reserva', 'error')
+    throw error
+  } finally {
+    isLoading.value = false
+  }
+}
+
+const handleFormUpdate = (formData) => {
+  // Actualización en tiempo real si es necesario
+}
 
 // Método para cargar las reservas desde la API
 const loadReservations = async () => {
@@ -109,7 +196,6 @@ const loadReservations = async () => {
     const reservations = response.data.data || response.data
     console.log(`📊 ${reservations.length} reservas obtenidas de la API`)
     
-    // Transformar las reservas a eventos del calendario
     const calendarEvents = reservations.map(reservation => {
       const event = {
         id: reservation.id.toString(),
@@ -132,14 +218,10 @@ const loadReservations = async () => {
         editable: reservation.status === 'pending' || reservation.status === 'confirmed'
       }
       
-      console.log('📅 Evento creado:', event.title, event.start, event.end)
       return event
     })
 
     events.value = calendarEvents
-    console.log(`✅ ${events.value.length} eventos transformados`)
-
-    // Actualizar el calendario después de cargar los eventos
     updateCalendarEvents()
     
   } catch (error) {
@@ -151,52 +233,40 @@ const loadReservations = async () => {
 // Actualizar eventos en el calendario
 const updateCalendarEvents = () => {
   if (calendarApi.value) {
-    // Limpiar eventos existentes
     calendarApi.value.removeAllEvents()
-    
-    // Agregar nuevos eventos
     events.value.forEach(event => {
       calendarApi.value.addEvent(event)
     })
-    
-    console.log('📅 Eventos actualizados en el calendario')
-  } else {
-    console.log('⚠️ Calendar API no está disponible aún')
+    calendarApi.value.render()
   }
 }
 
-// Generar título del evento basado en la reserva
+// Generar título del evento
 const generateEventTitle = (reservation) => {
   const customer = reservation.customer
   const serviceType = reservation.service_type
   
-  // Nombre del cliente
   const customerName = customer ? 
     (customer.firstname && customer.lastname ? 
       `${customer.firstname} ${customer.lastname}` : 
       customer.business_name || 'Cliente') : 
     'Cliente'
   
-  // Tipo de servicio
   const serviceName = serviceType ? serviceType.name : 'Servicio'
   
-  // Información adicional basada en features
   let additionalInfo = ''
-  
   if (reservation.features) {
     if (reservation.features.pet_name) {
       additionalInfo = ` - ${reservation.features.pet_name}`
     } else if (reservation.features.vehicle_plate) {
       additionalInfo = ` - ${reservation.features.vehicle_plate}`
-    } else if (reservation.features.room_preference) {
-      additionalInfo = ` - ${reservation.features.room_preference}`
     }
   }
   
   return `${customerName} - ${serviceName}${additionalInfo}`
 }
 
-// Método para transformar reservationData a reservationFormData
+// Transformar datos para el formulario
 const transformToFormData = (reservation) => {
   if (!reservation) {
     return {
@@ -216,6 +286,7 @@ const transformToFormData = (reservation) => {
   }
 
   return {
+    id: reservation.id || null,
     customer_id: reservation.customer_id,
     service_type_id: reservation.service_type_id,
     resource_id: reservation.resource_id,
@@ -231,67 +302,47 @@ const transformToFormData = (reservation) => {
   }
 }
 
-// Formatear fecha/hora para input datetime-local
+// Formatear fecha/hora para input (corregido)
 const formatDateTimeForInput = (dateTimeString) => {
   if (!dateTimeString) return null
-  const date = new Date(dateTimeString)
-  return date.toISOString().slice(0, 16)
-}
-
-// Handlers del formulario
-const handleFormSuccess = (message) => {
-  showSnackbar(message, 'success')
-  dialog.value = false
-  // Recargar las reservas después de éxito
-  setTimeout(() => {
-    loadReservations()
-  }, 500)
-}
-
-const handleFormCancel = () => {
-  dialog.value = false
-}
-
-const handleFormSubmit = async (formData) => {
-  try {
-    if (reservationData.value.id) {
-      // Editar reserva existente
-      await axios.put(`${apiRoute.reservations}/${reservationData.value.id}`, formData)
-    } else {
-      // Crear nueva reserva
-      await axios.post(`${apiRoute.reservations}`, formData)
-    }
-    
-    return { success: true }
-  } catch (error) {
-    console.error('Error guardando reserva:', error)
-    showSnackbar('Error al guardar la reserva', 'error')
-    throw error
+  
+  // Si ya está en el formato correcto, retornarlo directamente
+  if (dateTimeString.includes('T') && dateTimeString.length === 16) {
+    return dateTimeString
   }
-}
-
-const handleFormUpdate = (formData) => {
-  // Actualizar datos locales si es necesario
-  console.log('Formulario actualizado:', formData)
+  
+  // Parsear la fecha y formatear manualmente
+  const date = new Date(dateTimeString)
+  
+  // Usar formato manual para evitar problemas de zona horaria
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  const hours = String(date.getHours()).padStart(2, '0')
+  const minutes = String(date.getMinutes()).padStart(2, '0')
+  
+  return `${year}-${month}-${day}T${hours}:${minutes}`
 }
 
 // Funciones del componente
 const openDialog = (event = null) => {
+  
   if (event) {
-    // Editar reserva existente
+    //console.log('📝 Abriendo diálogo para:', event ? `Editar reserva ID ${event.id}` : 'Nueva reserva')
+    // Editar reserva existente - asegúrate de pasar el ID
     reservationData.value = {
-      id: event.id,
-      ...event.extendedProps.reservation
+      id: event.id, // Esto debe ser el ID numérico, no string
+      ...event.extendedProps.reservation,
     }
   } else {
     // Nueva reserva
     reservationData.value = {
-      id: null,
+      id: null, // Explícitamente null para nuevas reservas
       start_time: null,
       end_time: null
     }
   }
-  
+
   // Transformar datos para el formulario
   reservationFormData.value = transformToFormData(reservationData.value)
   
@@ -299,6 +350,8 @@ const openDialog = (event = null) => {
   formKey.value++
   
   dialog.value = true
+  
+  console.log('📋 Datos pasados al formulario:', reservationData.value)
 }
 
 const showSnackbar = (text, color) => {
@@ -318,21 +371,35 @@ const loadPreloadedData = async () => {
 
     preloadedData.value.serviceTypes = servicesResponse.data.data || servicesResponse.data
     preloadedData.value.customers = customersResponse.data.data || customersResponse.data
-    
-    console.log('✅ Datos pre-cargados listos')
   } catch (error) {
     console.error('Error cargando datos pre-cargados:', error)
   }
 }
 
+// Para actualizar solo el tiempo desde el calendario
+const handleTimeUpdate = async (reservationId, startTime, endTime) => {
+  const result = await reservationFormComponent.updateReservationTime(startTime, endTime)
+  if (result.success) {
+    // Actualizar calendario
+  }
+}
+
+// Escuchar eventos
+const handleReservationCancelled = (data) => {
+  console.log('Reserva cancelada:', data)
+  // Actualizar UI
+}
+
+const handleReservationUpdated = (data) => {
+  console.log('Reserva actualizada:', data)
+  // Actualizar UI
+}
+
 onMounted(() => {  
-  // Esperar a que el calendario se monte completamente
   nextTick(() => {
     if (calendarRef.value && calendarRef.value.getApi) {
       calendarApi.value = calendarRef.value.getApi()
-      console.log('✅ Calendar API obtenida')
       
-      // Cargar datos después de que el calendario esté listo
       Promise.all([loadPreloadedData(), loadReservations()]).then(() => {
         console.log('✅ Calendario completamente cargado')
       })
@@ -340,52 +407,53 @@ onMounted(() => {
   })
 })
 
-// Configuración de FullCalendar - USAR FUNCIÓN PARA events
+// Configuración de FullCalendar (CORREGIDA)
 const calendarOptions = ref({
   plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
   initialView: "timeGridWeek",
-
-  // Configuración específica para Argentina
   locale: "es",
   firstDay: 1,
+  timeZone: 'local', // Usar zona horaria local
   slotLabelFormat: {
     hour: '2-digit',
     minute: '2-digit',
     hour12: false
   },
- 
   buttonText: {
     today: 'Hoy',
     month: 'Mes',
     week: 'Semana',
     day: 'Día'
   },
- 
-  // Usar función para events que retorne la referencia reactiva
   events: (info, successCallback, failureCallback) => {
-    console.log('📅 Solicitando eventos para:', info.start, 'a', info.end)
     successCallback(events.value)
   },
-  
   selectable: true,
   editable: true,
-  
   headerToolbar: {
     left: 'prev,next today',
     center: 'title',
     right: 'dayGridMonth,timeGridWeek,timeGridDay'
   },
   
-  // Manejo de eventos
+  // CORRECCIÓN: Manejo de selección de fechas
   eventClick: (info) => {
     openDialog(info.event)
   },
   
   select: (info) => {
+    console.log('📅 Selección en calendario:', info.start, info.end)
+    
+    // Usar formato manual para evitar problemas de zona horaria
+    const startFormatted = formatDateForInput(info.start)
+    const endFormatted = formatDateForInput(info.end)
+    
+    console.log('📅 Fecha formateada para formulario:', startFormatted)
+    
     reservationData.value = {
       id: null,
-      start_time: info.startStr,
-      end_time: info.endStr,
+      start_time: startFormatted,
+      end_time: endFormatted,
     }
     reservationFormData.value = transformToFormData(reservationData.value)
     formKey.value++
@@ -400,7 +468,6 @@ const calendarOptions = ref({
     updateReservationTime(info.event)
   },
   
-  // Configuración de visualización
   eventDisplay: 'block',
   eventTimeFormat: {
     hour: '2-digit',
@@ -408,7 +475,6 @@ const calendarOptions = ref({
     hour12: false
   },
   
-  // Tooltip personalizado para eventos
   eventDidMount: (info) => {
     const reservation = info.event.extendedProps.reservation
     if (reservation) {
@@ -431,8 +497,6 @@ const updateReservationTime = async (event) => {
   } catch (error) {
     console.error('Error actualizando reserva:', error)
     showSnackbar("Error al reagendar el turno", "error")
-    
-    // Revertir el cambio en el calendario
     event.revert()
   }
 }
@@ -459,22 +523,6 @@ const generateEventTooltip = (reservation) => {
     lines.push(`Participantes: ${reservation.participants_count}`)
   }
   
-  if (reservation.features) {
-    if (reservation.features.pet_name) {
-      lines.push(`Mascota: ${reservation.features.pet_name}`)
-    }
-    if (reservation.features.vehicle_plate) {
-      lines.push(`Vehículo: ${reservation.features.vehicle_plate}`)
-    }
-    if (reservation.features.room_preference) {
-      lines.push(`Habitación: ${reservation.features.room_preference}`)
-    }
-  }
-  
-  if (reservation.notes) {
-    lines.push(`Notas: ${reservation.notes}`)
-  }
-  
   return lines.join('\n')
 }
 
@@ -487,15 +535,7 @@ const getStatusText = (status) => {
     completed: 'Completada',
     no_show: 'No Show'
   }
-  
   return statusTexts[status] || status
-}
-
-// Método para forzar actualización del calendario
-const refreshCalendar = () => {
-  if (calendarApi.value) {
-    calendarApi.value.refetchEvents()
-  }
 }
 </script>
 
@@ -504,32 +544,15 @@ const refreshCalendar = () => {
   height: 80vh;
 }
 
-/* Estilos adicionales para los estados */
-.status-pending {
-  font-weight: 600;
-}
-
-.status-confirmed {
-  font-weight: 500;
-}
-
-.status-cancelled {
-  opacity: 0.7;
-  text-decoration: line-through;
-}
-
-.status-completed {
-  font-style: italic;
-}
-
-.status-no_show {
-  opacity: 0.5;
-}
+.status-pending { font-weight: 600; }
+.status-confirmed { font-weight: 500; }
+.status-cancelled { opacity: 0.7; text-decoration: line-through; }
+.status-completed { font-style: italic; }
+.status-no_show { opacity: 0.5; }
 
 .fc-event {
   cursor: pointer;
 }
-
 .fc-event:hover {
   opacity: 0.9;
   transform: scale(1.02);

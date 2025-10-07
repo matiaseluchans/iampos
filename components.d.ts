@@ -27,7 +27,6 @@ declare module 'vue' {
     MoreBtn: typeof import('./resources/js/@core/components/MoreBtn.vue')['default']
     PaymentsRow: typeof import('./resources/js/components/PaymentsRow.vue')['default']
     ReservationForm: typeof import('./resources/js/components/ReservationForm.vue')['default']
-    'ReservationForm copy': typeof import('./resources/js/components/ReservationForm copy.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     ThemeSwitcher: typeof import('./resources/js/@core/components/ThemeSwitcher.vue')['default']

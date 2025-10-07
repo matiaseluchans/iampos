@@ -191,6 +191,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('reservations/{reservation}/payments', [App\Http\Controllers\ReservationController::class, 'payments']);
     Route::post('reservations/check-availability', [App\Http\Controllers\ReservationController::class, 'checkAvailability']);
     Route::post('reservations/calculate-end-time', [App\Http\Controllers\ReservationController::class, 'calculateEndTime']);
+    // Ruta adicional para cancelación
+    Route::patch('reservations/{reservation}/cancel', [App\Http\Controllers\ReservationController::class, 'cancel'])
+    ->name('reservations.cancel');
+
+        // Ruta para actualizar solo el tiempo (desde el calendario)
+        Route::patch('reservations/{reservation}/time', [App\Http\Controllers\ReservationController::class, 'updateTime'])
+            ->name('reservations.update-time');
     
     // Quotations
     Route::apiResource('quotations', App\Http\Controllers\QuotationController::class);

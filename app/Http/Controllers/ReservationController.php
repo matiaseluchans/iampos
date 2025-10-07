@@ -8,6 +8,9 @@ use App\Services\TimeCalculationService;
 use App\Services\CapacityService;
 use App\Repositories\ReservationRepository;
 use App\Http\Requests\StoreReservationRequest;
+use App\Http\Requests\UpdateReservationRequest;
+use App\Models\Reservation;
+use App\Http\Requests\CancelReservationRequest;
 
 class ReservationController extends Controller
 {
@@ -37,9 +40,9 @@ class ReservationController extends Controller
         return $this->repository->store($request);
     }
 
-    public function update($request, $reservation)
+    public function update(UpdateReservationRequest $request, Reservation $reservation)
     {
-        return $this->repository->update($request, $reservation);
+        return $this->repository->updateReservation($request, $reservation);
     }
 
     public function delete($id)
@@ -52,57 +55,22 @@ class ReservationController extends Controller
         return $this->repository->changestatus($request, $id);
     }
 
-    /*public function index(Request $request)
+    public function cancel(CancelReservationRequest $request, Reservation $reservation)
     {
-        $query = Reservation::with(['user', 'serviceType', 'resource']);
-
-        if ($request->has('status')) {
-            $query->where('status', $request->status);
-        }
-
-        if ($request->has('user_id')) {
-            $query->where('user_id', $request->user_id);
-        }
-
-        if ($request->has('service_type_id')) {
-            $query->where('service_type_id', $request->service_type_id);
-        }
-
-        if ($request->has('resource_id')) {
-            $query->where('resource_id', $request->resource_id);
-        }
-
-        if ($request->has('upcoming')) {
-            $query->where('start_time', '>', now());
-        }
-
-        if ($request->has('past')) {
-            $query->where('end_time', '<', now());
-        }
-
-        if ($request->has('date')) {
-            $query->whereDate('start_time', $request->date);
-        }
-
-        $reservations = $query->orderBy('start_time', 'desc')->paginate(20);
-
-        return response()->json($reservations);
+        return $this->repository->cancel($request, $reservation);
     }
 
-    public function show(Reservation $reservation)
+    public function updateTime(Request $request, Reservation $reservation)
     {
-        $reservation->load(['user', 'serviceType', 'resource', 'quotations', 'payments']);
-        return response()->json($reservation);
-    }*/    
+        return $this->repository->updateTime($request, $reservation);
+    }     
 
-    public function destroy($reservation)
+    public function destroy(Reservation $reservation)
     {
         return $this->repository->destroy($reservation);
     }
-
     
-
-    public function confirm($reservation)
+    public function confirm(Reservation $reservation)
     {
         return $this->repository->confirm($reservation);
     }
@@ -117,12 +85,12 @@ class ReservationController extends Controller
         return $this->repository->calculateEndTime($request);
     }
 
-    public function quotations($reservation)
+    public function quotations(Reservation $reservation)
     {
         return $this->repository->quotations($reservation);
     }
 
-    public function payments($reservation)
+    public function payments(Reservation $reservation)
     {
         return $this->repository->payments($reservation);
     }
