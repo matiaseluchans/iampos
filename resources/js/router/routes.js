@@ -55,7 +55,17 @@ export const routes = [
           requiresAuth: true, 
           allowedRoles: ['superadmin','bebidas-admin','petshop-admin','petshop-user'],
         },
-      },      
+      },     
+      {
+        path: 'payments',
+        
+        component: () => import('@/pages/iampos/payments.vue'),
+        meta: { 
+          title: "Pagos",
+          requiresAuth: true,
+          allowedRoles: ['superadmin','bebidas-admin','petshop-admin','petshop-user'],
+        },
+      },  
       {
         path: 'customers',
         
@@ -66,16 +76,7 @@ export const routes = [
           
         },
       }, 
-      {
-        path: 'payments',
-        
-        component: () => import('@/pages/iampos/payments.vue'),
-        meta: { 
-          title: "Pagos",
-          requiresAuth: true,
-          allowedRoles: ['superadmin','bebidas-admin','petshop-admin','petshop-user'],
-        },
-      }, 
+      
       {
         path: 'localities',
         
