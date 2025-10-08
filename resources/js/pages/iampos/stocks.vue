@@ -265,7 +265,7 @@
                       placeholder="Motivo del movimiento"
                     />
                   </VCol>
-                  <VCol cols="12" v-if="movement.movement_type === 'salida' && selectedStockItem">
+                  <VCol cols="12" v-if="(movement.movement_type === 'salida' || movement.movement_type === 'fraccionado') && selectedStockItem">
                     <VAlert
                       type="info"
                       variant="tonal"
@@ -464,7 +464,7 @@
               </template>
               <template #item.quantity="{ item }">
                 <span :class="getQuantityClass(item.movement_type)">
-                  {{ ['salida', 'transferencia'].includes(item.movement_type) && item.quantity > 0 ? '-' : '+' }}{{ Math.abs(item.quantity) }}
+                  {{ ['salida', 'transferencia','fraccionamiento'].includes(item.movement_type) && item.quantity > 0 ? '-' : '+' }}{{ Math.abs(item.quantity) }}
                 </span>
               </template>
               <template #item.created_at="{ item }">
@@ -599,6 +599,7 @@ export default {
       movementTypes: [
         { text: 'Entrada', value: 'entrada' },
         { text: 'Salida', value: 'salida' },
+        { text: 'Fraccionado', value: 'fraccionado' },
         { text: 'Ajuste', value: 'ajuste' },
         { text: 'Transferencia', value: 'transferencia' }
       ],
@@ -705,7 +706,7 @@ export default {
         v => v > 0 || 'Debe ser mayor a 0'
       ];
 
-      if (this.movement.movement_type === 'salida' && this.selectedStockItem) {
+      if ((this.movement.movement_type === 'salida' || this.movement.movement_type === 'fraccionado' ) && this.selectedStockItem) {
         rules.push(v => v <= this.selectedStockItem.available || 'Stock insuficiente');
       }
 
@@ -803,7 +804,7 @@ export default {
           endpoint = `${this.$routes["stocks"]}/${this.selectedStockItem.id}/movements`
           data = {
             movement_type: this.movement.movement_type,
-            quantity: this.movement.movement_type === 'salida' ? -Math.abs(this.movement.quantity) : Math.abs(this.movement.quantity),
+            quantity: (this.movement.movement_type === 'salida' || this.movement.movement_type === 'fraccionado') ? -Math.abs(this.movement.quantity) : Math.abs(this.movement.quantity),
             notes: this.movement.notes
           }
         } else {
@@ -944,7 +945,8 @@ export default {
         entrada: 'Entrada',
         salida: 'Salida',
         ajuste: 'Ajuste',
-        transferencia: 'Transferencia'
+        transferencia: 'Transferencia',
+        fraccionado: "Fraccionado"
       }
       return types[type] || type
     },
@@ -953,6 +955,7 @@ export default {
       const colors = {
         entrada: 'success',
         salida: 'error',
+        fraccionado: 'error',
         ajuste: 'warning',
         transferencia: 'info'
       }

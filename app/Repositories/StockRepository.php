@@ -143,7 +143,7 @@ class StockRepository extends BaseRepository
             'movement_type' => $type,
             'quantity' => $quantity
         ], [
-            'movement_type' => 'required|in:entrada,salida,ajuste,transferencia',
+            'movement_type' => 'required|in:entrada,salida,ajuste,transferencia,fraccionado',
             'quantity' => 'required|numeric|not_in:0'
         ]);
 
@@ -157,7 +157,7 @@ class StockRepository extends BaseRepository
             $previousQuantity = $stock->quantity;
 
             // Validar stock suficiente para salidas
-            if (in_array($type, ['salida', 'transferencia']) && $quantity > 0) {
+            if (in_array($type, ['salida', 'transferencia', 'fraccionado']) && $quantity > 0) {
                 $quantity = -abs($quantity); // Asegurar que sea negativo
                 if ($stock->available < abs($quantity)) {
                     throw new \Exception('Stock insuficiente. Disponible: ' . $stock->available);

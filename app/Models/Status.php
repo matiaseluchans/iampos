@@ -21,7 +21,7 @@ class Status extends Model
         'tenant_id',
     ];
 
-    protected static function booted(): void
+    /*protected static function booted(): void
     {
         static::addGlobalScope(new TenantScope);
     }
@@ -29,6 +29,5 @@ class Status extends Model
     public function tenant()
     {
         return $this->belongsTo(Tenant::class);
-    }
-
+    }*/
 }

@@ -870,7 +870,7 @@ export default {
       isAdmibBebidas: false,
       saveButtonLabel: "Crear Orden",
       priceLists: [],
-      selectedPriceList:1,
+      selectedPriceList:"",
     };
   },
 
@@ -908,6 +908,9 @@ export default {
         : 0;
     },
   },
+
+  beforeMount(){},
+  
 
   async created() {
     // Verificar si estamos en modo edición
@@ -1038,6 +1041,7 @@ export default {
         {
           let is_default = this.priceLists.find((c) => c.is_default === 1);
           this.selectedPriceList = is_default.id;
+          this.onPriceListChange();
         }
 
 

@@ -53,9 +53,19 @@ export const routes = [
         meta: { 
           title: "Ordenes pendientes de entrega",
           requiresAuth: true, 
-          allowedRoles: ['superadmin','bebidas-admin','petshop-admin'],
+          allowedRoles: ['superadmin','bebidas-admin','petshop-admin','petshop-user'],
         },
-      },      
+      },     
+      {
+        path: 'payments',
+        
+        component: () => import('@/pages/iampos/payments.vue'),
+        meta: { 
+          title: "Pagos",
+          requiresAuth: true,
+          allowedRoles: ['superadmin','bebidas-admin','petshop-admin','petshop-user'],
+        },
+      },  
       {
         path: 'customers',
         
@@ -66,6 +76,7 @@ export const routes = [
           
         },
       }, 
+      
       {
         path: 'localities',
         
@@ -81,7 +92,7 @@ export const routes = [
         meta: { 
           title: "Productos",
           requiresAuth: true, 
-          allowedRoles: ['superadmin','bebidas-admin','petshop-admin']
+          allowedRoles: ['superadmin','bebidas-admin','petshop-admin','petshop-user']
         },
       }, 
       {
@@ -91,7 +102,7 @@ export const routes = [
         meta: { 
           title: "Stock",
           requiresAuth: true,
-          allowedRoles: ['superadmin','bebidas-admin','petshop-admin']
+          allowedRoles: ['superadmin','bebidas-admin','petshop-admin','petshop-user']
         },
       },
       {
@@ -174,7 +185,7 @@ export const routes = [
         meta: { 
           title: "Lista de Precios",
           requiresAuth: true,
-          allowedRoles: ['superadmin','bebidas-admin','petshop-admin']
+          allowedRoles: ['superadmin','bebidas-admin','petshop-admin','petshop-user']
         },
       },
 

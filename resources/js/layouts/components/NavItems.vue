@@ -61,12 +61,22 @@ const navItems = [
   {
     component: 'VerticalNavLink',
     item: {
+      title: 'Pagos',
+      to: '/payments',
+      icon: 'ri-money-dollar-circle-line',
+      
+    }
+  },
+  {
+    component: 'VerticalNavLink',
+    item: {
       title: 'Clientes',
       to: '/customers',
       icon: 'ri-group-line',
       
     }
   },
+  
   {
     component: 'VerticalNavGroup',
     item: {
