@@ -44,7 +44,7 @@
                   <VAutocomplete
                     v-model="selectedProduct"
                     :items="products"
-                    item-title="name"
+                    :item-title="productTitle"
                     item-value="id"
                     label="Producto"
                     clearable
@@ -203,7 +203,8 @@
                     <VAutocomplete
                       v-model="movement.product_id"
                       :items="products"
-                      item-title="name"
+                      :item-title="productTitle"
+                      
                       item-value="id"
                       label="Producto"
                       :rules="[v => !!v || 'Producto es requerido']"
@@ -265,7 +266,7 @@
                       placeholder="Motivo del movimiento"
                     />
                   </VCol>
-                  <VCol cols="12" v-if="(movement.movement_type === 'salida' || movement.movement_type === 'fraccionado') && selectedStockItem">
+                  <VCol cols="12" v-if="(movement.movement_type === 'salida') && selectedStockItem">
                     <VAlert
                       type="info"
                       variant="tonal"
@@ -295,7 +296,7 @@
       </v-dialog>
 
       <!-- Dialog para transferencias -->
-      <v-dialog v-model="transferDialog" max-width="600px">
+      <v-dialog v-model="transferDialog" max-width="1100px">
         <VCard>
           <v-toolbar color="secondary">
             <v-btn
@@ -314,7 +315,7 @@
                     <VAutocomplete
                       v-model="transfer.product_id"
                       :items="products"
-                      item-title="name"
+                      :item-title="productTitle"
                       item-value="id"
                       label="Producto"
                       :rules="[v => !!v || 'Producto es requerido']"
@@ -440,7 +441,7 @@
       </v-dialog>
 
       <!-- Dialog para historial -->
-      <v-dialog v-model="historyDialog" max-width="1000px">
+      <v-dialog v-model="historyDialog" max-width="1100px">
         <VCard>
           <v-toolbar color="primary">
             <v-btn
@@ -464,7 +465,7 @@
               </template>
               <template #item.quantity="{ item }">
                 <span :class="getQuantityClass(item.movement_type)">
-                  {{ ['salida', 'transferencia','fraccionamiento'].includes(item.movement_type) && item.quantity > 0 ? '-' : '+' }}{{ Math.abs(item.quantity) }}
+                  {{   item.quantity > 0 ? '+' : '' }}{{item.quantity }}
                 </span>
               </template>
               <template #item.created_at="{ item }">
@@ -627,9 +628,9 @@ export default {
       // Headers
       headers: [
         { title: 'Acciones', key: 'actions', sortable: false, width: '100px' },
+        { title: 'Codigo', key: 'product.code', width: '50px' },
         { title: 'Producto', key: 'product.name', width: '250px' },
-       /* { title: 'Código', key: 'product.code', width: '120px' },
-        { title: 'Depósito', key: 'warehouse.name', width: '150px' },*/
+       /* { title: 'Depósito', key: 'warehouse.name', width: '150px' },*/
         { title: 'Stock', key: 'quantity', width: '50px' },
         /*{ title: 'Disponible', key: 'available', width: '120px' },
         { title: 'Reservado', key: 'reserved_quantity', width: '120px' },*/
@@ -688,9 +689,7 @@ export default {
           );
         });
       }*/
-      
-      console.log("filtered");
-      console.log(filtered);
+       
       return filtered;
     },
 
@@ -706,7 +705,7 @@ export default {
         v => v > 0 || 'Debe ser mayor a 0'
       ];
 
-      if ((this.movement.movement_type === 'salida' || this.movement.movement_type === 'fraccionado' ) && this.selectedStockItem) {
+      if ((this.movement.movement_type === 'salida' ) && this.selectedStockItem) {
         rules.push(v => v <= this.selectedStockItem.available || 'Stock insuficiente');
       }
 
@@ -720,6 +719,23 @@ export default {
 
   methods: {
 
+     productTitle(item) {
+      const currentUser = this.$store.getters.currentUser;
+      let title = item.name;
+      const price = item.display_price || item.sale_price;
+       
+      if (currentUser.data.tenant.id == 2) {
+        title = `[${item.code}] ${item.name} `;
+      }
+      if (currentUser.data.tenant.id == 3) {
+        title = `${item.name} [${item.code}]`;
+      }
+      
+      
+      // Agregar el precio al título
+      //return `${title} - $${this.formatNumber(price)}`;
+      return `${title}`;
+    },
     async loadProducts() {
       try {
         const response = await this.$axios.get(this.$routes["products"]);
@@ -770,9 +786,14 @@ export default {
       } else {
         this.selectedStockItem = null
         this.movement.product_id = null
-        this.movement.warehouse_id = null
+
+        //seteo el warehouse code = al tenant, tiene que existir un warehouse por tenant con el mismo codigo
+        const currentUser = this.$store.getters.currentUser;
+        let warehouseCode = currentUser.data.tenant.id;     
+        this.movement.warehouse_id = warehouseCode
       }
       
+      console.log(this.movement);
       this.movementDialog = true
     },
 
@@ -804,7 +825,7 @@ export default {
           endpoint = `${this.$routes["stocks"]}/${this.selectedStockItem.id}/movements`
           data = {
             movement_type: this.movement.movement_type,
-            quantity: (this.movement.movement_type === 'salida' || this.movement.movement_type === 'fraccionado') ? -Math.abs(this.movement.quantity) : Math.abs(this.movement.quantity),
+            quantity: (this.movement.movement_type === 'salida' ) ? -Math.abs(this.movement.quantity) : Math.abs(this.movement.quantity),
             notes: this.movement.notes
           }
         } else {
@@ -815,7 +836,9 @@ export default {
             warehouse_id: this.movement.warehouse_id,
             quantity: this.movement.quantity,
             minimum_stock: this.movement.minimum_stock,
-            maximum_stock: this.movement.maximum_stock
+            maximum_stock: this.movement.maximum_stock,
+            movement_type: this.movement.movement_type,
+
           }
         }
         

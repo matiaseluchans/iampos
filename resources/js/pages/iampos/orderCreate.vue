@@ -181,7 +181,7 @@
                  <VAutocomplete
                   v-model="newItem.product_id"
                   :items="products"
-                  :item-title="productTitleWithPrice"
+                  :item-title="productTitle"
                   item-value="id"
                   label="Seleccionar Producto"
                   clearable
@@ -989,6 +989,10 @@ export default {
       if (currentUser.data.tenant.id == 2) {
         title = `[${item.code}] ${item.name} `;
       }
+      if (currentUser.data.tenant.id == 3) {
+        title = `${item.name} [${item.code}]`;
+      }
+
 
       return title;
     },
@@ -1108,19 +1112,7 @@ export default {
 
      
 
-    productTitleWithPrice(item) {
-      const currentUser = this.$store.getters.currentUser;
-      let title = item.name;
-      const price = item.display_price || item.sale_price;
-      
-      if (currentUser.data.tenant.id == 2) {
-        title = `[${item.code}] ${item.name} `;
-      }
-      
-      // Agregar el precio al título
-      //return `${title} - $${this.formatNumber(price)}`;
-      return `${title}`;
-    },
+     
     getProductById(productId) {
       return this.products.find((p) => p.id === productId);
     },

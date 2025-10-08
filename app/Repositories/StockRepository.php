@@ -55,39 +55,8 @@ class StockRepository extends BaseRepository
             return $this->errorResponse($e);
         }
     }
-    /*
-    public function recordMovement($stockId, $type, $quantity, $notes = null, $sourceDocType = null, $sourceDocId = null)
-    {
-        DB::beginTransaction();
-        try {
-            $stock = $this->model->findOrFail($stockId);
 
-            // Actualizar stock
-            $stock->quantity += $quantity;
-            $stock->save();
 
-            // Registrar movimiento
-            $movement = $stock->movements()->create([
-                'movement_type' => $type,
-                'quantity' => $quantity,
-                'previous_quantity' => $stock->quantity - $quantity,
-                'new_quantity' => $stock->quantity,
-                //'source_document_type' => $sourceDocType,
-                //'source_document_id' => $sourceDocId,
-                'notes' => $notes,
-                'tenant_id' => $stock->tenant_id,
-                'user_id' => auth()->id()
-            ]);
-
-            DB::commit();
-            return $this->successResponse($movement);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            report($e);
-            return $this->errorResponse($e);
-        }
-    }
-*/
     public function getMovements($stockId)
     {
         try {
@@ -108,15 +77,25 @@ class StockRepository extends BaseRepository
     /**
      * Crear o actualizar stock para un producto
      */
-    public function createOrUpdateStock($productId, $warehouseId, $quantity, $minimumStock = 0, $maximumStock = 0)
+    public function createOrUpdateStock($productId, $warehouseId, $quantity,  $mov_type, $minimumStock = 0, $maximumStock = 0)
     {
         try {
+
+            $existed = Stock::where([
+                'product_id' => $productId,
+                'warehouse_id' => $warehouseId,
+                'tenant_id' => auth()->user()->tenant_id
+            ])->exists();
+
             $stock = Stock::createOrUpdate(
                 $productId,
                 $warehouseId,
                 $quantity,
                 auth()->user()->tenant_id
             );
+
+
+
 
             if ($minimumStock > 0) {
                 $stock->minimum_stock = $minimumStock;
@@ -125,6 +104,10 @@ class StockRepository extends BaseRepository
                 $stock->maximum_stock = $maximumStock;
             }
             $stock->save();
+
+            $operationType = $existed ? $mov_type : 'inicial';
+
+            $this->recordMovement($stock->id, $operationType, $quantity);
 
             return $this->successResponse($stock);
         } catch (\Exception $e) {
@@ -136,14 +119,14 @@ class StockRepository extends BaseRepository
     /**
      * Registrar movimiento de stock con validaciones
      */
-    public function recordMovement($stockId, $type, $quantity, $notes = null, $sourceDocType = null, $sourceDocId = null)
+    public function recordMovement($stockId, $type, $quantity, $notes = null)
     {
         // Validaciones
         $validator = Validator::make([
             'movement_type' => $type,
             'quantity' => $quantity
         ], [
-            'movement_type' => 'required|in:entrada,salida,ajuste,transferencia,fraccionado',
+            'movement_type' => 'required|in:inicial,entrada,salida,ajuste,transferencia,fraccionado',
             'quantity' => 'required|numeric|not_in:0'
         ]);
 
@@ -153,34 +136,38 @@ class StockRepository extends BaseRepository
 
         DB::beginTransaction();
         try {
+            $previousQuantity = 0;
+
             $stock = $this->model->findOrFail($stockId);
-            $previousQuantity = $stock->quantity;
 
-            // Validar stock suficiente para salidas
-            if (in_array($type, ['salida', 'transferencia', 'fraccionado']) && $quantity > 0) {
-                $quantity = -abs($quantity); // Asegurar que sea negativo
-                if ($stock->available < abs($quantity)) {
-                    throw new \Exception('Stock insuficiente. Disponible: ' . $stock->available);
+            if ($type != 'inicial') {
+
+                $previousQuantity = $stock->quantity;
+
+                // Validar stock suficiente para salidas
+                if (in_array($type, ['salida', 'transferencia', 'fraccionado']) && $quantity > 0) {
+                    $quantity = -abs($quantity); // Asegurar que sea negativo
+                    if ($stock->available < abs($quantity)) {
+                        throw new \Exception('Stock insuficiente. Disponible: ' . $stock->available);
+                    }
                 }
+
+                // Para entradas, asegurar que sea positivo
+                if ($type === 'entrada' && $quantity < 0) {
+                    $quantity = abs($quantity);
+                }
+
+                // Actualizar stock
+
+                $stock->quantity += $quantity;
+                $stock->save();
             }
-
-            // Para entradas, asegurar que sea positivo
-            if ($type === 'entrada' && $quantity < 0) {
-                $quantity = abs($quantity);
-            }
-
-            // Actualizar stock
-            $stock->quantity += $quantity;
-            $stock->save();
-
             // Registrar movimiento
             $movement = $stock->movements()->create([
                 'movement_type' => $type,
                 'quantity' => $quantity,
                 'previous_quantity' => $previousQuantity,
                 'new_quantity' => $stock->quantity,
-                'source_document_type' => $sourceDocType,
-                'source_document_id' => $sourceDocId,
                 'notes' => $notes,
                 'tenant_id' => $stock->tenant_id,
                 'user_id' => auth()->id()

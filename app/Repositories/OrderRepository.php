@@ -19,7 +19,7 @@ use Mpdf\Config\FontVariables;
 
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\DeliveryReportExcelExport;
-
+use App\Models\Stock;
 
 class OrderRepository extends BaseRepository
 {
@@ -181,7 +181,7 @@ class OrderRepository extends BaseRepository
                     ];
                 }, $items);
                 OrderItem::insert($data);
-
+                /*
                 //tengo q descontar del stock las cantidades de los items
                 $ids = collect($items)->pluck('product_id')->toArray();
 
@@ -193,10 +193,46 @@ class OrderRepository extends BaseRepository
                 $sql .= "END WHERE product_id IN (" . implode(',', $ids) . ")";
 
                 DB::statement($sql);
+            }*/
+                $productIds = collect($items)->pluck('product_id')->toArray();
+                $previousStocks = Stock::whereIn('product_id', $productIds)
+                    ->get()
+                    ->keyBy('product_id');
+
+                // 2. Ejecutar update masivo (eficiente)
+                $sql = "UPDATE stocks SET quantity = CASE product_id ";
+                foreach ($items as $item) {
+                    $sql .= "WHEN {$item['product_id']} THEN GREATEST(0, quantity - {$item['quantity']}) ";
+                }
+                $sql .= "END WHERE product_id IN (" . implode(',', $productIds) . ")";
+                DB::statement($sql);
+
+                // 3. Registrar movimientos de stock
+                $updatedStocks = Stock::whereIn('product_id', $productIds)->get();
+
+                foreach ($items as $item) {
+                    $productId = $item['product_id'];
+                    $quantity = $item['quantity'];
+
+                    $stock = $updatedStocks->where('product_id', $productId)->first();
+
+                    if ($stock) {
+                        // Registrar movimiento directamente
+                        $stock->movements()->create([
+                            'movement_type' => 'salida',
+                            'quantity' => -$quantity,
+                            'previous_quantity' => $previousStocks[$productId]->quantity,
+                            'new_quantity' => $stock->quantity,
+                            'notes' => "Orden - #{$model->order_number}",
+                            'tenant_id' => $user->tenant_id,
+                            'user_id' => $user->id
+                        ]);
+                    }
+                }
             }
-            // Confirmar la transacción
+
             DB::commit();
-            $this->cacheForget();
+
 
             return $this->successResponseCreate([
                 'order' => $model,
@@ -568,7 +604,7 @@ class OrderRepository extends BaseRepository
                 $productIds = $oldItems->pluck('product_id')->toArray();
                 $quantities = $oldItems->pluck('quantity', 'product_id')->toArray();
 
-                $this->adjustStock($productIds, $quantities, 'increment');
+                $this->adjustStock($productIds, $quantities, 'increment', 'ajuste pre edicion', $model);
 
                 // Eliminar items
                 $model->items()->forceDelete();
@@ -656,7 +692,7 @@ class OrderRepository extends BaseRepository
                 $productIds = collect($items)->pluck('product_id')->toArray();
                 $quantities = collect($items)->pluck('quantity', 'product_id')->toArray();
 
-                $this->adjustStock($productIds, $quantities, 'decrement');
+                $this->adjustStock($productIds, $quantities, 'decrement', 'ajuste pos Edicion', $model);
             }
 
             DB::commit();
@@ -674,7 +710,10 @@ class OrderRepository extends BaseRepository
     }
 
     // Método auxiliar para ajustar el stock (igual que antes)
-    protected function adjustStock($productIds, $quantities, $operation)
+
+
+
+    /*protected function adjustStock($productIds, $quantities, $operation)
     {
         if (empty($productIds)) return;
 
@@ -684,6 +723,8 @@ class OrderRepository extends BaseRepository
             $quantity = $quantities[$productId];
             if ($operation === 'decrement') {
                 $sql .= "WHEN {$productId} THEN GREATEST(0, quantity - {$quantity}) ";
+
+                
             } else {
                 $sql .= "WHEN {$productId} THEN quantity + {$quantity} ";
             }
@@ -692,8 +733,50 @@ class OrderRepository extends BaseRepository
         $sql .= "END WHERE product_id IN (" . implode(',', $productIds) . ")";
 
         DB::statement($sql);
-    }
+    }*/
 
+    protected function adjustStock($productIds, $quantities, $operation, $movementType = 'ajuste', $model)
+    {
+        if (empty($productIds)) return;
+
+        DB::transaction(function () use ($productIds, $quantities, $operation, $movementType, $model) {
+
+            $stocks = Stock::whereIn('product_id', $productIds)->get();
+
+            foreach ($stocks as $stock) {
+                $productId = $stock->product_id;
+                $quantityChange = $quantities[$productId] ?? 0;
+
+                if ($quantityChange > 0) {
+                    $previousQuantity = $stock->quantity;
+
+                    // Calcular nueva cantidad
+                    if ($operation === 'decrement') {
+                        $newQuantity = max(0, $previousQuantity - $quantityChange);
+                        $movementQuantity = -$quantityChange;
+                    } else {
+                        $newQuantity = $previousQuantity + $quantityChange;
+                        $movementQuantity = $quantityChange;
+                    }
+
+                    // Actualizar stock
+                    $stock->quantity = $newQuantity;
+                    $stock->save();
+
+                    // Registrar movimiento
+                    $stock->movements()->create([
+                        'movement_type' => $movementType,
+                        'quantity' => $movementQuantity,
+                        'previous_quantity' => $previousQuantity,
+                        'new_quantity' => $newQuantity,
+                        'notes' => "Orden - #{$model->order_number}",
+                        'tenant_id' => $stock->tenant_id,
+                        'user_id' => auth()->id()
+                    ]);
+                }
+            }
+        });
+    }
     public function cancelOrder($request, $id)
     {
         DB::beginTransaction();
@@ -714,7 +797,7 @@ class OrderRepository extends BaseRepository
                 // Devolver stock
                 $productIds = $oldItems->pluck('product_id')->toArray();
                 $quantities = $oldItems->pluck('quantity', 'product_id')->toArray();
-                $this->adjustStock($productIds, $quantities, 'increment');
+                $this->adjustStock($productIds, $quantities, 'increment', 'ajuste por cancelacion', $model);
                 // Eliminar items
                 $model->items()->delete();
             }

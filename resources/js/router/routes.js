@@ -174,7 +174,7 @@ export const routes = [
         meta: { 
           title: "Métodos de pago",
           requiresAuth: true,
-          allowedRoles: ['superadmin']
+          allowedRoles: ['superadmin','petshop-admin']
         },
       },
 

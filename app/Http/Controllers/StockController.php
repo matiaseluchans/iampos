@@ -85,15 +85,19 @@ class StockController extends Controller
         $request->validate([
             'product_id' => 'required|exists:products,id',
             'warehouse_id' => 'required|exists:warehouses,id',
+            'movement_type' => 'required',
             'quantity' => 'required|numeric|min:0',
             'minimum_stock' => 'nullable|numeric|min:0',
             'maximum_stock' => 'nullable|numeric|min:0'
         ]);
 
+
+
         return $this->repository->createOrUpdateStock(
             $request->product_id,
             $request->warehouse_id,
             $request->quantity,
+            $request->movement_type,
             $request->minimum_stock ?? 0,
             $request->maximum_stock ?? 0
         );

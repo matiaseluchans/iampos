@@ -214,7 +214,7 @@
               {{ item.payment_status.name }}
             </VChip>            
             -->
-            <VMenu offset-y>
+            <!--<VMenu offset-y>
               <template v-slot:activator="{ props }">
                 <VChip
                   v-bind="props"
@@ -255,7 +255,17 @@
                   </VChip>
                 </VListItem>
               </VList>
-            </VMenu>
+            </VMenu>-->
+            <VChip
+              v-bind="props"
+              :color="getStatusCodeColor(item.payment_status.code)"
+              prepend-icon="ri-money-dollar-circle-line"
+              density="comfortable"
+              class="my-1 status-chip"
+              style="width: 150px"
+            >
+              {{ item.payment_status.name }} 
+            </VChip>
 
             <VMenu offset-y>
               <template v-slot:activator="{ props }">
