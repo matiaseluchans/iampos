@@ -172,35 +172,43 @@ const navItems = [
           icon: 'ri-map-pin-line',
       
         }
-      }
-    ]
+      },      
+    ],
   },
   {
     component: 'VerticalNavGroup',
     item: {
-      title: 'Configuración',
-      icon: 'ri-settings-5-line'
+      title: 'Turnos',
+      icon: 'ri-calendar-line'
     },
-    children: [
+    children: [      
       {
         component: 'VerticalNavLink',
         item: {
-          title: 'Tenants',
-          to: '/tenants',
-          icon: 'ri-database-2-line',
+          title: 'Tipos de Recursos',
+          to: '/resource-types',
+          icon: 'ri-stack-line',
       
-        }
+        },
       },
       {
         component: 'VerticalNavLink',
         item: {
-          title: 'Usuarios',
-          to: '/users',
-          icon: 'ri-user-line',
+          title: 'Servicios',
+          to: '/service-types',
+          icon: 'ri-service-line',
       
-        }
-      }
-      ,
+        },
+      },
+      {
+        component: 'VerticalNavLink',
+        item: {
+          title: 'Recursos',
+          to: '/resources',
+          icon: 'ri-layout-masonry-line',
+      
+        },
+      },
       {
         component: 'VerticalNavLink',
         item: {
@@ -215,12 +223,38 @@ const navItems = [
         item: {
           title: 'Turnos Calendario',
           to: '/turner-calendar',
-          icon: 'ri-calendar-line',
+          icon: 'ri-calendar-line',      
+        },
+      },
+    ],
+  },
+  {
+    component: 'VerticalNavGroup',
+    item: {
+      title: 'Configuración',
+      icon: 'ri-settings-5-line',
+    },
+    children: [
+      {
+        component: 'VerticalNavLink',
+        item: {
+          title: 'Tenants',
+          to: '/tenants',
+          icon: 'ri-database-2-line',
       
-        }
-      }
-    ]
-  } ,
+        },
+      },
+      {
+        component: 'VerticalNavLink',
+        item: {
+          title: 'Usuarios',
+          to: '/users',
+          icon: 'ri-user-line',      
+        },
+      },         
+    ],
+  },
+
   /*{
     component: 'VerticalNavSectionTitle',
     item: {

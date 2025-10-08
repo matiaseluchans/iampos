@@ -32,7 +32,10 @@ export const apiRoute = Object.freeze({
   ordersCancel: "api/orders-cancel",
   priceLists: "api/price-lists",
   priceListProducts: '/api/price-list-products',
-
+  servicesTypes: '/api/service-types',
+  reservations: '/api/reservations',
+  resources: '/api/resources',  
+  resourceTypes: '/api/resource-types',
   paymentsSummary: '/api/payments-summary',
   paymentsDetail: '/api/payments-summary/detail',
   

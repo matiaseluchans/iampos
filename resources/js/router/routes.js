@@ -210,6 +210,36 @@ export const routes = [
         },
       },
       {
+        path: 'resource-types',
+        name: 'resource-types',
+        component: () => import('@/pages/iampos/resource-types/ResourceTypeList.vue'),
+        meta: { 
+          title: "Tipos de Recursos",
+          requiresAuth: true,
+          allowedRoles: ['superadmin'],
+        },
+      },
+      {
+        path: 'service-types',
+        name: 'service-types',
+        component: () => import('@/pages/iampos/service-types/ServiceTypeList.vue'),
+        meta: { 
+          title: "Tipos de Servicios",
+          requiresAuth: true,
+          allowedRoles: ['superadmin'],
+        },
+      },
+      {
+        path: 'resources',
+        name: 'resources',
+        component: () => import('@/pages/iampos/resources/ResourceList.vue'),
+        meta: { 
+          title: "Recursos",
+          requiresAuth: true,
+          allowedRoles: ['superadmin'],
+        },
+      },
+      {
         path: 'account-settings',
         component: () => import('@/pages/account-settings.vue'),
       },

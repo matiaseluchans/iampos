@@ -20,6 +20,9 @@ class Payment extends Model
         'reference',
         'notes',
         'tenant_id',
+        'reservation_id',
+        'quotation_id',
+        'transaction_id',
     ];
 
     protected static function booted(): void
@@ -27,7 +30,60 @@ class Payment extends Model
         static::addGlobalScope(new TenantScope);
     }
 
+    
+    /*
+    public function scopeCompleted($query)
+    {
+        return $query->where('status', self::STATUS_COMPLETED);
+    }
+
+    public function scopePending($query)
+    {
+        return $query->where('status', self::STATUS_PENDING);
+    }
+
+    public function markAsCompleted($transactionId = null)
+    {
+        $this->update([
+            'status' => self::STATUS_COMPLETED,
+            'payment_date' => now(),
+            'transaction_id' => $transactionId
+        ]);
+    }
+
+    public function markAsFailed($notes = null)
+    {
+        $this->update([
+            'status' => self::STATUS_FAILED,
+            'notes' => $notes
+        ]);
+    }
+
+    public function refund($notes = null)
+    {
+        $this->update([
+            'status' => self::STATUS_REFUNDED,
+            'notes' => $notes
+        ]);
+    }
+
+    public function isCompleted()
+    {
+        return $this->status === self::STATUS_COMPLETED;
+    }*/
+
     // Relaciones
+
+    public function reservation()
+    {
+        return $this->belongsTo(Reservation::class);
+    }
+
+    public function quotation()
+    {
+        return $this->belongsTo(Quotation::class);
+    }
+
     public function order()
     {
         return $this->belongsTo(Order::class);
