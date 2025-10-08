@@ -10,12 +10,45 @@ class ResourceTypeSeeder extends Seeder
 {
     public function run()
     {
+
+        DB::table('resource_types')->insert([
+            'name' => 'Estación de Peluquería Canina',
+            'description' => 'Puestos de trabajo especializados para peluquería canina',
+            'is_shared_capacity' => false,
+            'max_capacity_per_reservation' => 1,
+            'tenant_id' => 4,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        DB::table('resource_types')->insert(
+        [
+            'name' => 'Sala de Espera Canina',
+            'description' => 'Área de espera para perros antes y después del servicio',
+            'is_shared_capacity' => true,
+            'max_capacity_per_reservation' => 10,
+            'tenant_id' => 4,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        DB::table('resource_types')->insert(
+        [
+            'name' => 'Área de Secado',
+            'description' => 'Zona especializada para secado de perros',
+            'is_shared_capacity' => true,
+            'max_capacity_per_reservation' => 1,
+            'tenant_id' => 4,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $this->command->info('Tipos de recursos para peluquería canina creados exitosamente');
+
         DB::table('resource_types')->insert([
             'name' => 'Espacio de Parking',
             'description' => 'Áreas de estacionamiento para vehículos',
             'is_shared_capacity' => true,
             'max_capacity_per_reservation' => 10,
-            'tenant_id' => 3,
+            'tenant_id' => 5,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -25,7 +58,7 @@ class ResourceTypeSeeder extends Seeder
             'description' => 'Diferentes tipos de habitaciones hoteleras',
             'is_shared_capacity' => false,
             'max_capacity_per_reservation' => 1,
-            'tenant_id' => 3,
+            'tenant_id' => 6,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -35,7 +68,7 @@ class ResourceTypeSeeder extends Seeder
             'description' => 'Consultorios equipados para atención médica',
             'is_shared_capacity' => false,
             'max_capacity_per_reservation' => 1,
-            'tenant_id' => 3,
+            'tenant_id' => 7,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -45,7 +78,7 @@ class ResourceTypeSeeder extends Seeder
             'description' => 'Áreas de espera compartidas',
             'is_shared_capacity' => true,
             'max_capacity_per_reservation' => 20,
-            'tenant_id' => 3,
+            'tenant_id' => 7,
             'created_at' => now(),
             'updated_at' => now(),
         ]);

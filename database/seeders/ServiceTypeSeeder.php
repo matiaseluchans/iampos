@@ -217,52 +217,52 @@ class ServiceTypeSeeder extends Seeder
         $serviceTypes = [
             // PELUQUERÍA CANINA
             [
-                'name' => 'Baño y Secado Básico',
-                'description' => 'Baño completo con shampoo especial para perros, secado y cepillado básico',
+                'name' => 'Baño Chico',
+                'description' => 'Baño completo para raza chicas',
                 'base_price' => 2500.00,
                 'duration_minutes' => 60,
                 'min_units' => 1,
-                'max_units' => 3,
+                'max_units' => 1,
                 'max_participants' => 1,
                 'requires_resource' => false,
                 'resource_type_id' => null,
-                'tenant_id' => 3,
+                'tenant_id' => 4,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ],
             [
-                'name' => 'Corte de Raza Específica',
-                'description' => 'Corte profesional según estándar de la raza con técnicas especializadas',
+                'name' => 'Baño medio',
+                'description' => 'Baño completo para raza medianas',
                 'base_price' => 4500.00,
                 'duration_minutes' => 90,
                 'min_units' => 1,
-                'max_units' => 2,
+                'max_units' => 1,
                 'max_participants' => 1,
                 'requires_resource' => false,
                 'resource_type_id' => null,
-                'tenant_id' => 3,
+                'tenant_id' => 4,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ],
             [
-                'name' => 'Corte Higiénico',
-                'description' => 'Corte en zonas específicas para mantener higiene: zona genital, patas, ojos y orejas',
+                'name' => 'Baño grande',
+                'description' => 'Baño completo para raza grandes',
                 'base_price' => 1800.00,
-                'duration_minutes' => 45,
+                'duration_minutes' => 120,
                 'min_units' => 1,
-                'max_units' => 2,
+                'max_units' => 1,
                 'max_participants' => 1,
                 'requires_resource' => false,
                 'resource_type_id' => null,
-                'tenant_id' => 3,
+                'tenant_id' => 4,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ],
             [
-                'name' => 'Limpieza Dental',
-                'description' => 'Limpieza dental profesional con productos especializados para perros',
+                'name' => 'Baño y corte chico',
+                'description' => 'Baño completo y corte para raza chicas',
                 'base_price' => 3200.00,
-                'duration_minutes' => 45,
+                'duration_minutes' => 60,
                 'min_units' => 1,
                 'max_units' => 1,
                 'max_participants' => 1,
@@ -273,8 +273,22 @@ class ServiceTypeSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
-                'name' => 'Spa Canino Premium',
-                'description' => 'Servicio completo: baño con aromaterapia, corte, limpieza dental y masaje relajante',
+                'name' => 'Baño y corte medio',
+                'description' => 'Baño completo y corte para raza medianas',
+                'base_price' => 6800.00,
+                'duration_minutes' => 90,
+                'min_units' => 1,
+                'max_units' => 1,
+                'max_participants' => 1,
+                'requires_resource' => false,
+                'resource_type_id' => null,
+                'tenant_id' => 4,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ],
+            [
+                'name' => 'Baño y corte grande',
+                'description' => 'Baño completo y corte para raza grandes',
                 'base_price' => 6800.00,
                 'duration_minutes' => 120,
                 'min_units' => 1,
@@ -282,13 +296,13 @@ class ServiceTypeSeeder extends Seeder
                 'max_participants' => 1,
                 'requires_resource' => false,
                 'resource_type_id' => null,
-                'tenant_id' => 3,
+                'tenant_id' => 4,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ],
 
             // PELUQUERÍA HUMANA
-            [
+            /*[
                 'name' => 'Corte de Cabello Unisex',
                 'description' => 'Corte profesional con lavado incluido y terminación a elección',
                 'base_price' => 3500.00,
@@ -573,14 +587,14 @@ class ServiceTypeSeeder extends Seeder
                 'tenant_id' => 3,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
-            ],
+            ],*/
         ];
 
         DB::table('service_types')->insert($serviceTypes);
 
-        $this->command->info('✅ 25 tipos de servicio creados exitosamente!');
-        $this->command->info('📋 Categorías: Peluquería Canina, Peluquería Humana, Hotelería, Parking, Consultas Médicas');
+        //$this->command->info('✅ 25 tipos de servicio creados exitosamente!');
+        //$this->command->info('📋 Categorías: Peluquería Canina, Peluquería Humana, Hotelería, Parking, Consultas Médicas');
 
-        $this->command->info('Servicios creados: Parking (3), Hotel (4), Consultorio Médico (4)');
+        //$this->command->info('Servicios creados: Parking (3), Hotel (4), Consultorio Médico (4)');
     }
 }

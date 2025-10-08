@@ -1,5 +1,5 @@
 <template>
-  <VCard :title="'Administración de Tipos de Servicio'">
+  <VCard :title="'Administración de Servicios'">
     <VCardText class="d-flex px-2"> 
         <VDataTable
           :headers="showHeaders"

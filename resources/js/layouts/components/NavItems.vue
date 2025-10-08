@@ -184,7 +184,7 @@ const navItems = [
       {
         component: 'VerticalNavLink',
         item: {
-          title: 'Tipos de Servicio',
+          title: 'Servicios',
           to: '/service-types',
           icon: 'ri-service-line',
       

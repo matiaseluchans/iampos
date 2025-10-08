@@ -70,7 +70,39 @@ class TenantUserSeeder extends Seeder
                 "address" => "Av. Eva Peron 98 R. Mejia",
                 "telephone" => "1165897555",
                 "email" => "ventas@droopy.com"
-            ]
+            ],
+            [
+                "id" => 4,
+                "slug" => "peluqueriacanina",
+                "name" => "Pet shop Mis Amigos",
+                "address" => "Av. Eva Peron 98 R. Mejia",
+                "telephone" => "1165897555",
+                "email" => "info@misamigos.com"
+            ],
+            [
+                "id" => 5,
+                "slug" => "parking",
+                "name" => "Parking S.R.L",
+                "address" => "Formosa 100 Canning",
+                "telephone" => "1156632255",
+                "email" => "info@parking.com"
+            ],
+            [
+                "id" => 6,
+                "slug" => "hotel",
+                "name" => "Posada Melodias",
+                "address" => "Av. Gral. San Martin 150 Cordoba",
+                "telephone" => "1166225588",
+                "email" => "info@posadamelodias.com"
+            ],
+            [
+                "id" => 7,
+                "slug" => "consultorio",
+                "name" => "Clinica Salud",
+                "address" => "French 500 R. Mejia",
+                "telephone" => "1156362563",
+                "email" => "info@clinicasalud.com"
+            ],
         ];
 
         foreach ($tenants as $tenantData) {
@@ -115,7 +147,7 @@ class TenantUserSeeder extends Seeder
             $admin->roles()->syncWithoutDetaching([$adminRole->id]);
 
             // Crear usuarios básicos
-            foreach (range(1, 2) as $index) {
+            foreach (range(1, 3) as $index) {
                 $user = User::updateOrCreate(
                     ['email' => $tenantData['slug'] . "_user_" . $index . "@example.com"],
                     [
