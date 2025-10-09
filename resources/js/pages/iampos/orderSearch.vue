@@ -700,7 +700,7 @@
                     <div class="d-flex justify-space-between">
                       <span class="text-caption text-medium-emphasis">Total Pagado:</span>
                       <span class="font-weight-medium text-primary">{{
-                        formatCurrency(totalPaid)
+                        formatCurrency(createdOrder?.order?.total_paid)
                       }}</span>
                     </div>
                     <div class="d-flex justify-space-between">
@@ -735,6 +735,7 @@
                   :records="createdOrder.order.payment"
                   modulo="pagos"
                   @update-total="updateTotal"
+                  :pending-amount="pendingAmount"
                 />
               </div>
             </VCardText>

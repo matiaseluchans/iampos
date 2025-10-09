@@ -7,7 +7,6 @@ export {}
 
 declare module 'vue' {
   export interface GlobalComponents {
-    2: typeof import('./resources/js/components/ReservationForm copy 2.vue')['default']
     CardStatisticsHorizontal: typeof import('./resources/js/@core/components/cards/CardStatisticsHorizontal.vue')['default']
     CardStatisticsVertical: typeof import('./resources/js/@core/components/cards/CardStatisticsVertical.vue')['default']
     CardStatisticsWithImages: typeof import('./resources/js/@core/components/cards/CardStatisticsWithImages.vue')['default']
@@ -15,12 +14,10 @@ declare module 'vue' {
     ConfirmInput: typeof import('./resources/js/components/dialogs/ConfirmInput.vue')['default']
     ConfirmOptions: typeof import('./resources/js/components/dialogs/ConfirmOptions.vue')['default']
     ConfirmThreeButtons: typeof import('./resources/js/components/dialogs/ConfirmThreeButtons.vue')['default']
-    copy: typeof import('./resources/js/components/ReservationForm copy.vue')['default']
     DateRangeField: typeof import('./resources/js/components/DateRangeField.vue')['default']
     DialogInfo: typeof import('./resources/js/components/dialogs/DialogInfo.vue')['default']
     ErrorHeader: typeof import('./resources/js/components/ErrorHeader.vue')['default']
     Filter: typeof import('./resources/js/components/Filter.vue')['default']
-    FormClient: typeof import('./resources/js/components/dialogs/FormClient.vue')['default']
     FormCompleted: typeof import('./resources/js/components/dialogs/FormCompleted.vue')['default']
     FormConfirm: typeof import('./resources/js/components/dialogs/FormConfirm.vue')['default']
     FormValidate: typeof import('./resources/js/components/dialogs/FormValidate.vue')['default']
@@ -32,7 +29,6 @@ declare module 'vue' {
     ThemeSwitcher: typeof import('./resources/js/@core/components/ThemeSwitcher.vue')['default']
     UpgradeToPro: typeof import('./resources/js/components/UpgradeToPro.vue')['default']
     Validate: typeof import('./resources/js/components/dialogs/Validate.vue')['default']
-    VDatePicker: typeof import('./resources/js/components/VDatePicker.vue')['default']
     VDatetimePicker: typeof import('./resources/js/components/VDatetimePicker.vue')['default']
   }
 }

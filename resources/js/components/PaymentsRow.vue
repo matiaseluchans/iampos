@@ -24,6 +24,17 @@
         <template #item.actions="{ item }">
           <div class="d-flex gap-0 px-0 mx-0 justify-center">
             <VBtn
+            v-if="!item.isExisting"
+              color="success"
+              size="small"
+              title="Set Pago"
+              @click="setImporte(item)"
+              variant="tonal"
+              icon="ri-money-dollar-circle-line"
+            />
+               
+      
+            <VBtn
               v-if="!item.isExisting"
               color="error"
               size="small"
@@ -49,7 +60,7 @@
             
             
             <VBtn
-            v-if="!item.isExisting"
+              v-if="!item.isExisting"
               color="primary"
               size="small"
               title="Agregar Pago"
@@ -59,6 +70,8 @@
             >
                
             </VBtn>
+            
+
             <VChip v-if="item.isExisting"
               icon="ri-lock-line"
               color="primary" 
@@ -135,6 +148,8 @@ export default {
   props: {
     modulo: String,
     records: { type: Array, default() { return [] } },
+    pendingAmount: Number
+
   },
   emits: ['update-total'],
   data: () => ({
@@ -205,7 +220,12 @@ export default {
       if (!/[0-9.]/.test(char)) {
         event.preventDefault();
       }
-    },                      
+    },  
+    
+    setImporte(item)
+    {
+      item.amount = this.pendingAmount;
+    },
     add() {
       const i = this.payments.length;
       this.newPayments.push({

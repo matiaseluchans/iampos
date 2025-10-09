@@ -725,6 +725,7 @@
               :key="keyPayments"
               modulo="pagos"
               @update-total="updateTotal"
+              :pending-amount="pendingAmount"
             />
           </div>
         </VCardText>
@@ -926,6 +927,7 @@ export default {
 
   methods: {
     async loadOrderData() {
+      Swal.alertGetInfo();
       try {
 
         this.isAdminBebidas = this.$is(["bebidas-admin"]);
@@ -971,6 +973,9 @@ export default {
         this.showSnackbar("Error al cargar la orden para edición", "error");
         //this.$router.go(-1); // Volver atrás si hay error
       }
+      finally{
+        Swal.close();
+      }
     },
 
     formatDateForInput(dateString) {
@@ -1011,6 +1016,8 @@ export default {
           : 0;
     },
     async loadData() {
+
+      Swal.alertGetInfo();
       try {
         this.isAdminBebidas = this.$is(["bebidas-admin"]);
         //this.isAdmin = this.userIsAdmin;
@@ -1056,12 +1063,20 @@ export default {
         {
           this.order.seller_id =this.$store.getters.currentUser.data.id;
         }
+        if (this.$store.getters.currentUser.data.tenant.id == 3) 
+        {  
+          this.order.customer_id =1550;
+          this.onCustomerChange();
+        }
         this.setDate(this.order.delivery_date);
 
         this.$forceUpdate();
       } catch (error) {
         console.error("Error loading data:", error);
         this.showSnackbar("Error al cargar los datos", "error");
+      }
+      finally {
+        Swal.close();
       }
     },
 
@@ -1252,6 +1267,8 @@ export default {
     },
 
     async updateOrder() {
+
+      Swal.alertGetInfo();
       const isValid = await this.$refs.orderForm.validate();
       if (!isValid) return;
 
@@ -1291,10 +1308,14 @@ export default {
         this.showSnackbar("Error al actualizar la orden", "error");
       } finally {
         this.creatingOrder = false;
+        Swal.close();
+
       }
     },
 
     async createOrder() {
+
+      Swal.alertGetInfo();
       //si es edicion  updatea la orden
       if (this.isEditing) {
         await this.updateOrder();
@@ -1335,6 +1356,8 @@ export default {
         this.showSnackbar("Error al crear la orden", "error");
       } finally {
         this.creatingOrder = false;
+        Swal.close();
+
       }
     },
 
@@ -1358,6 +1381,7 @@ export default {
     clearForm() {
       this.order = {
         customer_id: null,
+        shipping: 0,
         shipping_address: "",
         delivery_date: "",
         subtotal: 0,
@@ -1367,8 +1391,13 @@ export default {
         notes: "",
         items: [],
       };
-      this.order.shipping_address = "";
+      //this.order.shipping_address = "";
 
+       
+      if (this.$store.getters.currentUser.data.tenant.id == 3) 
+      {  
+        this.order.customer_id =1550;
+      }
       // Paso 2: Forzar limpieza de validaciones
       this.$refs.orderForm.resetValidation();
 
@@ -1420,6 +1449,7 @@ export default {
       if (isValid !== true) return this.showSnackbar(isValid, "error");
 
       this.savingPayment = true;
+      Swal.alertGetInfo();
       try {
         const paymentData = {
           //...this.payment,
@@ -1465,6 +1495,8 @@ export default {
         this.showSnackbar("Error al registrar el pago", "error");
       } finally {
         this.savingPayment = false;
+                Swal.close();
+
       }
     },
 

@@ -240,18 +240,18 @@
 
         <template #item.payment_status_id="{ item }">
           <div class="d-flex flex-column align-center gap-0">
-            <!--
             <VChip
+              v-bind="props"
               :color="getStatusCodeColor(item.payment_status.code)"
               prepend-icon="ri-money-dollar-circle-line"
               density="comfortable"
-              class="my-1"
-              style="width: 140px;"
+              class="my-1 status-chip"
+              style="width: 150px"
             >
-              {{ item.payment_status.name }}
-            </VChip>            
-            -->
-            <VMenu offset-y>
+              {{ item.payment_status.name }} 
+            </VChip>
+
+            <!--<VMenu offset-y>
               <template v-slot:activator="{ props }">
                 <VChip
                   v-bind="props"
@@ -292,7 +292,7 @@
                   </VChip>
                 </VListItem>
               </VList>
-            </VMenu>
+            </VMenu>-->
 
             <VMenu offset-y>
               <template v-slot:activator="{ props }">
@@ -705,7 +705,7 @@
                     <div class="d-flex justify-space-between">
                       <span class="text-caption text-medium-emphasis">Total Pagado:</span>
                       <span class="font-weight-medium text-primary">{{
-                        formatCurrency(totalPaid)
+                        formatCurrency(createdOrder?.order?.total_paid)
                       }}</span>
                     </div>
                     <div class="d-flex justify-space-between">
@@ -740,6 +740,7 @@
                   modulo="pagos"
                   :records="createdOrder.order.payment"
                   @update-total="updateTotal"
+                  :pending-amount="pendingAmount"
                 />
               </div>
             </VCardText>
