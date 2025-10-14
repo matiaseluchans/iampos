@@ -224,6 +224,7 @@ export default {
     
     setImporte(item)
     {
+      console.log(this.pendingAmount);
       item.amount = this.pendingAmount;
     },
     add() {

@@ -986,7 +986,7 @@ export default {
     },
 
     getQuantityClass(type) {
-      return ['entrada', 'ajuste'].includes(type) ? 'text-success' : 'text-error'
+      return ['entrada', 'ajuste','inicial'].includes(type) ? 'text-success' : 'text-error'
     },
 
     formatDate(date) {

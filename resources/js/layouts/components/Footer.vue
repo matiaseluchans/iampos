@@ -22,7 +22,7 @@ const cleanAuthor = (raw) => {
 }
 
 onMounted(() => {
-  fetchVersion()
+  //fetchVersion()
 })
 </script>
 <template>

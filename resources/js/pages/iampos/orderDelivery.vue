@@ -905,11 +905,8 @@ export default {
     },
 
     pendingAmount() {
-      return this.createdOrder
-        ? this.totalPaid < this.createdOrder.order.total_amount
-          ? this.createdOrder.order.total_amount - this.totalPaid
-          : 0
-        : 0;
+      let total_paid = this.createdOrder.order.total_paid >0 ?this.createdOrder.order.total_paid:0;
+      return  this.createdOrder.order.total_amount - total_paid ;
     },
 
     movementFormTitle() {
