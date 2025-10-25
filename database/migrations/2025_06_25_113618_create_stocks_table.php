@@ -29,7 +29,7 @@ return new class extends Migration
                 ->onDelete('set null');
 
             // Cantidades
-            $table->float('quantity', 11, 2)->default(0);
+            $table->decimal('quantity', 10, 2)->default(0);
             $table->integer('reserved_quantity')->default(0); // Para pedidos pendientes
             $table->integer('minimum_stock')->nullable();
             $table->integer('maximum_stock')->nullable();
@@ -71,9 +71,9 @@ return new class extends Migration
 
             //$table->enum('movement_type', ['entrada', 'salida', 'ajuste', 'transferencia']);
             $table->string('movement_type', 50)->nullable();
-            $table->float('quantity', 11, 2);
-            $table->float('previous_quantity', 11, 2);
-            $table->float('new_quantity', 11, 2);
+            $table->decimal('quantity', 10, 2);
+            $table->decimal('previous_quantity', 10, 2);
+            $table->decimal('new_quantity', 10, 2);
 
             // Relación con documento origen (factura, pedido, etc.)
             //$table->string('source_document_type')->nullable();
