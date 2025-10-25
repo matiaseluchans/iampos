@@ -172,8 +172,14 @@
         <div class="section-title">VENDEDOR: <strong style="font-size:14px">{{ $order->seller_name }}</strong></div>
 
 
-
+        @if($order->tenant_id ==2)
         <div class="section-title">CLIENTE:<strong style="font-size:14px">{{ $order->customer->address ? $order->customer->address :'CONSUMIDOR FINAL' }}</strong></div>
+        @endif
+        @if($order->tenant_id ==3)
+        <div class="section-title">CLIENTE:<strong style="font-size:14px">{{ $order->customer->firstname }}</strong></div>
+        @endif
+
+
         <div class="client-row">
             <span class="client-label">Domicilio:</span>
             <span>{{ $order->customer->address }} - {{ $order->customer->locality ? $order->customer->locality->name :''}}</span>
@@ -257,7 +263,8 @@
     </div>
 
 
-
+    @if($order->tenant_id == 2 )
+    <!--si es bebida imprimo duplicado-->
     <div style="page-break-after: always;"></div>
 
     <div class="border-table-2">
@@ -285,7 +292,13 @@
 
 
 
-        <div class="section-title">CLIENTE:{{ $order->customer->address ? $order->customer->address :'CONSUMIDOR FINAL' }}</strong></div>
+        @if($order->tenant_id ==2)
+        <div class="section-title">CLIENTE:<strong style="font-size:14px">{{ $order->customer->address ? $order->customer->address :'CONSUMIDOR FINAL' }}</strong></div>
+        @endif
+        @if($order->tenant_id ==3)
+        <div class="section-title">CLIENTE:<strong style="font-size:14px">{{ $order->customer->firstname }}</strong></div>
+        @endif
+
         <div class="client-row">
             <span class="client-label">Domicilio:</span>
             <span>{{ $order->customer->address }} - {{ $order->customer->locality ? $order->customer->locality->name :''}}</span>
@@ -366,6 +379,7 @@
             <div class="barcode">*{{ $order->order_number }}*</div>
         </div>-->
     </div>
+    @endif
 </body>
 
 

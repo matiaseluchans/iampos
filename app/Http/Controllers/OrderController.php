@@ -6,8 +6,7 @@ use App\Repositories\OrderRepository;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Order;
-
-
+use Illuminate\Support\Facades\Auth;
 use Mpdf\Mpdf;
 use Mpdf\Config\ConfigVariables;
 use Mpdf\Config\FontVariables;
@@ -119,7 +118,9 @@ class OrderController extends Controller
                 $query->orderByProductName('asc');
             }*/,
             'payment',
-            'payment.paymentMethod'
+            'payment.paymentMethod',
+            'paymentStatus',
+            'shipmentStatus',
         ])->findOrFail($id);
 
 
@@ -166,15 +167,17 @@ class OrderController extends Controller
         // Agregar primera copia
         $mpdf->WriteHTML($html1);
 
-        // Agregar separación entre copias
-        $mpdf->WriteHTML('<div style="page-break-after: always;"></div>');
-        // O si prefieres sin salto de página, con una línea divisoria:
-        // $mpdf->WriteHTML('<hr style="border: 1px dashed #000; margin: 20px 0;">');
 
-        // Agregar segunda copia
-        $mpdf->WriteHTML($html2);
+        if (Auth::user()->tenant_id == 2) // si es bebida hago 2 copias
+        {
 
-        // Generar PDF
+            $mpdf->WriteHTML('<div style="page-break-after: always;"></div>');
+            // O si prefieres sin salto de página, con una línea divisoria:
+            // $mpdf->WriteHTML('<hr style="border: 1px dashed #000; margin: 20px 0;">');
+
+            $mpdf->WriteHTML($html2);
+        }
+
         $mpdf->Output("remito_{$order->order_number}.pdf", \Mpdf\Output\Destination::INLINE);
     }
 

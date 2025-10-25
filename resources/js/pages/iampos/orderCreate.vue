@@ -58,9 +58,9 @@
                     <v-sheet border="info md">
                       <VListItem v-bind="props">
                         <VListItemSubtitle class="text-caption"
-                          ><strong>Loc:</strong>{{ item.raw.locality?.name }} -
-                          <strong>Tel:</strong
-                          >{{ item.raw.telephone }}</VListItemSubtitle
+                          > 
+                          {{ item.raw.firstname }}, {{ item.raw.telephone }}, {{ item.raw.locality?.name }}
+                        </VListItemSubtitle
                         >
                       </VListItem>
                     </v-sheet>
@@ -1086,7 +1086,18 @@ export default {
 
     onCustomerChange() {
       if (this.selectedCustomer) {
-        this.order.shipping_address = this.selectedCustomer.address;
+        if (this.$store.getters.currentUser.data.tenant.id == 2) // si es bebida muestro solo dire
+        {
+          this.order.shipping_address = this.selectedCustomer.address;
+        }
+        else // sino es bebida muestro todos los datos
+        {
+          this.order.shipping_address = 
+          this.selectedCustomer.firstname+', '+
+          this.selectedCustomer.address+ ', '+   
+          this.selectedCustomer.locality.name+ ', '+       
+          this.selectedCustomer.telephone;
+        }
       }
     },
 

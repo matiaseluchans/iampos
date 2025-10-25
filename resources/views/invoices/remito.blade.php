@@ -290,9 +290,7 @@
                     @endif
                     <div class="section-title">DATOS DEL CLIENTE</div>
                     <div class="detail-item"><span class="detail-label">Dirección:</span> {{ $order->customer->address }} - {{ $order->customer->locality ? $order->customer->locality->name :''}}</div>
-
-                    <div class="client-name">{{ $order->customer->name ?? 'Consumidor Final' }}</div>
-
+                    <div class="detail-item"><span class="detail-label">Cliente:</span>{{ $order->customer->firstname   }}</div>
                     <div class="detail-item"><span class="detail-label">Teléfono:</span> {{ $order->customer->telephone }}</div>
 
                 </div>
@@ -301,13 +299,16 @@
                 @if($order->tenant->id != 2)
                 <div class="client-info" style="width:50mm;height:21.5mm;margin-left:5px">
                     <div class="section-title">ESTADO DE PAGO</div>
-                    <div class="detail-item"><span class="detail-label">Estado:</span> {{ $order->status->name ?? 'No especificado' }}</div>
+
+                    <div class="detail-item"><span class="detail-label">Estado:</span> {{ $order->paymentStatus->name }}
+                    </div>
                     <div class="detail-item"></div>
                 </div>
 
                 <div class="client-info" style="width:50mm;height:21.5mm;margin-left:5px">
                     <div class="section-title">ESTADO ENVÍO</div>
-                    <div class="detail-item"><span class="detail-label">Estado:</span> {{ $order->shipping ==0 ? 'Sin Envio': 'Con Envio' }}</div>
+
+                    <div class="detail-item"><span class="detail-label">Estado:</span> {{ $order->shipmentStatus->name  }}</div>
                     @if($order->shipping ==1)
                     <div class="detail-item"><span class="detail-label">Fecha Envio:</span>{{ $order->delivery_date->format('d/m/Y')  }}</div>
                     @endif
