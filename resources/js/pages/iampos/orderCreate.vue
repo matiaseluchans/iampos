@@ -19,7 +19,13 @@
                   size="40"
                 />
               </VCol>
-              <VCol v-if="isAdminBebidas" cols="12" sm="11" md="10" class="mb-0 pt-4 ml-0  pr-0 mr-0">
+              <VCol
+                v-if="isAdminBebidas"
+                cols="12"
+                sm="11"
+                md="10"
+                class="mb-0 pt-4 ml-0 pr-0 mr-0"
+              >
                 <VAutocomplete
                   v-model="order.seller_id"
                   :items="sellers"
@@ -57,11 +63,10 @@
                   <template v-slot:item="{ props, item }">
                     <v-sheet border="info md">
                       <VListItem v-bind="props">
-                        <VListItemSubtitle class="text-caption"
-                          > 
-                          {{ item.raw.firstname }}, {{ item.raw.telephone }}, {{ item.raw.locality?.name }}
-                        </VListItemSubtitle
-                        >
+                        <VListItemSubtitle class="text-caption">
+                          {{ item.raw.firstname }}, {{ item.raw.telephone }},
+                          {{ item.raw.locality?.name }}
+                        </VListItemSubtitle>
                       </VListItem>
                     </v-sheet>
                   </template>
@@ -76,7 +81,7 @@
                   <VIcon icon="ri-user-add-line" class="" />
                 </VBtn>
               </VCol>
-             
+
               <!--<VCol cols="1" md="1" sm="1" class="mb-0 pt-0 d-none d-sm-flex">
                 <VAvatar
                   icon="ri-price-tag-3-line"
@@ -178,7 +183,7 @@
               </VCol>
 
               <VCol cols="8" md="5" class="pt-5">
-                 <VAutocomplete
+                <VAutocomplete
                   v-model="newItem.product_id"
                   :items="products"
                   :item-title="productTitle"
@@ -191,24 +196,24 @@
                   <template v-slot:item="{ props, item }">
                     <v-sheet border="info md">
                       <VListItem v-bind="props">
-                         
-
                         <VListItemSubtitle class="text-caption">
                           <VChip
-                          v-if="$is('bebidas-user')==false"
+                            v-if="$is('bebidas-user') == false"
                             :color="
                               getProductStock(item.raw.id) > 0 ? 'success' : 'error'
                             "
                             >Stock: {{ getProductStock(item.raw.id) }}
                           </VChip>
-                           <span class="ml-2 text-success font-weight-bold">
-                            ${{ formatNumber(item.raw.display_price || item.raw.sale_price) }}
+                          <span class="ml-2 text-success font-weight-bold">
+                            ${{
+                              formatNumber(item.raw.display_price || item.raw.sale_price)
+                            }}
                           </span>
                         </VListItemSubtitle>
                       </VListItem>
                     </v-sheet>
                   </template>
-                </VAutocomplete> 
+                </VAutocomplete>
               </VCol>
               <VCol cols="4" md="1" class="pr-0">
                 <div
@@ -526,7 +531,11 @@
               </VCol>
 
               <VCol cols="12" sm="6">
-                <VTextField v-model="newCustomer.firstname" label="Nombre" density="compact" />
+                <VTextField
+                  v-model="newCustomer.firstname"
+                  label="Nombre"
+                  density="compact"
+                />
               </VCol>
               <VCol cols="12" sm="6">
                 <VAutocomplete
@@ -821,7 +830,7 @@ export default {
         items: [],
         shipping: 0,
         shipping_address_status: false,
-        seller_id :"",
+        seller_id: "",
       },
 
       // New item being added
@@ -871,7 +880,7 @@ export default {
       isAdmibBebidas: false,
       saveButtonLabel: "Crear Orden",
       priceLists: [],
-      selectedPriceList:"",
+      selectedPriceList: "",
     };
   },
 
@@ -908,14 +917,13 @@ export default {
           : 0
         : 0;
         */
-       let total_paid = this.createdOrder.order.total_paid >0 ?this.createdOrder.order.total_paid:0;
-      return  this.createdOrder.order.total_amount - total_paid ;
-
+      let total_paid =
+        this.createdOrder.order.total_paid > 0 ? this.createdOrder.order.total_paid : 0;
+      return this.createdOrder.order.total_amount - total_paid;
     },
   },
 
-  beforeMount(){},
-  
+  beforeMount() {},
 
   async created() {
     // Verificar si estamos en modo edición
@@ -933,18 +941,17 @@ export default {
     async loadOrderData() {
       Swal.alertGetInfo();
       try {
-
         this.isAdminBebidas = this.$is(["bebidas-admin"]);
 
         const response = await this.$axios.get(
           `${this.$routes["orders"]}/${this.editingOrderId}`
         );
         const orderData = response.data.data || response.data;
-        
+
         if (orderData.items && orderData.items.length > 0) {
           this.selectedPriceList = orderData.items[0].price_list_id;
         }
-        
+
         this.$route.meta.title = "Editar Orden N° " + orderData.order_number;
 
         document.title = this.$route.meta.title;
@@ -969,15 +976,13 @@ export default {
           })),
           shipping: orderData.shipping ? 1 : 0,
         };
-        
 
         this.$forceUpdate();
       } catch (error) {
         console.error("Error al cargar datos de la orden:", error);
         this.showSnackbar("Error al cargar la orden para edición", "error");
         //this.$router.go(-1); // Volver atrás si hay error
-      }
-      finally{
+      } finally {
         Swal.close();
       }
     },
@@ -1002,7 +1007,6 @@ export default {
         title = `${item.name} [${item.code}]`;
       }
 
-
       return title;
     },
 
@@ -1020,13 +1024,17 @@ export default {
           : 0;
     },
     async loadData() {
-
       Swal.alertGetInfo();
       try {
         this.isAdminBebidas = this.$is(["bebidas-admin"]);
         //this.isAdmin = this.userIsAdmin;
 
-        const [customersRes, productsRes/*, stockRes*/, localitiesRes, priceListsRes] = await Promise.all([
+        const [
+          customersRes,
+          productsRes /*, stockRes*/,
+          localitiesRes,
+          priceListsRes,
+        ] = await Promise.all([
           this.$axios.get(this.$routes["customers"]),
           this.$axios.get(this.$routes["products"]),
           //this.$axios.get(this.$routes["stocks"]),
@@ -1039,7 +1047,6 @@ export default {
 
           this.sellers = usersRes.data.data || usersRes.data;
         }
-        
 
         this.customers = customersRes.data.data || customersRes.data;
         this.products = productsRes.data.data || productsRes.data;
@@ -1047,29 +1054,29 @@ export default {
         this.localities = localitiesRes.data.data || localitiesRes.data;
         this.priceLists = priceListsRes.data.data || priceListsRes.data;
 
-        
-        if (this.$store.getters.currentUser.data.id ==9) {
+        if (this.$store.getters.currentUser.data.id == 9) {
           this.selectedPriceList = 2;
           this.onPriceListChange();
-        }
-        else
-        {
+        } else {
           let is_default = this.priceLists.find((c) => c.is_default === 1);
           this.selectedPriceList = is_default.id;
           this.onPriceListChange();
         }
 
-
         if (this.$is("bebidas-admin") || this.$is("bebidas-user")) {
           this.order.shipping = 1;
         }
-        if ((this.$is("superadmin") || this.$is("bebidas-admin")|| this.$is("petshop-admin")) &&  this.order.seller_id == "")// si es admin de bebidas y es un orden nueva le pone el vendedor por default
-        {
-          this.order.seller_id =this.$store.getters.currentUser.data.id;
+        if (
+          (this.$is("superadmin") ||
+            this.$is("bebidas-admin") ||
+            this.$is("petshop-admin")) &&
+          this.order.seller_id == ""
+        ) {
+          // si es admin de bebidas y es un orden nueva le pone el vendedor por default
+          this.order.seller_id = this.$store.getters.currentUser.data.id;
         }
-        if (this.$store.getters.currentUser.data.tenant.id == 3) 
-        {  
-          this.order.customer_id =1550;
+        if (this.$store.getters.currentUser.data.tenant.id == 3) {
+          this.order.customer_id = 1550;
           this.onCustomerChange();
         }
         this.setDate(this.order.delivery_date);
@@ -1078,25 +1085,26 @@ export default {
       } catch (error) {
         console.error("Error loading data:", error);
         this.showSnackbar("Error al cargar los datos", "error");
-      }
-      finally {
+      } finally {
         Swal.close();
       }
     },
 
     onCustomerChange() {
       if (this.selectedCustomer) {
-        if (this.$store.getters.currentUser.data.tenant.id == 2) // si es bebida muestro solo dire
-        {
+        if (this.$store.getters.currentUser.data.tenant.id == 2) {
+          // si es bebida muestro solo dire
           this.order.shipping_address = this.selectedCustomer.address;
-        }
-        else // sino es bebida muestro todos los datos
-        {
-          this.order.shipping_address = 
-          this.selectedCustomer.firstname+', '+
-          this.selectedCustomer.address+ ', '+   
-          this.selectedCustomer.locality.name+ ', '+       
-          this.selectedCustomer.telephone;
+        } // sino es bebida muestro todos los datos
+        else {
+          this.order.shipping_address =
+            this.selectedCustomer.firstname +
+            ", " +
+            this.selectedCustomer.address +
+            ", " +
+            this.selectedCustomer.locality.name +
+            ", " +
+            this.selectedCustomer.telephone;
         }
       }
     },
@@ -1107,42 +1115,39 @@ export default {
       }
     },
 
-     
     onProductChange() {
       if (this.newItem.product_id) {
         const product = this.getProductById(this.newItem.product_id);
         if (product) {
           // Usar el precio de la lista seleccionada o el precio por defecto
-          this.newItem.unit_price = parseFloat(product.display_price || product.sale_price || 0);
+          this.newItem.unit_price = parseFloat(
+            product.display_price || product.sale_price || 0
+          );
           this.newItem.unit_cost_price = parseFloat(product.purchase_price || 0);
         }
       }
     },
 
- 
-
     onPriceListChange() {
-      
-      this.products = this.products.map(product => {
-            // Encontrar el precio correspondiente a la lista seleccionada
-            const priceInfo = product.price_lists.find(pl => pl.id === this.selectedPriceList );
-            
-            return {
-                ...product,
-                // Si encontramos el precio, usar ese, sino mantener el original
-                sale_price: priceInfo ? priceInfo.pivot.sale_price : 0,
-                current_price_list: priceInfo || null
-            };
-        });
+      this.products = this.products.map((product) => {
+        // Encontrar el precio correspondiente a la lista seleccionada
+        const priceInfo = product.price_lists.find(
+          (pl) => pl.id === this.selectedPriceList
+        );
+
+        return {
+          ...product,
+          // Si encontramos el precio, usar ese, sino mantener el original
+          sale_price: priceInfo ? priceInfo.pivot.sale_price : 0,
+          current_price_list: priceInfo || null,
+        };
+      });
       // Si hay un producto seleccionado, actualizar su precio
       if (this.newItem.product_id) {
         this.onProductChange();
       }
     },
 
-     
-
-     
     getProductById(productId) {
       return this.products.find((p) => p.id === productId);
     },
@@ -1155,13 +1160,12 @@ export default {
     },*/
 
     getProductStock(productId) {
-      if(!productId)
-      return null;
+      if (!productId) return null;
       const stockItem = this.products.find((s) => s.id === productId);
 
-      
       return stockItem
-        ? parseFloat(stockItem.stocks[0].quantity) - parseFloat(stockItem.stocks[0].reserved_quantity)
+        ? parseFloat(stockItem.stocks[0].quantity) -
+            parseFloat(stockItem.stocks[0].reserved_quantity)
         : 0;
     },
     showStockWarning(productId, quantity) {
@@ -1293,7 +1297,6 @@ export default {
     },
 
     async updateOrder() {
-
       Swal.alertGetInfo();
       const isValid = await this.$refs.orderForm.validate();
       if (!isValid) return;
@@ -1335,12 +1338,10 @@ export default {
       } finally {
         this.creatingOrder = false;
         Swal.close();
-
       }
     },
 
     async createOrder() {
-
       Swal.alertGetInfo();
       //si es edicion  updatea la orden
       if (this.isEditing) {
@@ -1383,7 +1384,6 @@ export default {
       } finally {
         this.creatingOrder = false;
         Swal.close();
-
       }
     },
 
@@ -1419,10 +1419,8 @@ export default {
       };
       //this.order.shipping_address = "";
 
-       
-      if (this.$store.getters.currentUser.data.tenant.id == 3) 
-      {  
-        this.order.customer_id =1550;
+      if (this.$store.getters.currentUser.data.tenant.id == 3) {
+        this.order.customer_id = 1550;
       }
       // Paso 2: Forzar limpieza de validaciones
       this.$refs.orderForm.resetValidation();
@@ -1521,8 +1519,7 @@ export default {
         this.showSnackbar("Error al registrar el pago", "error");
       } finally {
         this.savingPayment = false;
-                Swal.close();
-
+        Swal.close();
       }
     },
 
@@ -1560,7 +1557,7 @@ export default {
         style: "currency",
         currency: "ARS",
         minimumFractionDigits: 0,
-        maximumFractionDigits: 0
+        maximumFractionDigits: 0,
       }).format(value);
     },
 
