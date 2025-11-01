@@ -85,27 +85,41 @@ class StockRepository extends BaseRepository
                 'product_id' => $productId,
                 'warehouse_id' => $warehouseId,
                 'tenant_id' => auth()->user()->tenant_id
-            ])->exists();
-
-            $stock = Stock::createOrUpdate(
-                $productId,
-                $warehouseId,
-                $quantity,
-                auth()->user()->tenant_id
-            );
+            ])->first(); //->exists()
 
 
+            if (isset($existed)) {
+                // Si existe, actualizar la cantidad
+                $operationType =   $mov_type;
+                $stock = $existed;
+            } else {
+                /*$stock = Stock::createOrUpdate(
+                    $productId,
+                    $warehouseId,
+                    $quantity,
+                    auth()->user()->tenant_id
+                );
+                */
 
+                $stock = new Stock();
+                $stock->product_id = $productId;
+                $stock->warehouse_id = $warehouseId;
+                $stock->tenant_id = auth()->user()->tenant_id;
+                $stock->quantity = $quantity;
+                $operationType = 'inicial';
 
-            if ($minimumStock > 0) {
-                $stock->minimum_stock = $minimumStock;
+                if ($minimumStock > 0) {
+                    $stock->minimum_stock = $minimumStock;
+                }
+                if ($maximumStock > 0) {
+                    $stock->maximum_stock = $maximumStock;
+                }
+                $stock->save();
+
+                $operationType = 'inicial';
             }
-            if ($maximumStock > 0) {
-                $stock->maximum_stock = $maximumStock;
-            }
-            $stock->save();
 
-            $operationType = $existed ? $mov_type : 'inicial';
+
 
             $this->recordMovement($stock->id, $operationType, $quantity);
 

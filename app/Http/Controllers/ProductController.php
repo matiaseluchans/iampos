@@ -16,7 +16,7 @@ class ProductController extends ApiController
     protected $model;
     private $relations;
 
-    public function __construct(array $relations = ['brand', 'category', 'priceLists'])
+    public function __construct(array $relations = ['brand', 'category', 'priceLists', 'stocks'])
     {
         $this->model = new Product();
         $this->relations = $relations;

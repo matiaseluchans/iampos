@@ -805,7 +805,7 @@ export default {
       // Data
       customers: [],
       products: [],
-      stock: [],
+      //stock: [],
       sellers: [],
       //paymentMethods: [],
 
@@ -1026,10 +1026,10 @@ export default {
         this.isAdminBebidas = this.$is(["bebidas-admin"]);
         //this.isAdmin = this.userIsAdmin;
 
-        const [customersRes, productsRes, stockRes, localitiesRes, priceListsRes] = await Promise.all([
+        const [customersRes, productsRes/*, stockRes*/, localitiesRes, priceListsRes] = await Promise.all([
           this.$axios.get(this.$routes["customers"]),
           this.$axios.get(this.$routes["products"]),
-          this.$axios.get(this.$routes["stocks"]),
+          //this.$axios.get(this.$routes["stocks"]),
           this.$axios.get(this.$routes["localities"]),
           this.$axios.get(this.$routes["priceLists"]),
         ]);
@@ -1043,7 +1043,7 @@ export default {
 
         this.customers = customersRes.data.data || customersRes.data;
         this.products = productsRes.data.data || productsRes.data;
-        this.stock = stockRes.data.data || stockRes.data;
+        //this.stock = stockRes.data.data || stockRes.data;
         this.localities = localitiesRes.data.data || localitiesRes.data;
         this.priceLists = priceListsRes.data.data || priceListsRes.data;
 
@@ -1147,10 +1147,21 @@ export default {
       return this.products.find((p) => p.id === productId);
     },
 
-    getProductStock(productId) {
+    /*getProductStock(productId) {
       const stockItem = this.stock.find((s) => s.product_id === productId);
       return stockItem
         ? parseFloat(stockItem.quantity) - parseFloat(stockItem.reserved_quantity)
+        : 0;
+    },*/
+
+    getProductStock(productId) {
+      if(!productId)
+      return null;
+      const stockItem = this.products.find((s) => s.id === productId);
+
+      
+      return stockItem
+        ? parseFloat(stockItem.stocks[0].quantity) - parseFloat(stockItem.stocks[0].reserved_quantity)
         : 0;
     },
     showStockWarning(productId, quantity) {

@@ -109,4 +109,9 @@ class Product extends Model
 
         return (($this->sale_price - $this->purchase_price) / $this->purchase_price) * 100;
     }
+
+    public function stocks()
+    {
+        return $this->hasMany(Stock::class, 'product_id');
+    }
 }

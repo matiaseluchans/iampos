@@ -1418,7 +1418,7 @@ export default {
         this.$paymentStatus.RETURNED,
       ];
 
-      return paids.includes(item.status.code);
+      return paids.includes(item.payment_status.code);
     },
 
     formatDate(date) {

@@ -12,7 +12,7 @@ export default {
       // Obtener roles del store (ajusta según tu estructura)
       const userRoles = this.$store.getters.currentUser.data.roles || [];
       
-      console.log(role, userRoles);
+      //console.log(role, userRoles);
       // Si es array, verificar al menos un rol (OR)
       if (Array.isArray(role)) {
         return role.some(r => userRoles.includes(r));
