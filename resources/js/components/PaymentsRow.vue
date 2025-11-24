@@ -217,7 +217,7 @@ export default {
     },
     onlyNumberInput(event) {
       const char = String.fromCharCode(event.keyCode);
-      if (!/[0-9.]/.test(char)) {
+      if (!/[0-9.-]/.test(char)) {
         event.preventDefault();
       }
     },  

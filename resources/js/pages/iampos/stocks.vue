@@ -238,7 +238,7 @@
                       label="Cantidad"
                       type="number"
                       step="1"
-                      :rules="quantityRules"
+                      
                     />
                   </VCol>
                   <VCol cols="12" sm="4" v-if="!selectedStockItem">

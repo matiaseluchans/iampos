@@ -19,6 +19,8 @@ use Mpdf\Config\FontVariables;
 
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\DeliveryReportExcelExport;
+use App\Models\Payment;
+use App\Models\PaymentMethod;
 use App\Models\Stock;
 
 class OrderRepository extends BaseRepository
@@ -200,9 +202,9 @@ class OrderRepository extends BaseRepository
                     ->keyBy('product_id');
 
                 // 2. Ejecutar update masivo (eficiente)
-                $sql = "UPDATE stocks SET quantity = CASE product_id ";
+                $sql = "UPDATE stocks SET quantity =  CASE product_id ";
                 foreach ($items as $item) {
-                    $sql .= "WHEN {$item['product_id']} THEN GREATEST(0, quantity - {$item['quantity']}) ";
+                    $sql .= "WHEN  {$item['product_id']} THEN quantity - {$item['quantity']} ";
                 }
                 $sql .= "END WHERE product_id IN (" . implode(',', $productIds) . ")";
                 DB::statement($sql);
@@ -654,7 +656,7 @@ class OrderRepository extends BaseRepository
                 'shipping_address' => $form['shipping_address'],
                 'shipping' => $form['shipping'] ?? 0,
                 'shipment_status_id' => $form['shipment_status_id'],
-                'payment_status_id' => $form['payment_status_id'],
+                //'payment_status_id' => $form['payment_status_id'],
                 'quantity_products' => $form['quantity_products'],
                 'subtotal' => $form['subtotal'],
                 'discount_amount' => $form['discount_amount'],
@@ -708,32 +710,6 @@ class OrderRepository extends BaseRepository
             return $this->errorResponse($e);
         }
     }
-
-    // Método auxiliar para ajustar el stock (igual que antes)
-
-
-
-    /*protected function adjustStock($productIds, $quantities, $operation)
-    {
-        if (empty($productIds)) return;
-
-        $sql = "UPDATE stocks SET quantity = CASE product_id ";
-
-        foreach ($productIds as $productId) {
-            $quantity = $quantities[$productId];
-            if ($operation === 'decrement') {
-                $sql .= "WHEN {$productId} THEN GREATEST(0, quantity - {$quantity}) ";
-
-                
-            } else {
-                $sql .= "WHEN {$productId} THEN quantity + {$quantity} ";
-            }
-        }
-
-        $sql .= "END WHERE product_id IN (" . implode(',', $productIds) . ")";
-
-        DB::statement($sql);
-    }*/
 
     protected function adjustStock($productIds, $quantities, $operation, $movementType = 'ajuste', $model)
     {
@@ -802,6 +778,35 @@ class OrderRepository extends BaseRepository
                 $model->items()->delete();
             }
 
+            //
+            // 2. REGISTRAR PAGO NEGATIVO SI LA ORDEN TIENE PAGOS
+            $totalPaid = $model->total_paid;
+
+            if ($totalPaid > 0) {
+                // Obtener el método de pago por defecto para reembolsos
+
+
+                $defaultPaymentMethod = 1; //bebidas efectivo
+                if ($user->tenant_id == 3) //petshop efectivo
+                {
+                    $defaultPaymentMethod = 6;
+                }
+
+
+                $refundData = $this->createRefundPayment($model->id, $totalPaid, $defaultPaymentMethod);
+
+                // Usar el modelo directamente
+                Payment::create($refundData);
+
+                // Recalcular total
+                $newTotalPaid = Payment::where('order_id', $model->id)->sum('amount');
+                $model->total_paid = $newTotalPaid;
+                $model->total_profit = 0;
+            }
+
+            // 3. Actualizar estados       
+
+
             // Actualizar estados       
             $code = StatusEnum::CANCEL;
             $shipmentStatus = ShipmentStatus::where('tenant_id', $user->tenant_id)
@@ -841,5 +846,19 @@ class OrderRepository extends BaseRepository
             report($e);
             return $this->errorResponse($e);
         }
+    }
+
+    private function createRefundPayment($orderId, $amount, $paymentMethodId)
+    {
+        return [
+            'order_id' => $orderId,
+            'payment_method_id' => $paymentMethodId,
+            'amount' => -$amount,
+            'payment_date' => now(),
+            'tenant_id' => Auth::user()->tenant_id,
+            'created_by' => Auth::user()->id,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ];
     }
 }

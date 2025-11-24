@@ -159,11 +159,13 @@ class StockRepository extends BaseRepository
                 $previousQuantity = $stock->quantity;
 
                 // Validar stock suficiente para salidas
-                if (in_array($type, ['salida', 'transferencia', 'fraccionado']) && $quantity > 0) {
-                    $quantity = -abs($quantity); // Asegurar que sea negativo
+                if (in_array($type, ['salida', 'transferencia', 'fraccionado'])) {
+                    /*$quantity = $quantity; // Asegurar que sea negativo
+                    
+                    comento para permitir negativos
                     if ($stock->available < abs($quantity)) {
                         throw new \Exception('Stock insuficiente. Disponible: ' . $stock->available);
-                    }
+                    }*/
                 }
 
                 // Para entradas, asegurar que sea positivo

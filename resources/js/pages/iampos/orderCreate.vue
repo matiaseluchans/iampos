@@ -1075,7 +1075,7 @@ export default {
           // si es admin de bebidas y es un orden nueva le pone el vendedor por default
           this.order.seller_id = this.$store.getters.currentUser.data.id;
         }
-        if (this.$store.getters.currentUser.data.tenant.id == 3) {
+        if (this.$store.getters.currentUser.data.tenant.id == 3  && !this.isEditing) {
           this.order.customer_id = 1550;
           this.onCustomerChange();
         }
@@ -1419,7 +1419,7 @@ export default {
       };
       //this.order.shipping_address = "";
 
-      if (this.$store.getters.currentUser.data.tenant.id == 3) {
+      if (this.$store.getters.currentUser.data.tenant.id == 3 && !this.isEditing) {
         this.order.customer_id = 1550;
       }
       // Paso 2: Forzar limpieza de validaciones

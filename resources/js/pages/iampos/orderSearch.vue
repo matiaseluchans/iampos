@@ -358,23 +358,9 @@
                     >Comanda
                   </VListItemTitle>
                 </VListItem>
-                <VListItem
-                  @click="openMovementDialog(item)"
-                  v-if="$is('bebidas-user') == false"
-                >
-                  <VListItemTitle>
-                    <IconBtn
-                      size="small"
-                      class="my-1"
-                      title="Cambiar el estado de la orden"
-                      @click="openMovementDialog(item)"
-                    >
-                      <VIcon icon="ri-swap-box-line" /> </IconBtn
-                    >Cambiar estado
-                  </VListItemTitle>
-                </VListItem>
+                
 
-                <VListItem v-if="!isPaid(item)" @click="openPaymentForm(item)">
+                <VListItem  @click="openPaymentForm(item)">
                   <VListItemTitle>
                     <IconBtn
                       size="small"
@@ -396,6 +382,21 @@
                     >
                       <VIcon icon="ri-file-close-line" /> </IconBtn
                     >Cancelar Orden
+                  </VListItemTitle>
+                </VListItem>
+                <VListItem
+                  @click="openMovementDialog(item)"
+                  v-if="$is('bebidas-user') == false"
+                >
+                  <VListItemTitle>
+                    <IconBtn
+                      size="small"
+                      class="my-1"
+                      title="Cambiar el estado de la orden"
+                      @click="openMovementDialog(item)"
+                    >
+                      <VIcon icon="ri-swap-box-line" /> </IconBtn
+                    >Cambiar estado
                   </VListItemTitle>
                 </VListItem>
               </VList>

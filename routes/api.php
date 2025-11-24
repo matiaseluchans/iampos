@@ -163,25 +163,25 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     /** reservas */
     Route::get('users/{user}/reservations', [App\Http\Controllers\UserController::class, 'reservations']);
-    
+
     // Resource Types
     Route::apiResource('resource-types', App\Http\Controllers\ResourceTypeController::class);
     Route::get('resource-types/{resourceType}/resources', [App\Http\Controllers\ResourceTypeController::class, 'resources']);
     Route::get('resource-types/{resourceType}/availability', [App\Http\Controllers\ResourceTypeController::class, 'availability']);
-    
+
     // Service Types
     Route::apiResource('service-types', App\Http\Controllers\ServiceTypeController::class);
     Route::get('service-types/{serviceType}/availability', [App\Http\Controllers\ServiceTypeController::class, 'availability']);
     Route::get('service-types/{serviceType}/time-slots', [App\Http\Controllers\ServiceTypeController::class, 'timeSlots']);
     Route::get('service-types/{serviceType}/pricing-rules', [App\Http\Controllers\ServiceTypeController::class, 'pricingRules']);
-    
+
     // Resources
     Route::apiResource('resources', App\Http\Controllers\ResourceController::class);
     Route::post('resources/{resource}/toggle-status', [App\Http\Controllers\ResourceController::class, 'toggleStatus']);
     Route::get('resources/{resource}/availability', [App\Http\Controllers\ResourceController::class, 'availability']);
     Route::get('resources/{resource}/reservations', [App\Http\Controllers\ResourceController::class, 'reservations']);
     Route::post('resources/{resource}/update-usage', [App\Http\Controllers\ResourceController::class, 'updateUsage']);
-    
+
     // Reservations
     Route::apiResource('reservations', App\Http\Controllers\ReservationController::class);
     Route::post('reservations/{reservation}/cancel', [App\Http\Controllers\ReservationController::class, 'cancel']);
@@ -192,12 +192,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('reservations/calculate-end-time', [App\Http\Controllers\ReservationController::class, 'calculateEndTime']);
     // Ruta adicional para cancelación
     Route::patch('reservations/{reservation}/cancel', [App\Http\Controllers\ReservationController::class, 'cancel'])
-    ->name('reservations.cancel');
+        ->name('reservations.cancel');
 
-        // Ruta para actualizar solo el tiempo (desde el calendario)
-        Route::patch('reservations/{reservation}/time', [App\Http\Controllers\ReservationController::class, 'updateTime'])
-            ->name('reservations.update-time');
-    
+    // Ruta para actualizar solo el tiempo (desde el calendario)
+    Route::patch('reservations/{reservation}/time', [App\Http\Controllers\ReservationController::class, 'updateTime'])
+        ->name('reservations.update-time');
+
     // Quotations
     Route::apiResource('quotations', App\Http\Controllers\QuotationController::class);
     Route::post('quotations/{quotation}/accept', [App\Http\Controllers\QuotationController::class, 'accept']);
@@ -207,13 +207,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::delete('quotations/{quotation}/items/{itemId}', [App\Http\Controllers\QuotationController::class, 'removeItem']);
     Route::post('quotations/{quotation}/calculate-total', [App\Http\Controllers\QuotationController::class, 'calculateTotal']);
     Route::post('reservations/{reservation}/generate-quotation', [App\Http\Controllers\QuotationController::class, 'generateFromReservation']);
-    
+
     // Pricing Rules
     Route::apiResource('pricing-rules', App\Http\Controllers\PricingRuleController::class);
     Route::post('pricing-rules/{pricingRule}/toggle-status', [App\Http\Controllers\PricingRuleController::class, 'toggleStatus']);
     Route::post('pricing-rules/{pricingRule}/test', [App\Http\Controllers\PricingRuleController::class, 'testRule']);
     Route::get('service-types/{serviceType}/pricing-rules', [App\Http\Controllers\PricingRuleController::class, 'serviceTypeRules']);
-    
+
     // Payments
     Route::apiResource('payments', App\Http\Controllers\PaymentController::class);
     Route::post('payments/{payment}/mark-as-completed', [App\Http\Controllers\PaymentController::class, 'markAsCompleted']);
@@ -223,12 +223,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('quotations/{quotation}/create-payment', [App\Http\Controllers\PaymentController::class, 'createFromQuotation']);
     Route::get('/payments-summary', [App\Http\Controllers\PaymentSummaryController::class, 'getSummary']);
     Route::get('/payments-summary/detail', [App\Http\Controllers\PaymentSummaryController::class, 'getDetail']);
+    Route::get('/payments-summary/export-excel', [App\Http\Controllers\PaymentSummaryController::class, 'exportExcel']);
 
     // Reportes
     /*Route::get('reports/reservations-by-date', [ReportController::class, 'reservationsByDate']);
     Route::get('reports/revenue-by-service', [ReportController::class, 'revenueByService']);
     Route::get('reports/resource-utilization', [ReportController::class, 'resourceUtilization']);*/
-
 });
 
 // Rutas públicas para disponibilidad (si se desea)

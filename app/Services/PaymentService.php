@@ -22,8 +22,7 @@ class PaymentService
                 'payment_methods.name as payment_method_name',
                 DB::raw('SUM(payments.amount) as amount'),
                 DB::raw('COUNT(payments.id) as payment_count')
-            ])
-            ->where('payments.amount', '>', 0);
+            ]);
 
         // Aplicar filtro de métodos de pago
         if (!empty($filters['payment_methods'])) {
@@ -46,7 +45,7 @@ class PaymentService
             ->join('payment_methods', 'payments.payment_method_id', '=', 'payment_methods.id')
             ->whereDate('payments.payment_date', $date)
             ->where('payments.payment_method_id', $paymentMethodId)
-            ->where('payments.amount', '>', 0)
+
             ->select([
                 'payments.*',
                 'orders.order_number',

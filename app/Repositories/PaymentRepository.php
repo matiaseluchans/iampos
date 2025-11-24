@@ -82,6 +82,8 @@ class PaymentRepository extends BaseRepository
             // Verificar si se pagó completamente            
             if ((float) $totalPaid >= (float) $order->total_amount) {
                 $statusCode = StatusEnum::PAID;
+            } else if ($totalPaid == 0) {
+                $statusCode = StatusEnum::REFUND;
             } else {
                 $statusCode = StatusEnum::PARTIAL_PAYMENT;
             }

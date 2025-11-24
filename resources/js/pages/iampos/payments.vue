@@ -63,6 +63,18 @@
               >
                 Buscar
               </VBtn>
+              
+              <VBtn
+                  color="success"
+                  variant="outlined"
+                  @click="exportToExcel"
+                  :loading="exportLoading"
+                  :disabled="!paymentsSummary.data || paymentsSummary.data.length === 0"
+                   
+                >
+                  <VIcon icon="ri-file-excel-2-line" class="mr-2" />
+                  Exportar Excel
+                </VBtn>
             </VCardActions>
           </VCard>
         </template>
@@ -90,7 +102,7 @@
         </template>
 
         <template #item.amount="{ item }">
-          <div class="text-right text-success">
+          <div class="text-right" :class="getColorAmount(item.amount)">
             <strong>{{ formatCurrency(item.amount) }}</strong>
           </div>
         </template>
@@ -177,7 +189,7 @@
                         />
                         Total
                       </span>
-                      <span class="font-weight-medium text-success">
+                      <span class="font-weight-medium " :class="getColorAmount(selectedPayment.amount)" >
                         {{ formatCurrency(selectedPayment.amount) }}
                       </span>
                     </div>
@@ -219,7 +231,7 @@
               </template>
 
               <template #item.amount="{ item }">
-                <div class="text-right text-success">
+                <div class="text-right" :class="getColorAmount(item.amount)">
                   <strong>{{ formatCurrency(item.amount) }}</strong>
                 </div>
               </template>
@@ -315,6 +327,8 @@ export default {
       snackbarColor: "success",
 
       isInitialLoad: true,
+      exportLoading:false
+      
     };
   },
 
@@ -332,6 +346,105 @@ export default {
   },
 
   methods: {
+
+    async exportToExcel() {
+      this.exportLoading = true;
+      try {
+        const params = {
+          start_date: this.dateRange?.start,
+          end_date: this.dateRange?.end,
+          payment_methods: this.selectedPaymentMethod,
+        };
+
+        // Limpiar parámetros undefined
+        Object.keys(params).forEach(
+          (key) => params[key] === undefined && delete params[key]
+        );
+
+        // Hacer la petición para descargar el Excel
+        const response = await this.$axios.get('/api/payments-summary/export-excel', {
+          params,
+          responseType: 'blob' // Importante para descargar archivos
+        });
+
+        // Crear el blob y descargar
+        const blob = new Blob([response.data], {
+          type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        });
+
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        
+        // Obtener el nombre del archivo del header o generar uno
+        const contentDisposition = response.headers['content-disposition'];
+        let fileName = 'resumen_pagos.xlsx';
+        
+        if (contentDisposition) {
+          console.log('📁 Content-Disposition header:', contentDisposition);
+          
+          let fileName = 'resumen_pagos.xlsx';
+          
+          // Diferentes patrones para capturar el filename
+          const patterns = [
+            /filename="([^"]+)"/,      // filename="archivo.xlsx"
+            /filename=([^;]+)/,         // filename=archivo.xlsx
+            /filename\*=UTF-8''([^;]+)/ // filename*=UTF-8''archivo.xlsx (codificado)
+          ];
+          
+          for (const pattern of patterns) {
+            const match = contentDisposition.match(pattern);
+            if (match && match[1]) {
+              fileName = match[1];
+              console.log('✅ Filename capturado con patrón:', pattern, '-', fileName);
+              break;
+            }
+          }
+          
+          // Si no se capturó con los patrones, intentar extraer manualmente
+          if (fileName === 'resumen_pagos.xlsx') {
+            const parts = contentDisposition.split(';');
+            for (const part of parts) {
+              if (part.trim().startsWith('filename')) {
+                const filenamePart = part.split('=')[1];
+                if (filenamePart) {
+                  fileName = filenamePart.trim().replace(/"/g, '');
+                  console.log('✅ Filename capturado manualmente:', fileName);
+                  break;
+                }
+              }
+            }
+          }
+          
+          // Decodificar si está en formato URL encoded
+          try {
+            if (fileName.includes('%')) {
+              fileName = decodeURIComponent(fileName);
+              console.log('✅ Filename decodificado:', fileName);
+            }
+          } catch (e) {
+            console.warn('⚠️ No se pudo decodificar el filename:', fileName);
+          }
+          
+          console.log('📄 Filename final:', fileName);
+       
+        
+          link.setAttribute('download', fileName);
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+          window.URL.revokeObjectURL(url);
+        }
+
+        this.showSnackbar("Excel exportado exitosamente", "success");
+
+      } catch (error) {
+        console.error("Error exporting to Excel:", error);
+        this.showSnackbar("Error al exportar el Excel", "error");
+      } finally {
+        this.exportLoading = false;
+      }
+    },
     setDefaultDateRange() {
       const endDate = new Date();
       const startDate = new Date();
@@ -488,6 +601,18 @@ export default {
         minute: "2-digit",
         hour12: false,
       });
+    },
+
+    getColorAmount(amount){
+
+ 
+      if(Math.sign(amount) === 1)
+      {
+        return "text-success";
+      }
+      else{
+        return "text-error";
+      }
     },
 
     getPaymentMethodColor(method) {

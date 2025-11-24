@@ -6,6 +6,9 @@ use Illuminate\Http\Request;
 use App\Services\PaymentService;
 use Carbon\Carbon;
 
+use App\Exports\PaymentsSummaryExport;
+use Maatwebsite\Excel\Facades\Excel;
+
 class PaymentSummaryController extends Controller
 {
     protected $paymentService;
@@ -91,6 +94,57 @@ class PaymentSummaryController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Error al obtener el detalle de pagos'
+            ], 500);
+        }
+    }
+
+    public function exportExcel(Request $request)
+    {
+        try {
+            $startDate = $request->input('start_date');
+            $endDate = $request->input('end_date');
+            $paymentMethods = $request->input('payment_methods');
+
+            \Log::info('🔍 EXPORT EXCEL - Iniciando exportación', [
+                'start_date' => $startDate,
+                'end_date' => $endDate,
+                'payment_methods' => $paymentMethods
+            ]);
+
+            // Formatear las fechas para el nombre del archivo
+            $formattedStartDate = $startDate ? \Carbon\Carbon::parse($startDate)->format('Y-m-d') : 'todo';
+            $formattedEndDate = $endDate ? \Carbon\Carbon::parse($endDate)->format('Y-m-d') : 'hoy';
+
+            $fileName = "resumen_pagos_{$formattedStartDate}_{$formattedEndDate}.xlsx";
+
+            \Log::info('📄 EXPORT EXCEL - Nombre del archivo: ' . $fileName);
+
+            // Verificar que el servicio esté disponible
+            if (!$this->paymentService) {
+                \Log::error('❌ PaymentService no está disponible');
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error interno del servidor: PaymentService no disponible'
+                ], 500);
+            }
+
+            \Log::info('🔄 EXPORT EXCEL - Creando instancia de PaymentsSummaryExport');
+
+            $export = new PaymentsSummaryExport($startDate, $endDate, $paymentMethods, $this->paymentService);
+
+            \Log::info('✅ EXPORT EXCEL - Export creado exitosamente, procediendo a descarga');
+
+            return Excel::download($export, $fileName);
+        } catch (\Exception $e) {
+            \Log::error('💥 ERROR en exportExcel: ' . $e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al generar el archivo Excel: ' . $e->getMessage()
             ], 500);
         }
     }
