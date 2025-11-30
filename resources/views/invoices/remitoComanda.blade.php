@@ -211,6 +211,24 @@
                 </tr>
                 @endforeach
 
+                @if($order->discount_amount > 0)
+                <tr>
+                    <td class="text-right total-row grand-total"> </td>
+                    <td class="text-right total-row grand-total">Descuento</td>
+                    <td class="text-right total-row grand-total"></td>
+                    <td class="text-right total-row grand-total"> </td>
+                    <td class="text-right total-row grand-total" style="padding-right: 1mm;">{{ number_format($order->discount_amount, 0, ',', '.') }}</td>
+                </tr>
+                @endif
+                @if($order->aditional > 0)
+                <tr>
+                    <td class="text-right total-row grand-total"> </td>
+                    <td class="text-right total-row grand-total">Adicional</td>
+                    <td class="text-right total-row grand-total"> </td>
+                    <td class="text-right total-row grand-total"> </td>
+                    <td class="text-right total-row grand-total" style="padding-right: 1mm;">{{ number_format($order->aditional, 0, ',', '.') }}</td>
+                </tr>
+                @endif
                 <tr>
                     <td class="text-right total-row grand-total"> </td>
                     <td class="text-right total-row grand-total">TOTAL</td>

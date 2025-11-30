@@ -783,14 +783,26 @@ class OrderRepository extends BaseRepository
             $totalPaid = $model->total_paid;
 
             if ($totalPaid > 0) {
-                // Obtener el método de pago por defecto para reembolsos
+                // Obtener el último método de pago usado en la orden
+                $lastPayment = Payment::where('order_id', $model->id)
+                    ->orderBy('created_at', 'desc')
+                    ->first();
+
+                // Usar el último método de pago o un default si no hay pagos
+                $defaultPaymentMethod = $lastPayment ? $lastPayment->payment_method_id : 1; // 1 como fallback
 
 
-                $defaultPaymentMethod = 1; //bebidas efectivo
-                if ($user->tenant_id == 3) //petshop efectivo
-                {
+
+                // Si es petshop, usar el método específico como fallback
+                if ($user->tenant_id == 3 && !$lastPayment) { //pet shop
                     $defaultPaymentMethod = 6;
                 }
+                if ($user->tenant_id == 2 && !$lastPayment) { //bebidas
+                    $defaultPaymentMethod = 1;
+                }
+
+
+
 
 
                 $refundData = $this->createRefundPayment($model->id, $totalPaid, $defaultPaymentMethod);

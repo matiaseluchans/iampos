@@ -372,12 +372,12 @@
                                 <td class="total-value subtotal">${{ number_format($order->subtotal, 0, ',', '.') }}</td>
                             </tr>
 
-                            @if($order->discount > 0)
+                            @if($order->discount_amount > 0)
                             <tr>
                                 <td class="total-row">
                                     <span class="total-label">Descuento:</span>
                                 </td>
-                                <td class="total-value">-${{ number_format($order->discount, 0, ',', '.') }}</td>
+                                <td class="total-value">-${{ number_format($order->discount_amount, 0, ',', '.') }}</td>
                             </tr>
                             @endif
 
