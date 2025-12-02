@@ -47,7 +47,18 @@
                         @click="openDialog"
                       >
                         <VIcon size="large" icon="ri-add-circle-line" />
+                      </VBtn><VBtn
+                      class="ml-2"
+                
+                       color="success"
+                        size="x-large"
+                        :title="'Registrar ' + title"
+                        @click="exportToExcel"
+                        :loading="exportLoading"
+                      >
+                        <VIcon size="large" icon="ri-file-excel-2-line" />
                       </VBtn>
+                      
                     </template>
                     <VCard>
                       <v-toolbar :color="$cv('principal')">
@@ -61,8 +72,8 @@
 
                       <v-form ref="form" v-model="valid">
                         <VCard-text>
-                          <v-container class="py-0  my-0">
-                            <VRow class="py-0  my-0">
+                          <v-container class="py-0 my-0">
+                            <VRow class="py-0 my-0">
                               <VCol cols="12" sm="6">
                                 <VTextField
                                   v-model="editedItem.name"
@@ -87,8 +98,8 @@
                                   label="Categoría"
                                   density="compact"
                                   clearable
-                                />
-                              </VCol><VCol cols="12" sm="6">
+                                /> </VCol
+                              ><VCol cols="12" sm="6">
                                 <VAutocomplete
                                   v-model="editedItem.brand_id"
                                   :items="brands"
@@ -100,10 +111,8 @@
                                 />
                               </VCol>
                             </VRow>
-                             
 
-                             
-                            <VRow class="py-0  my-0">
+                            <VRow class="py-0 my-0">
                               <VCol cols="12" sm="6">
                                 <VTextField
                                   v-model.number="editedItem.purchase_price"
@@ -119,7 +128,6 @@
                                   label="Orden"
                                   type="number"
                                   density="compact"
-                                  
                                 />
                               </VCol>
                             </VRow>
@@ -129,7 +137,8 @@
                                   :headers="priceListHeaders"
                                   :items="priceListsWithPrices"
                                   :hide-default-footer="true"
-                                  class="elevation-1">
+                                  class="elevation-1"
+                                >
                                   <template #item.name="{ item }">
                                     {{ item.name }}
                                   </template>
@@ -169,7 +178,10 @@
                                   </template>
                                 </VFileInput>
                                 <VBtn
-                                  v-if="editedItem.image && typeof editedItem.image === 'string'"
+                                  v-if="
+                                    editedItem.image &&
+                                    typeof editedItem.image === 'string'
+                                  "
                                   color="error"
                                   size="x-large"
                                   @click="clearImage"
@@ -199,7 +211,9 @@
                       <VCardActions>
                         <VSpacer />
                         <VBtn text @click="dialog = false">Cancelar</VBtn>
-                        <VBtn class="bg-primary" color="white" @click="saveProduct">Guardar</VBtn>
+                        <VBtn class="bg-primary" color="white" @click="saveProduct"
+                          >Guardar</VBtn
+                        >
                       </VCardActions>
                     </VCard>
                   </v-dialog>
@@ -221,7 +235,6 @@
         </template>
 
         <template #item.purchase_price="{ item }">
-           
           {{ formatCurrency(item.purchase_price) }}
         </template>
 
@@ -233,8 +246,11 @@
             {{ formatCurrency(item.sale_price) }}
           </span>
         </template>
-       
-        <template v-slot:[`item.price_list_${priceList.id}`]="{ item }" v-for="priceList in priceLists">
+
+        <template
+          v-slot:[`item.price_list_${priceList.id}`]="{ item }"
+          v-for="priceList in priceLists"
+        >
           <span v-if="item.price_lists && item.price_lists.length > 0">
             <span v-for="productPriceList in item.price_lists" :key="productPriceList.id">
               <span v-if="productPriceList.id === priceList.id">
@@ -242,28 +258,18 @@
               </span>
             </span>
           </span>
-          <span v-else>
-            $0.00
-          </span>
+          <span v-else> $0.00 </span>
         </template>
 
         <template #item.active="{ item }">
-          <VChip
-            :color="$resolveStatusVariant(item.active).color"
-            density="comfortable"
-          >
+          <VChip :color="$resolveStatusVariant(item.active).color" density="comfortable">
             {{ $resolveStatusVariant(item.active).text }}
           </VChip>
         </template>
 
         <template #item.actions="{ item }">
           <div class="d-flex flex-wrap gap-1 align-center" style="min-width: 120px">
-            <IconBtn
-              size="small"
-              class="my-1"
-              title="Editar"
-              @click="editItem(item.id)"
-            >
+            <IconBtn size="small" class="my-1" title="Editar" @click="editItem(item.id)">
               <VIcon icon="ri-pencil-line" />
             </IconBtn>
             <VSwitch
@@ -321,7 +327,7 @@ export default {
       id: "",
       name: "",
       code: "",
-      order:"",
+      order: "",
       category_id: null,
       brand_id: null,
       purchase_price: "",
@@ -335,7 +341,7 @@ export default {
       id: "",
       name: "",
       code: "",
-      order:"",
+      order: "",
       category_id: null,
       brand_id: null,
       purchase_price: "",
@@ -345,17 +351,17 @@ export default {
       active: 1,
       price_lists: {},
     },
-    selectedHeaders: [], 
+    selectedHeaders: [],
     priceListHeaders: [
-      { title: 'Lista de Precios', key: 'name', sortable: false },
-      { title: 'Precio de Venta', key: 'sale_price', sortable: false, width: '200px' },
+      { title: "Lista de Precios", key: "name", sortable: false },
+      { title: "Precio de Venta", key: "sale_price", sortable: false, width: "200px" },
     ],
+    exportLoading:false
   }),
 
   computed: {
-
-     priceListsWithPrices() {
-      return this.priceLists.map(list => {
+    priceListsWithPrices() {
+      return this.priceLists.map((list) => {
         return {
           ...list,
           sale_price: this.editedItem.price_lists[list.id] || 0,
@@ -375,7 +381,7 @@ export default {
       return this.desserts.filter(
         (item) =>
           item.name.toLowerCase().includes(searchTerm) ||
-          item.code?.toLowerCase().includes(searchTerm)  
+          item.code?.toLowerCase().includes(searchTerm)
       );
     },
   },
@@ -393,6 +399,104 @@ export default {
 
   methods: {
 
+   async exportToExcel() {
+      this.exportLoading = true;
+      try {
+        const params = {
+          start_date: this.dateRange?.start,
+          end_date: this.dateRange?.end,
+          payment_methods: this.selectedPaymentMethod,
+        };
+
+        // Limpiar parámetros undefined
+        Object.keys(params).forEach(
+          (key) => params[key] === undefined && delete params[key]
+        );
+
+        // Hacer la petición para descargar el Excel
+        const response = await this.$axios.get('/api/listproduct/export-excel', {
+          params,
+          responseType: 'blob' // Importante para descargar archivos
+        });
+
+        // Crear el blob y descargar
+        const blob = new Blob([response.data], {
+          type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        });
+
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        
+        // Obtener el nombre del archivo del header o generar uno
+        const contentDisposition = response.headers['content-disposition'];
+        let fileName = 'lista_precios.xlsx';
+        
+        if (contentDisposition) {
+          console.log('📁 Content-Disposition header:', contentDisposition);
+          
+          
+          
+          // Diferentes patrones para capturar el filename
+          const patterns = [
+            /filename="([^"]+)"/,      // filename="archivo.xlsx"
+            /filename=([^;]+)/,         // filename=archivo.xlsx
+            /filename\*=UTF-8''([^;]+)/ // filename*=UTF-8''archivo.xlsx (codificado)
+          ];
+          
+          for (const pattern of patterns) {
+            const match = contentDisposition.match(pattern);
+            if (match && match[1]) {
+              fileName = match[1];
+              console.log('✅ Filename capturado con patrón:', pattern, '-', fileName);
+              break;
+            }
+          }
+          
+          // Si no se capturó con los patrones, intentar extraer manualmente
+          if (fileName === 'resumen_pagos.xlsx') {
+            const parts = contentDisposition.split(';');
+            for (const part of parts) {
+              if (part.trim().startsWith('filename')) {
+                const filenamePart = part.split('=')[1];
+                if (filenamePart) {
+                  fileName = filenamePart.trim().replace(/"/g, '');
+                  console.log('✅ Filename capturado manualmente:', fileName);
+                  break;
+                }
+              }
+            }
+          }
+          
+          // Decodificar si está en formato URL encoded
+          try {
+            if (fileName.includes('%')) {
+              fileName = decodeURIComponent(fileName);
+              console.log('✅ Filename decodificado:', fileName);
+            }
+          } catch (e) {
+            console.warn('⚠️ No se pudo decodificar el filename:', fileName);
+          }
+          
+          console.log('📄 Filename final:', fileName);
+       
+        
+          link.setAttribute('download', fileName);
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+          window.URL.revokeObjectURL(url);
+        }
+
+        this.showSnackbar("Excel exportado exitosamente", "success");
+
+      } catch (error) {
+        console.error("Error exporting to Excel:", error);
+        this.showSnackbar("Error al exportar el Excel", "error");
+      } finally {
+        this.exportLoading = false;
+      }
+    },
     getImageInputValue() {
       // Verificar si imageFiles existe y tiene elementos
       if (this.editedItem.imageFiles && this.editedItem.imageFiles.length > 0) {
@@ -441,7 +545,7 @@ export default {
     },
 
     buildHeaders() {
-      const priceListHeaders = this.priceLists.map(list => ({
+      const priceListHeaders = this.priceLists.map((list) => ({
         title: `Lista ${list.name}`,
         key: `price_list_${list.id}`, // Usaremos esta key para la plantilla
         sortable: false,
@@ -465,14 +569,21 @@ export default {
         { title: "Nombre", filterable: true, key: "name" },
         { title: "Orden", filterable: true, key: "order" },
         { title: "Imagen", key: "image", sortable: false },
-        
       ];
 
-      if (this.$is("superadmin")|| this.$is("bebidas-admin") || this.$is("petshop-admin")){
+      if (
+        this.$is("superadmin") ||
+        this.$is("bebidas-admin") ||
+        this.$is("petshop-admin")
+      ) {
         baseHeaders.push({ title: "Precio Compra", key: "purchase_price" });
       }
       // Insertar los nuevos headers de listas de precios después de "Precio Compra"
-      this.headers = [...baseHeaders, ...priceListHeaders, { title: "Estado", key: "active", width: "150px" }];
+      this.headers = [
+        ...baseHeaders,
+        ...priceListHeaders,
+        { title: "Estado", key: "active", width: "150px" },
+      ];
     },
 
     async loadPriceLists() {
@@ -494,8 +605,8 @@ export default {
         this.editedItem.price_lists = {};
 
         // Mapear los precios de las listas existentes
-        if(item.price_lists.length >0 ){
-          item.price_lists.forEach(priceList => {
+        if (item.price_lists.length > 0) {
+          item.price_lists.forEach((priceList) => {
             this.editedItem.price_lists[priceList.id] = priceList.pivot.sale_price;
           });
         }
@@ -516,7 +627,7 @@ export default {
         });
 
         // Asegurarse de que todos los precios de listas existan en el editedItem
-        this.priceLists.forEach(list => {
+        this.priceLists.forEach((list) => {
           if (!this.editedItem.price_lists[list.id]) {
             this.editedItem.price_lists[list.id] = null;
           }
@@ -534,19 +645,19 @@ export default {
         const data = new FormData();
         // Agregar campos de texto
         for (const key in this.editedItem) {
-          if (this.editedItem[key] !== null && this.editedItem[key] !== '') {
-            if (key === 'price_lists') {
+          if (this.editedItem[key] !== null && this.editedItem[key] !== "") {
+            if (key === "price_lists") {
               data.append(key, JSON.stringify(this.editedItem[key]));
-            } else if (key === 'imageFiles' && this.editedItem.imageFiles[0]) {
-              data.append('image', this.editedItem.imageFiles[0]);
-            } else if (key !== 'id' && key !== 'image' && key !== 'imageFiles') {
+            } else if (key === "imageFiles" && this.editedItem.imageFiles[0]) {
+              data.append("image", this.editedItem.imageFiles[0]);
+            } else if (key !== "id" && key !== "image" && key !== "imageFiles") {
               data.append(key, this.editedItem[key]);
             }
           }
         }
         // Manejar el caso de edición
         if (this.editedItem.id) {
-          data.append('_method', 'PUT');
+          data.append("_method", "PUT");
           await this.$axios.post(`api/${this.route}/${this.editedItem.id}`, data);
         } else {
           await this.$axios.post(`api/${this.route}`, data);
@@ -571,7 +682,7 @@ export default {
     },
 
     getSalePriceForDefaultList(item) {
-      const defaultList = item.price_lists.find(list => list.is_default);
+      const defaultList = item.price_lists.find((list) => list.is_default);
       return defaultList ? defaultList.pivot.sale_price : item.sale_price;
     },
 
@@ -581,7 +692,7 @@ export default {
         style: "currency",
         currency: "ARS",
         minimumFractionDigits: 0,
-        maximumFractionDigits: 0
+        maximumFractionDigits: 0,
       }).format(value);
     },
 
@@ -596,7 +707,7 @@ export default {
       this.imagePreview = "";
     },
 
-    showSnackbar(message, color = 'success') {
+    showSnackbar(message, color = "success") {
       this.text = message;
       this.color = color;
       this.snackbar = true;

@@ -1004,7 +1004,7 @@ export default {
         title = `[${item.code}] ${item.name} `;
       }
       if (currentUser.data.tenant.id == 3) {
-        title = `${item.name} [${item.code}]`;
+        title = item.code ? `${item.name} [${item.code}]`: `${item.name}`;
       }
 
       return title;
@@ -1152,21 +1152,20 @@ export default {
       return this.products.find((p) => p.id === productId);
     },
 
-    /*getProductStock(productId) {
-      const stockItem = this.stock.find((s) => s.product_id === productId);
-      return stockItem
-        ? parseFloat(stockItem.quantity) - parseFloat(stockItem.reserved_quantity)
-        : 0;
-    },*/
+     
 
     getProductStock(productId) {
       if (!productId) return null;
       const stockItem = this.products.find((s) => s.id === productId);
 
-      return stockItem
-        ? parseFloat(stockItem.stocks[0].quantity) -
-            parseFloat(stockItem.stocks[0].reserved_quantity)
-        : 0;
+      if(stockItem.stocks[0])
+      {
+        return stockItem ? parseFloat(stockItem.stocks[0].quantity) - parseFloat(stockItem.stocks[0].reserved_quantity) : 0;
+      }
+      else
+      {
+        return 0;
+      }
     },
     showStockWarning(productId, quantity) {
       return quantity > this.getProductStock(productId);

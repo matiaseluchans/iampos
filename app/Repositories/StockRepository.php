@@ -160,10 +160,10 @@ class StockRepository extends BaseRepository
 
                 // Validar stock suficiente para salidas
                 if (in_array($type, ['salida', 'transferencia', 'fraccionado'])) {
-                    /*$quantity = $quantity; // Asegurar que sea negativo
-                    
-                    comento para permitir negativos
-                    if ($stock->available < abs($quantity)) {
+                    $quantity = -abs($quantity); // Asegurar que sea negativo
+
+                    //comento para permitir negativos
+                    /*if ($stock->available < abs($quantity)) {
                         throw new \Exception('Stock insuficiente. Disponible: ' . $stock->available);
                     }*/
                 }

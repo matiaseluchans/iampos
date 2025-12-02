@@ -71,6 +71,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     //Route::post('products/{id}', [App\Http\Controllers\ProductController::class, 'update']);
     Route::apiResource('products', App\Http\Controllers\ProductController::class);
     Route::put('products_changestatus/{id}', [App\Http\Controllers\ProductController::class, 'changestatus']);
+
+    Route::get('/listproduct/export-excel', [App\Http\Controllers\ProductController::class, 'exportExcel']);
     /*
         Route::post('products/{id}', [App\Http\Controllers\OrderController::class, 'update']);
     Route::apiResource('products', App\Http\Controllers\ProductController::class)->except(['update']);

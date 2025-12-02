@@ -11,10 +11,15 @@ use App\Models\Category;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
+
+use App\Exports\ProductsListAndStockExport;
+use Maatwebsite\Excel\Facades\Excel;
+
 class ProductController extends ApiController
 {
     protected $model;
     private $relations;
+
 
     public function __construct(array $relations = ['brand', 'category', 'priceLists', 'stocks'])
     {
@@ -258,6 +263,105 @@ class ProductController extends ApiController
         } catch (\Exception $e) {
             report($e);
             return $this->errorResponse($e);
+        }
+    }
+
+    public function exportExcel(Request $request)
+    {
+        try {
+            DB::beginTransaction();
+
+            // Obtener parámetros del request
+            //$includeInactive = $request->boolean('include_inactive', false);
+            //$onlyWithStock = $request->boolean('only_with_stock', false);
+            //$onlyWithPriceLists = $request->boolean('only_with_price_lists', false);
+
+            // Crear query base - Asegúrate de cargar los pivots correctamente
+            $query = Product::with([
+                'brand:id,name',
+                'category:id,name',
+                'priceLists:id,name', // Ajusta los campos según tu modelo
+                'stocks:id,product_id,quantity'
+            ]);
+
+            // Filtrar por activos si no se incluyen inactivos
+            /*if (!$includeInactive) {
+                $query->where('active', true);
+            }
+
+            // Filtrar solo productos con stock
+            if ($onlyWithStock) {
+                $query->whereHas('stocks', function ($q) {
+                    $q->where('quantity', '>', 0);
+                });
+            }
+
+            // Filtrar solo productos con listas de precios
+            if ($onlyWithPriceLists) {
+                $query->whereHas('priceLists');
+            }
+
+            // Aplicar filtros adicionales si existen
+            if ($request->has('category_id') && $request->category_id) {
+                $query->where('category_id', $request->category_id);
+            }
+
+            if ($request->has('brand_id') && $request->brand_id) {
+                $query->where('brand_id', $request->brand_id);
+            }*/
+
+            // Buscar por código o nombre
+            if ($request->has('search') && $request->search) {
+                $search = $request->search;
+                $query->where(function ($q) use ($search) {
+                    $q->where('code', 'LIKE', "%{$search}%")
+                        ->orWhere('name', 'LIKE', "%{$search}%");
+                });
+            }
+
+            // Ordenar
+            $query->orderBy('id');
+
+            $products = $query->get();
+
+            \Log::info("📊 Exportando {$products->count()} productos");
+            \Log::info("Primer producto cargado con relaciones: ", [
+                'has_brand' => $products->first() ? $products->first()->relationLoaded('brand') : false,
+                'has_priceLists' => $products->first() ? $products->first()->relationLoaded('priceLists') : false,
+                'priceLists_count' => $products->first() ? $products->first()->priceLists->count() : 0,
+            ]);
+
+            // Verificar si hay datos
+            if ($products->isEmpty()) {
+                DB::rollBack();
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No hay productos para exportar con los filtros aplicados'
+                ], 404);
+            }
+
+            // Formatear fecha para el nombre del archivo
+            $now = \Carbon\Carbon::now()->format('Y-m-d_H-i');
+            $fileName = "productos_precios_stock_{$now}";
+
+            // Crear el export pasando los productos
+            $export = new ProductsListAndStockExport($products);
+
+            DB::commit();
+
+            return Excel::download($export, $fileName . '.xlsx');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('💥 ERROR en exportExcel: ' . $e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al generar el archivo: ' . $e->getMessage()
+            ], 500);
         }
     }
 }
