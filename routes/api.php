@@ -98,6 +98,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('orders/{order}', [App\Http\Controllers\OrderController::class, 'update']);
     Route::post('orders-update/{order}', [App\Http\Controllers\OrderController::class, 'updateOrder']);
     Route::post('orders-cancel/{order}', [App\Http\Controllers\OrderController::class, 'cancelOrder']);
+    Route::get('/orders-export-excel', [App\Http\Controllers\OrderController::class, 'exportExcel'])->middleware('auth:sanctum');
+
 
     //reports
     Route::get('orders/remito/{id}', [App\Http\Controllers\OrderController::class, "generateRemito"]);
@@ -153,6 +155,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::apiResource('payments', \App\Http\Controllers\PaymentController::class);
 
+    Route::get('price-lists-only', [App\Http\Controllers\PriceListController::class, 'priceListOnly']);
     Route::apiResource('price-lists', App\Http\Controllers\PriceListController::class);
     Route::post('price-lists/{price_list}/products/sync', [App\Http\Controllers\PriceListController::class, 'syncProducts']);
 

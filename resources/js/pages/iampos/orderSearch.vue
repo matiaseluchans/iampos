@@ -112,10 +112,21 @@
                   fetchData();
                 "
                 :loading="loading"
-                class="bg-primary"
+                class="bg-primary white"
               >
                 Buscar
               </VBtn>
+              <VBtn
+                  color="success"
+                  variant="outlined"
+                  @click="exportToExcel"
+                  :loading="exportLoading"
+                  
+                   
+                >
+                  <VIcon icon="ri-file-excel-2-line" class="mr-2" />
+                  Exportar Excel
+                </VBtn>
             </VCardActions>
           </VCard>
         </template>
@@ -257,8 +268,7 @@
               </VList>
             </VMenu>-->
             <VChip
-              v-bind="props"
-              :color="getStatusCodeColor(item.payment_status.code)"
+               :color="getStatusCodeColor(item.payment_status.code)"
               prepend-icon="ri-money-dollar-circle-line"
               density="comfortable"
               class="my-1 status-chip"
@@ -916,6 +926,7 @@ export default {
       dialogs: {
         cancelOrden: false,
       },
+      exportLoading:false
     };
   },
 
@@ -962,6 +973,136 @@ export default {
   },
 
   methods: {
+
+
+    async exportToExcel() {
+      this.exportLoading = true; 
+      try {
+
+        let startDate = this.$refs.dateOrderRange?.start;
+        let endDate = this.$refs.dateOrderRange?.end;
+        
+        // Función para convertir formato dd/mm/yyyy a YYYY-mm-dd
+        const formatDateForAPI = (dateStr) => {
+          if (!dateStr) return undefined;
+          
+          // Si ya está en formato YYYY-mm-dd, dejarlo así
+          if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+            return dateStr;
+          }
+          
+          // Convertir dd/mm/yyyy a YYYY-mm-dd
+          const parts = dateStr.split('/');
+          if (parts.length === 3) {
+            const day = parts[0].padStart(2, '0');
+            const month = parts[1].padStart(2, '0');
+            const year = parts[2];
+            
+            // Validar que sea una fecha válida
+            const date = new Date(`${year}-${month}-${day}`);
+            if (!isNaN(date.getTime())) {
+              return `${year}-${month}-${day}`;
+            }
+          }
+          
+          console.warn(`Formato de fecha no reconocido: ${dateStr}`);
+          return dateStr; // Devolver original si no se puede convertir
+        };
+        
+        const params = {
+          start_date: formatDateForAPI(startDate),
+          end_date: formatDateForAPI(endDate), 
+        };
+
+        // Limpiar parámetros undefined
+        Object.keys(params).forEach(
+          (key) => params[key] === undefined && delete params[key]
+        );
+
+        // Hacer la petición para descargar el Excel
+        const response = await this.$axios.get('/api/orders-export-excel', {
+          params,
+          responseType: 'blob' // Importante para descargar archivos
+        });
+
+        // Crear el blob y descargar
+        const blob = new Blob([response.data], {
+          type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        });
+
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        
+        // Obtener el nombre del archivo del header o generar uno
+        const contentDisposition = response.headers['content-disposition'];
+        let fileName = 'resumen_pagos.xlsx';
+        
+        if (contentDisposition) {
+          console.log('📁 Content-Disposition header:', contentDisposition);
+          
+          let fileName = 'resumen_pagos.xlsx';
+          
+          // Diferentes patrones para capturar el filename
+          const patterns = [
+            /filename="([^"]+)"/,      // filename="archivo.xlsx"
+            /filename=([^;]+)/,         // filename=archivo.xlsx
+            /filename\*=UTF-8''([^;]+)/ // filename*=UTF-8''archivo.xlsx (codificado)
+          ];
+          
+          for (const pattern of patterns) {
+            const match = contentDisposition.match(pattern);
+            if (match && match[1]) {
+              fileName = match[1];
+              console.log('✅ Filename capturado con patrón:', pattern, '-', fileName);
+              break;
+            }
+          }
+          
+          // Si no se capturó con los patrones, intentar extraer manualmente
+          if (fileName === 'resumen_ventas.xlsx') {
+            const parts = contentDisposition.split(';');
+            for (const part of parts) {
+              if (part.trim().startsWith('filename')) {
+                const filenamePart = part.split('=')[1];
+                if (filenamePart) {
+                  fileName = filenamePart.trim().replace(/"/g, '');
+                  console.log('✅ Filename capturado manualmente:', fileName);
+                  break;
+                }
+              }
+            }
+          }
+          
+          // Decodificar si está en formato URL encoded
+          try {
+            if (fileName.includes('%')) {
+              fileName = decodeURIComponent(fileName);
+              console.log('✅ Filename decodificado:', fileName);
+            }
+          } catch (e) {
+            console.warn('⚠️ No se pudo decodificar el filename:', fileName);
+          }
+          
+          console.log('📄 Filename final:', fileName);
+       
+        
+          link.setAttribute('download', fileName);
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+          window.URL.revokeObjectURL(url);
+        }
+
+        this.showSnackbar("Excel exportado exitosamente", "success");
+
+      } catch (error) {
+        console.error("Error exporting to Excel:", error);
+        this.showSnackbar("Error al exportar el Excel", "error");
+      } finally {
+        this.exportLoading = false;
+      }
+    },
 
     handleSelection() {
       // Limpiar el texto de búsqueda después de una selección
@@ -1181,9 +1322,7 @@ export default {
               : "asc"
             : undefined,
         };
-
-        console.log("this.isInitialLoad");
-        console.log(this.isInitialLoad);
+ 
         if (this.isInitialLoad) {
           // Establecer el rango de fechas por defecto solo en la primera carga
           params.order_start_date = this.defaultDateRange.start;

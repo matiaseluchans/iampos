@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\OrdersExport;
 use App\Repositories\OrderRepository;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -10,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Mpdf\Mpdf;
 use Mpdf\Config\ConfigVariables;
 use Mpdf\Config\FontVariables;
+use Maatwebsite\Excel\Facades\Excel;
 
 
 class OrderController extends Controller
@@ -210,5 +212,41 @@ class OrderController extends Controller
     public function cancelOrder(Request $request, $id)
     {
         return $this->repository->cancelOrder($request, $id);
+    }
+
+
+
+    public function exportExcel(Request $request)
+    {
+        try {
+            $startDate = $request->input('start_date');
+            $endDate = $request->input('end_date');
+
+            // Validar fechas si están presentes
+            if ($startDate) {
+                $request->validate([
+                    'start_date' => 'date',
+                    'end_date' => 'nullable|date|after_or_equal:start_date',
+                ]);
+            }
+
+            // Generar nombre de archivo
+            $tenantId = Auth::user()->tenant_id;
+            $fileName = 'ordenes_' . date('Y-m-d_His') . '.xlsx';
+
+            // Configurar headers para descarga
+            $headers = [
+                'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+            ];
+
+            return Excel::download(new OrdersExport($startDate, $endDate), $fileName, null, $headers);
+        } catch (\Exception $e) {
+            \Log::error('Error al exportar órdenes a Excel: ' . $e->getMessage());
+            return response()->json([
+                'error' => 'Error al exportar el archivo Excel',
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
 }

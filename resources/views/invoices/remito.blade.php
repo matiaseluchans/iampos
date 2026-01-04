@@ -277,7 +277,7 @@
                 <div class="invoice-info">
                     <div class="invoice-title">REMITO</div>
                     <div class="invoice-number">N° {{ $order->order_number }}</div>
-                    <div class="invoice-date">Fecha: {{ $date }}</div>
+                    <div class="invoice-date">Fecha: {{ $order->created_at->format("d/m/Y H:i:s") }}</div>
 
                 </div>
             </div>
@@ -343,8 +343,9 @@
                     @endforeach
                     <br>
                     <tr>
-                        <td colspan="2" class="text-right"><strong>Cantidad Total</strong></td>
-                        <td class="text-right"><strong>{{ $order->items->sum('quantity') }}</strong></td>
+                        <td class="text-right"><strong></strong></td>
+                        <td class="text-right"><strong>Productos </strong></td>
+                        <td class="text-right"><strong>{{ $order->quantity_products }}</strong></td>
                         <td class="text-right"><strong>Total</strong></td>
                         <td class="text-right"><strong>${{ number_format($order->items->sum(function($item) { return $item->unit_price * $item->quantity; }), 0, ',', '.') }}</strong></td>
                     </tr>

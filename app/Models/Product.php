@@ -29,6 +29,7 @@ class Product extends Model
         'last_modified_by'
     ];
 
+    protected $appends = ['total_stock'];
 
     protected static function booted(): void
     {
@@ -113,5 +114,10 @@ class Product extends Model
     public function stocks()
     {
         return $this->hasMany(Stock::class, 'product_id');
+    }
+
+    public function getTotalStockAttribute()
+    {
+        return $this->stocks->sum('quantity');
     }
 }

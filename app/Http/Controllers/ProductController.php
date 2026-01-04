@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Validator;
 
 
 use App\Exports\ProductsListAndStockExport;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ProductController extends ApiController
@@ -30,9 +32,19 @@ class ProductController extends ApiController
     public function index()
     {
         try {
-            $query = $this->model->with($this->relations);
 
-            return $this->successResponse($query->get());
+            $tenantId = Auth::user()->tenant_id;
+
+            $cacheKey = "tenant_{$tenantId}_products";
+
+
+
+            return Cache::remember($cacheKey, 60 * 24, function () {
+
+                $query = $this->model->with($this->relations);
+
+                return $this->successResponse($query->get());
+            });
         } catch (\Exception $e) {
             report($e);
             return $this->errorResponse($e);
@@ -85,6 +97,13 @@ class ProductController extends ApiController
             $this->syncPriceLists($p, $request);
 
             DB::commit();
+
+            $tenantId = Auth::user()->tenant_id;
+
+            $cacheKey = "tenant_{$tenantId}_products";
+
+            Cache::forget($cacheKey);
+
             return $this->successResponseCreate($p->load($this->relations));
         } catch (\Exception $e) {
             DB::rollBack();
@@ -179,6 +198,13 @@ class ProductController extends ApiController
             $this->syncPriceLists($p, $request);
 
             DB::commit();
+
+            $tenantId = Auth::user()->tenant_id;
+
+            $cacheKey = "tenant_{$tenantId}_products";
+
+            Cache::forget($cacheKey);
+
             return $this->successResponse($p->fresh()->load($this->relations));
         } catch (\Exception $e) {
             DB::rollBack();
@@ -200,6 +226,13 @@ class ProductController extends ApiController
             $p->delete();
 
             DB::commit();
+
+            $tenantId = Auth::user()->tenant_id;
+
+            $cacheKey = "tenant_{$tenantId}_products";
+
+            Cache::forget($cacheKey);
+
             return $this->successResponse($p);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -214,6 +247,12 @@ class ProductController extends ApiController
             $p = $this->model->findOrFail($id);
             $p->active = $p->active == 1 ? 0 : 1;
             $p->save();
+
+            $tenantId = Auth::user()->tenant_id;
+
+            $cacheKey = "tenant_{$tenantId}_products";
+
+            Cache::forget($cacheKey);
 
             return $this->successResponse($p->fresh()->load($this->relations));
         } catch (\Exception $e) {

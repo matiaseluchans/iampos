@@ -31,6 +31,7 @@ export const apiRoute = Object.freeze({
   ordersLatest: "api/orders-latest",
   ordersCancel: "api/orders-cancel",
   priceLists: "api/price-lists",
+  priceListsOnly: "api/price-lists-only",
   priceListProducts: '/api/price-list-products',
   servicesTypes: '/api/service-types',
   reservations: '/api/reservations',

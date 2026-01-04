@@ -46,19 +46,17 @@
                         :title="'Registrar ' + title"
                         @click="openDialog"
                       >
-                        <VIcon size="large" icon="ri-add-circle-line" />
-                      </VBtn><VBtn
-                      class="ml-2"
-                
-                       color="success"
+                        <VIcon size="large" icon="ri-add-circle-line" /> </VBtn
+                      ><VBtn
+                        class="ml-2"
+                        color="success"
                         size="x-large"
-                        :title="'Registrar ' + title"
+                        title="Exportar a excel"
                         @click="exportToExcel"
                         :loading="exportLoading"
                       >
                         <VIcon size="large" icon="ri-file-excel-2-line" />
                       </VBtn>
-                      
                     </template>
                     <VCard>
                       <v-toolbar :color="$cv('principal')">
@@ -233,7 +231,7 @@
           />
           <span v-else></span>
         </template>
-
+ 
         <template #item.purchase_price="{ item }">
           {{ formatCurrency(item.purchase_price) }}
         </template>
@@ -356,7 +354,7 @@ export default {
       { title: "Lista de Precios", key: "name", sortable: false },
       { title: "Precio de Venta", key: "sale_price", sortable: false, width: "200px" },
     ],
-    exportLoading:false
+    exportLoading: false,
   }),
 
   computed: {
@@ -398,8 +396,7 @@ export default {
   },
 
   methods: {
-
-   async exportToExcel() {
+    async exportToExcel() {
       this.exportLoading = true;
       try {
         const params = {
@@ -414,74 +411,71 @@ export default {
         );
 
         // Hacer la petición para descargar el Excel
-        const response = await this.$axios.get('/api/listproduct/export-excel', {
+        const response = await this.$axios.get("/api/listproduct/export-excel", {
           params,
-          responseType: 'blob' // Importante para descargar archivos
+          responseType: "blob", // Importante para descargar archivos
         });
 
         // Crear el blob y descargar
         const blob = new Blob([response.data], {
-          type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         });
 
         const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
+        const link = document.createElement("a");
         link.href = url;
-        
+
         // Obtener el nombre del archivo del header o generar uno
-        const contentDisposition = response.headers['content-disposition'];
-        let fileName = 'lista_precios.xlsx';
-        
+        const contentDisposition = response.headers["content-disposition"];
+        let fileName = "lista_precios.xlsx";
+
         if (contentDisposition) {
-          console.log('📁 Content-Disposition header:', contentDisposition);
-          
-          
-          
+          console.log("📁 Content-Disposition header:", contentDisposition);
+
           // Diferentes patrones para capturar el filename
           const patterns = [
-            /filename="([^"]+)"/,      // filename="archivo.xlsx"
-            /filename=([^;]+)/,         // filename=archivo.xlsx
-            /filename\*=UTF-8''([^;]+)/ // filename*=UTF-8''archivo.xlsx (codificado)
+            /filename="([^"]+)"/, // filename="archivo.xlsx"
+            /filename=([^;]+)/, // filename=archivo.xlsx
+            /filename\*=UTF-8''([^;]+)/, // filename*=UTF-8''archivo.xlsx (codificado)
           ];
-          
+
           for (const pattern of patterns) {
             const match = contentDisposition.match(pattern);
             if (match && match[1]) {
               fileName = match[1];
-              console.log('✅ Filename capturado con patrón:', pattern, '-', fileName);
+              console.log("✅ Filename capturado con patrón:", pattern, "-", fileName);
               break;
             }
           }
-          
+
           // Si no se capturó con los patrones, intentar extraer manualmente
-          if (fileName === 'resumen_pagos.xlsx') {
-            const parts = contentDisposition.split(';');
+          if (fileName === "resumen_pagos.xlsx") {
+            const parts = contentDisposition.split(";");
             for (const part of parts) {
-              if (part.trim().startsWith('filename')) {
-                const filenamePart = part.split('=')[1];
+              if (part.trim().startsWith("filename")) {
+                const filenamePart = part.split("=")[1];
                 if (filenamePart) {
-                  fileName = filenamePart.trim().replace(/"/g, '');
-                  console.log('✅ Filename capturado manualmente:', fileName);
+                  fileName = filenamePart.trim().replace(/"/g, "");
+                  console.log("✅ Filename capturado manualmente:", fileName);
                   break;
                 }
               }
             }
           }
-          
+
           // Decodificar si está en formato URL encoded
           try {
-            if (fileName.includes('%')) {
+            if (fileName.includes("%")) {
               fileName = decodeURIComponent(fileName);
-              console.log('✅ Filename decodificado:', fileName);
+              console.log("✅ Filename decodificado:", fileName);
             }
           } catch (e) {
-            console.warn('⚠️ No se pudo decodificar el filename:', fileName);
+            console.warn("⚠️ No se pudo decodificar el filename:", fileName);
           }
-          
-          console.log('📄 Filename final:', fileName);
-       
-        
-          link.setAttribute('download', fileName);
+
+          console.log("📄 Filename final:", fileName);
+
+          link.setAttribute("download", fileName);
           document.body.appendChild(link);
           link.click();
           link.remove();
@@ -489,7 +483,6 @@ export default {
         }
 
         this.showSnackbar("Excel exportado exitosamente", "success");
-
       } catch (error) {
         console.error("Error exporting to Excel:", error);
         this.showSnackbar("Error al exportar el Excel", "error");
@@ -568,6 +561,7 @@ export default {
         },
         { title: "Nombre", filterable: true, key: "name" },
         { title: "Orden", filterable: true, key: "order" },
+        { title: "Stock Total", filterable: true, key: "total_stock" },
         { title: "Imagen", key: "image", sortable: false },
       ];
 
@@ -686,6 +680,7 @@ export default {
       return defaultList ? defaultList.pivot.sale_price : item.sale_price;
     },
 
+     
     formatCurrency(value) {
       if (!value) return "$0";
       return new Intl.NumberFormat("es-AR", {

@@ -19,6 +19,10 @@ class PriceListController extends Controller
         $this->repository = $repository;
     }
 
+    public function priceListOnly(Request $request)
+    {
+        return $this->repository->allOnly();
+    }
     public function index(Request $request)
     {
         return $this->repository->all();

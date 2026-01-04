@@ -159,7 +159,7 @@
                     <td>
                         <div class="document-info">
                             <div>REMITO N° {{ $order->order_number }}</div>
-                            <div>Fecha: {{ $date }}</div>
+                            <div>Fecha: {{ $order->created_at->format("d/m/Y H:i:s") }}</div>
                         </div>
                     </td>
                 </tr>
@@ -231,10 +231,10 @@
                 @endif
                 <tr>
                     <td class="text-right total-row grand-total"> </td>
+                    <td class="text-right total-row grand-total">PRODUCTOS</td>
+                    <td class="text-right total-row grand-total">{{ $order->quantity_products }}</td>
                     <td class="text-right total-row grand-total">TOTAL</td>
-                    <td class="text-right total-row grand-total">{{ $order->items->sum('quantity') }}</td>
-                    <td class="text-right total-row grand-total"> </td>
-                    <td class="text-right total-row grand-total" style="padding-right: 1mm;">{{ number_format($order->total_amount, 0, ',', '.') }}</td>
+                    <td class="text-right total-row grand-total" style="padding-right: 1mm;"> {{ number_format($order->total_amount, 0, ',', '.') }}</td>
                 </tr>
             </tbody>
         </table>

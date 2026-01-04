@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Models\PriceList;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 
 class PriceListRepository extends BaseRepository
 {
@@ -14,6 +15,35 @@ class PriceListRepository extends BaseRepository
     public function __construct(PriceList $m, array $relations = ['products'])
     {
         parent::__construct($m, $relations);
+    }
+
+
+    public function allOnly()
+    {
+        try {
+            $userId = Auth::user()->id;
+
+            $tenantId = Auth::user()->tenant_id;
+
+            $cacheKey = "tenant_{$tenantId}_price_lists_only";
+
+            return Cache::remember($cacheKey, 60 * 24, function () {
+                $query = $this->model->query();
+
+                if ($userId == 9) {
+                    $query->whereIn('id', [2, 21]);
+                } elseif ($userId == 3) {
+                    $query->where('id', 1);
+                }
+
+                $data = $query->get();
+
+                return $this->successResponse($data);
+            });
+        } catch (\Exception $e) {
+            report($e);
+            return $this->errorResponse($e);
+        }
     }
 
 
@@ -56,6 +86,14 @@ class PriceListRepository extends BaseRepository
             $this->syncAllProductsWithZeroPrice($priceList);
 
             DB::commit();
+
+            $tenantId = Auth::user()->tenant_id;
+
+            $cacheKey = "tenant_{$tenantId}_price_lists_only";
+
+            Cache::forget($cacheKey);
+
+
             return $this->successResponseCreate($priceList->load('products'));
         } catch (\Exception $e) {
             DB::rollBack();
@@ -106,6 +144,13 @@ class PriceListRepository extends BaseRepository
             }
 
             DB::commit();
+
+            $tenantId = Auth::user()->tenant_id;
+
+            $cacheKey = "tenant_{$tenantId}_price_lists_only";
+
+            Cache::forget($cacheKey);
+
             return $this->successResponse($model->fresh()->load('products'));
         } catch (\Exception $e) {
             DB::rollBack();

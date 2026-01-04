@@ -229,7 +229,7 @@
                     v-model="newItem.quantity"
                     label="Cant"
                     type="number"
-                    min="1"
+                   
                     :rules="[
                       (v) => !!v || 'Cantidad requerida',
                       (v) => v > 0 || 'Debe ser mayor a 0',
@@ -328,9 +328,8 @@
                         </template>
                         <template #item.quantity="{ item, index }">
                           <VTextField
-                            v-model="item.quantity"
-                            type="number"
-                            min="1"
+                            v-model.number="item.quantity"
+                            type="number" 
                             density="compact"
                             hide-details
                             @input="updateItemTotal(index)"
@@ -968,7 +967,7 @@ export default {
           seller_id: orderData.seller_id,
           items: orderData.items.map((item) => ({
             product_id: item.product_id,
-            quantity: parseInt(item.quantity),
+            quantity: parseFloat(item.quantity),
             unit_price: parseFloat(item.unit_price),
             unit_cost_price: parseFloat(item.unit_cost_price),
             total_price: parseFloat(item.total_price),
@@ -1039,7 +1038,7 @@ export default {
           this.$axios.get(this.$routes["products"]),
           //this.$axios.get(this.$routes["stocks"]),
           this.$axios.get(this.$routes["localities"]),
-          this.$axios.get(this.$routes["priceLists"]),
+          this.$axios.get(this.$routes["priceListsOnly"]),
         ]);
 
         if (this.isAdminBebidas) {
@@ -1304,10 +1303,7 @@ export default {
       try {
         const orderData = {
           ...this.order,
-          quantity_products: this.order.items.reduce(
-            (sum, item) => sum + parseInt(item.quantity),
-            0
-          ),
+          quantity_products: this.order.items.length,
           total_cost: this.order.items.reduce(
             (sum, item) => sum + item.quantity * item.unit_cost_price,
             0
@@ -1319,6 +1315,7 @@ export default {
           // Incluir seller_id si es necesario (como en createOrder)
           //seller_id: this.order.seller_id?.id || this.order.seller_id,
         };
+
 
         // Usamos PUT o PATCH para actualizar la orden existente
         const response = await this.$axios.post(
@@ -1357,10 +1354,7 @@ export default {
           ...this.order,
 
           //order_date: new Date().toISOString(), //lo obtenemos en el back
-          quantity_products: this.order.items.reduce(
-            (sum, item) => sum + parseInt(item.quantity),
-            0
-          ),
+          quantity_products: this.order.items.length,
           total_cost: this.order.items.reduce(
             (sum, item) => sum + item.quantity * item.unit_cost_price,
             0
@@ -1370,6 +1364,7 @@ export default {
             0
           ),
         };
+       
 
         const response = await this.$axios.post(this.$routes["orders"], orderData);
 
