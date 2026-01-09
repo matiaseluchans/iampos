@@ -142,7 +142,7 @@ class OrderRepository extends BaseRepository
             }
             // Asignación de los datos al modelo
             $model->fill([
-                'order_date' => Carbon::now(),
+                'order_date' => isset($form['order_date']) ?  Carbon::createFromFormat('d/m/Y', $form['order_date'])->format('Y-m-d H:i:s') : Carbon::now(),
                 'delivery_date' => isset($form['delivery_date']) ?  Carbon::createFromFormat('d/m/Y', $form['delivery_date'])->format('Y-m-d') : null,
                 'customer_id' => $form['customer_id'],
                 //'customer_details', //ver de guardar los datos del cliente

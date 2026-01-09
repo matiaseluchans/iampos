@@ -30,7 +30,8 @@ class PaymentRepository extends BaseRepository
             $formRequest = $request->all();
 
             $orderId = $formRequest['order_id'];
-            $paymentDate = Carbon::now();
+            //$paymentDate = Carbon::now();
+
             $payments = $formRequest['payments'];
 
             // Calcular total de nuevos pagos
@@ -46,17 +47,19 @@ class PaymentRepository extends BaseRepository
 
             // Registrar pagos principales
             if (!empty($payments)) {
-                $data = array_map(function ($payment) use ($orderId, $paymentDate, $user) {
+                $data = array_map(function ($payment) use ($orderId, $user) {
                     return [
                         'order_id' => $orderId,
                         'payment_method_id' => $payment['payment_method_id']['id'],
                         'amount' => $payment['amount'],
-                        'payment_date' => $paymentDate,
+                        'payment_date' =>  Carbon::createFromFormat('d/m/Y', $payment['payment_date'])->format('Y-m-d H:i:s'),
                         'tenant_id' => $user->tenant_id,
                         'created_by' => $user->id,
                         'created_at' => now(),
                     ];
                 }, $payments);
+
+
 
                 $this->model::insert($data);
             }
@@ -67,11 +70,19 @@ class PaymentRepository extends BaseRepository
                 // Buscar método de pago en efectivo para el cambio, o usar el primero
                 $changePaymentMethodId = $this->getChangePaymentMethodId($payments);
 
+                $paymentDateChange = Carbon::now()->format('Y-m-d H:i:s');
+                foreach ($data as $k => $v) {
+
+                    if ($v["payment_method_id"] == $changePaymentMethodId) {
+                        $paymentDateChange = $v["payment_date"];
+                    }
+                }
+
                 $changePayment = [
                     'order_id' => $orderId,
                     'payment_method_id' => $changePaymentMethodId,
                     'amount' => -$changeAmount,
-                    'payment_date' => $paymentDate,
+                    'payment_date' => $paymentDateChange,
                     'tenant_id' => $user->tenant_id,
                     'created_by' => $user->id,
                     'created_at' => now(),

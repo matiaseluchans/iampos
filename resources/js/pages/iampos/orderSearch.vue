@@ -117,16 +117,14 @@
                 Buscar
               </VBtn>
               <VBtn
-                  color="success"
-                  variant="outlined"
-                  @click="exportToExcel"
-                  :loading="exportLoading"
-                  
-                   
-                >
-                  <VIcon icon="ri-file-excel-2-line" class="mr-2" />
-                  Exportar Excel
-                </VBtn>
+                color="success"
+                variant="outlined"
+                @click="exportToExcel"
+                :loading="exportLoading"
+              >
+                <VIcon icon="ri-file-excel-2-line" class="mr-2" />
+                Exportar Excel
+              </VBtn>
             </VCardActions>
           </VCard>
         </template>
@@ -170,7 +168,6 @@
             </VCol>
           </VRow>-->
         </template>
-        
 
         <template #item.total_cost="{ item }">
           <div class="text-right text-error">
@@ -200,7 +197,7 @@
             <span class="d-block font-weight-medium text-high-emphasis text-truncate">
               {{ item.customer.address }}
             </span>
-            <small>{{ getCustomer(item.customer) }}, {{ item.customer.telephone  }}</small>
+            <small>{{ getCustomer(item.customer) }}, {{ item.customer.telephone }}</small>
           </div>
         </template>
         <template #item.total_amount="{ item }">
@@ -268,13 +265,13 @@
               </VList>
             </VMenu>-->
             <VChip
-               :color="getStatusCodeColor(item.payment_status.code)"
+              :color="getStatusCodeColor(item.payment_status.code)"
               prepend-icon="ri-money-dollar-circle-line"
               density="comfortable"
               class="my-1 status-chip"
               style="width: 150px"
             >
-              {{ item.payment_status.name }} 
+              {{ item.payment_status.name }}
             </VChip>
 
             <VMenu offset-y>
@@ -368,9 +365,8 @@
                     >Comanda
                   </VListItemTitle>
                 </VListItem>
-                
 
-                <VListItem  @click="openPaymentForm(item)">
+                <VListItem @click="openPaymentForm(item)">
                   <VListItemTitle>
                     <IconBtn
                       size="small"
@@ -447,11 +443,11 @@
               <td v-if="this.isAdmin" class="text-right">
                 {{ formatCurrency(calculateTotalProfit()) }}
               </td>
-              
+
               <td class="text-right">{{ formatCurrency(calculateTotalPaid()) }}</td>
               <td v-if="this.isAdmin" class="text-right"></td>
               <td class="text-right"></td>
-              <td class="text-right"></td> 
+              <td class="text-right"></td>
             </tr>
           </tfoot>
         </template>
@@ -666,7 +662,7 @@
       </VDialog>
 
       <!-- Dialog Registrar pagos -->
-      <VDialog v-model="paymentFormDialog" max-width="600px" persistent>
+      <VDialog v-model="paymentFormDialog" max-width="900px" persistent>
         <VCard class="rounded-lg">
           <!-- Header con gradiente y tipografía más limpia -->
           <VToolbar color="primary" density="compact" class="ml-0 pl-0">
@@ -901,7 +897,7 @@ export default {
         },
         { title: "Orden", key: "order_number", width: "60px" },
         { title: "Fecha", key: "order_date", align: "center", width: "60px" },
-        { title: "Cliente", key: "customer", width: "70%" }, 
+        { title: "Cliente", key: "customer", width: "70%" },
         { title: "Total", key: "total_amount", align: "end" },
         { title: "Pagado", key: "total_paid", align: "end" },
         { title: "Vendedor", key: "seller_name", width: "10%" },
@@ -926,7 +922,7 @@ export default {
       dialogs: {
         cancelOrden: false,
       },
-      exportLoading:false
+      exportLoading: false,
     };
   },
 
@@ -939,8 +935,9 @@ export default {
     },
 
     pendingAmount() {
-      let total_paid = this.createdOrder.order.total_paid >0 ?this.createdOrder.order.total_paid:0;
-      return  this.createdOrder.order.total_amount - total_paid ;
+      let total_paid =
+        this.createdOrder.order.total_paid > 0 ? this.createdOrder.order.total_paid : 0;
+      return this.createdOrder.order.total_amount - total_paid;
     },
 
     movementFormTitle() {
@@ -958,12 +955,10 @@ export default {
         { title: "Costo", key: "total_cost", align: "end" },
         { title: "Ganancia", key: "total_profit", align: "end" }
       );
-
     }
-     if (this.isAdmin || this.$is("petshop-user")) {
+    if (this.isAdmin || this.$is("petshop-user")) {
       this.headers.push({ title: "Estados", key: "payment_status_id", align: "center" });
-
-     }
+    }
 
     // Solo establecer fechas por defecto en la carga inicial
     if (this.isInitialLoad) {
@@ -973,45 +968,42 @@ export default {
   },
 
   methods: {
-
-
     async exportToExcel() {
-      this.exportLoading = true; 
+      this.exportLoading = true;
       try {
-
         let startDate = this.$refs.dateOrderRange?.start;
         let endDate = this.$refs.dateOrderRange?.end;
-        
+
         // Función para convertir formato dd/mm/yyyy a YYYY-mm-dd
         const formatDateForAPI = (dateStr) => {
           if (!dateStr) return undefined;
-          
+
           // Si ya está en formato YYYY-mm-dd, dejarlo así
           if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
             return dateStr;
           }
-          
+
           // Convertir dd/mm/yyyy a YYYY-mm-dd
-          const parts = dateStr.split('/');
+          const parts = dateStr.split("/");
           if (parts.length === 3) {
-            const day = parts[0].padStart(2, '0');
-            const month = parts[1].padStart(2, '0');
+            const day = parts[0].padStart(2, "0");
+            const month = parts[1].padStart(2, "0");
             const year = parts[2];
-            
+
             // Validar que sea una fecha válida
             const date = new Date(`${year}-${month}-${day}`);
             if (!isNaN(date.getTime())) {
               return `${year}-${month}-${day}`;
             }
           }
-          
+
           console.warn(`Formato de fecha no reconocido: ${dateStr}`);
           return dateStr; // Devolver original si no se puede convertir
         };
-        
+
         const params = {
           start_date: formatDateForAPI(startDate),
-          end_date: formatDateForAPI(endDate), 
+          end_date: formatDateForAPI(endDate),
         };
 
         // Limpiar parámetros undefined
@@ -1020,74 +1012,73 @@ export default {
         );
 
         // Hacer la petición para descargar el Excel
-        const response = await this.$axios.get('/api/orders-export-excel', {
+        const response = await this.$axios.get("/api/orders-export-excel", {
           params,
-          responseType: 'blob' // Importante para descargar archivos
+          responseType: "blob", // Importante para descargar archivos
         });
 
         // Crear el blob y descargar
         const blob = new Blob([response.data], {
-          type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         });
 
         const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
+        const link = document.createElement("a");
         link.href = url;
-        
+
         // Obtener el nombre del archivo del header o generar uno
-        const contentDisposition = response.headers['content-disposition'];
-        let fileName = 'resumen_pagos.xlsx';
-        
+        const contentDisposition = response.headers["content-disposition"];
+        let fileName = "resumen_pagos.xlsx";
+
         if (contentDisposition) {
-          console.log('📁 Content-Disposition header:', contentDisposition);
-          
-          let fileName = 'resumen_pagos.xlsx';
-          
+          console.log("📁 Content-Disposition header:", contentDisposition);
+
+          let fileName = "resumen_pagos.xlsx";
+
           // Diferentes patrones para capturar el filename
           const patterns = [
-            /filename="([^"]+)"/,      // filename="archivo.xlsx"
-            /filename=([^;]+)/,         // filename=archivo.xlsx
-            /filename\*=UTF-8''([^;]+)/ // filename*=UTF-8''archivo.xlsx (codificado)
+            /filename="([^"]+)"/, // filename="archivo.xlsx"
+            /filename=([^;]+)/, // filename=archivo.xlsx
+            /filename\*=UTF-8''([^;]+)/, // filename*=UTF-8''archivo.xlsx (codificado)
           ];
-          
+
           for (const pattern of patterns) {
             const match = contentDisposition.match(pattern);
             if (match && match[1]) {
               fileName = match[1];
-              console.log('✅ Filename capturado con patrón:', pattern, '-', fileName);
+              console.log("✅ Filename capturado con patrón:", pattern, "-", fileName);
               break;
             }
           }
-          
+
           // Si no se capturó con los patrones, intentar extraer manualmente
-          if (fileName === 'resumen_ventas.xlsx') {
-            const parts = contentDisposition.split(';');
+          if (fileName === "resumen_ventas.xlsx") {
+            const parts = contentDisposition.split(";");
             for (const part of parts) {
-              if (part.trim().startsWith('filename')) {
-                const filenamePart = part.split('=')[1];
+              if (part.trim().startsWith("filename")) {
+                const filenamePart = part.split("=")[1];
                 if (filenamePart) {
-                  fileName = filenamePart.trim().replace(/"/g, '');
-                  console.log('✅ Filename capturado manualmente:', fileName);
+                  fileName = filenamePart.trim().replace(/"/g, "");
+                  console.log("✅ Filename capturado manualmente:", fileName);
                   break;
                 }
               }
             }
           }
-          
+
           // Decodificar si está en formato URL encoded
           try {
-            if (fileName.includes('%')) {
+            if (fileName.includes("%")) {
               fileName = decodeURIComponent(fileName);
-              console.log('✅ Filename decodificado:', fileName);
+              console.log("✅ Filename decodificado:", fileName);
             }
           } catch (e) {
-            console.warn('⚠️ No se pudo decodificar el filename:', fileName);
+            console.warn("⚠️ No se pudo decodificar el filename:", fileName);
           }
-          
-          console.log('📄 Filename final:', fileName);
-       
-        
-          link.setAttribute('download', fileName);
+
+          console.log("📄 Filename final:", fileName);
+
+          link.setAttribute("download", fileName);
           document.body.appendChild(link);
           link.click();
           link.remove();
@@ -1095,7 +1086,6 @@ export default {
         }
 
         this.showSnackbar("Excel exportado exitosamente", "success");
-
       } catch (error) {
         console.error("Error exporting to Excel:", error);
         this.showSnackbar("Error al exportar el Excel", "error");
@@ -1138,7 +1128,6 @@ export default {
               form: this.selectedOrder,
               _method: "PUT",
             },
-            
           }
         );
 
@@ -1225,7 +1214,6 @@ export default {
             payment_status_id: newStatus.id,
             _method: "PUT",
           },
-          
         });
 
         // Actualizar localmente para mejor experiencia de usuario
@@ -1251,7 +1239,6 @@ export default {
             shipment_status_id: newStatus.id,
             _method: "PUT",
           },
-          
         });
 
         // Actualizar localmente para mejor experiencia de usuario
@@ -1322,7 +1309,7 @@ export default {
               : "asc"
             : undefined,
         };
- 
+
         if (this.isInitialLoad) {
           // Establecer el rango de fechas por defecto solo en la primera carga
           params.order_start_date = this.defaultDateRange.start;
@@ -1532,8 +1519,8 @@ export default {
       return new Intl.NumberFormat("es-AR", {
         style: "currency",
         currency: "ARS",
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0,
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
       }).format(value);
     },
 
@@ -1569,7 +1556,6 @@ export default {
             shipment_status_id: this.movement.shipment_status_id,
             _method: "PUT",
           },
-          
         };
 
         await this.$axios.post(endpoint, data);

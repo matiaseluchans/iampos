@@ -27,7 +27,7 @@ class PriceListRepository extends BaseRepository
 
             $cacheKey = "tenant_{$tenantId}_price_lists_only";
 
-            return Cache::remember($cacheKey, 60 * 24, function () {
+            return Cache::remember($cacheKey, 60 * 24, function () use ($userId) {
                 $query = $this->model->query();
 
                 if ($userId == 9) {

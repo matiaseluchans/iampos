@@ -408,7 +408,7 @@
       </VDialog>
       
       <!-- Dialog Registrar pagos -->
-      <VDialog v-model="paymentFormDialog" max-width="1000px">
+      <VDialog v-model="paymentFormDialog" max-width="900px">
         <VCard>
           <VToolbar color="success">
             <VBtn icon="ri-close-line" color="white" @click="closePaymentForm" />
@@ -823,8 +823,8 @@ export default {
       return new Intl.NumberFormat("es-AR", {
         style: "currency",
         currency: "ARS",
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
       }).format(value);
     },  
 

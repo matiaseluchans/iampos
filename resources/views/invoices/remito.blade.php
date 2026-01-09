@@ -277,7 +277,7 @@
                 <div class="invoice-info">
                     <div class="invoice-title">REMITO</div>
                     <div class="invoice-number">N° {{ $order->order_number }}</div>
-                    <div class="invoice-date">Fecha: {{ $order->created_at->format("d/m/Y H:i:s") }}</div>
+                    <div class="invoice-date">Fecha: {{ $order->order_date->format("d/m/Y H:i:s") }}</div>
 
                 </div>
             </div>

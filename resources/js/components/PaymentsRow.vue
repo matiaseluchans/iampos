@@ -89,9 +89,28 @@
           </div>
         </template>
         
+
+        <template #item.payment_date="{ item }">
+          <VTextField
+            v-model="item.payment_date"
+            label="Fecha"
+            placeholder="dd/mm/yyyy"
+            v-mask="'##/##/####'"
+            clearable 
+            density="compact"
+            hide-details
+            :rules="[$rulesRequerido]"
+            v-if="!item.isExisting"
+          />
+          <span v-else class="text-medium-emphasis">
+              {{ formatDateForInput(item.payment_date) }}
+            </span>
+        </template>
         <!-- Método de pago -->
         <template #item.payment_method_id="{ item }">
           <div class="d-flex justify-center">
+
+            
             <VAutocomplete
               v-if="!item.isExisting"
               class="mx-auto"
@@ -161,6 +180,7 @@ export default {
     headers: [        
       { title: "", key: "actions", align: "center", width: "120px" },
       { title: "Id", key: "index", align: " d-none" },
+      { title: "Fecha", key: "payment_date", align: "center" },
       { title: "Método de pago", key: "payment_method_id", align: "center" },
       { title: "Importe", key: "amount", align: "center" },        
     ],            
@@ -202,6 +222,13 @@ export default {
     }
   },
   methods: {
+    formatDateForInput(dateString) {
+      if (!dateString) return "";
+      const date = new Date(dateString);
+      return `${date.getDate().toString().padStart(2, "0")}/${(date.getMonth() + 1)
+        .toString()
+        .padStart(2, "0")}/${date.getFullYear()}`;
+    },
     getPaymentMethodName(id) {
       const method = this.paymentMethods.find(m => m.id === id);
       return method ? method.name : 'Método no encontrado';
@@ -211,8 +238,8 @@ export default {
       return new Intl.NumberFormat("es-AR", {
         style: "currency",
         currency: "ARS",
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
       }).format(value);
     },
     onlyNumberInput(event) {
@@ -231,7 +258,8 @@ export default {
       const i = this.payments.length;
       this.newPayments.push({
         payment_method_id: "",
-        amount: "",                  
+        amount: "", 
+        payment_date:this.getDateTimeNow(),                 
         index: i,
         isExisting: false
       });

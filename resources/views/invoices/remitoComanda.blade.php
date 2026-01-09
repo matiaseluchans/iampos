@@ -159,7 +159,7 @@
                     <td>
                         <div class="document-info">
                             <div>REMITO N° {{ $order->order_number }}</div>
-                            <div>Fecha: {{ $order->created_at->format("d/m/Y H:i:s") }}</div>
+                            <div>Fecha: {{ $order->order_date->format("d/m/Y H:i:s") }}</div>
                         </div>
                     </td>
                 </tr>

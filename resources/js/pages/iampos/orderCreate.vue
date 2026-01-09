@@ -39,7 +39,7 @@
                 />
               </VCol>
             </VRow>
-            <VRow class="mb-0" :class="isAdminBebidas ? 'pb-0' : 'py-8'">
+            <VRow class="mb-0" :class="isAdminBebidas ? 'pb-0' : 'py-1'">
               <VCol cols="1" md="1" sm="1" class="mb-0 pt-0 d-none d-sm-flex">
                 <VAvatar
                   icon="ri-user-line"
@@ -48,7 +48,7 @@
                   size="40"
                 />
               </VCol>
-              <VCol cols="9" sm="9" md="5" class="mb-0 pt-0 ml-0">
+              <VCol cols="12" sm="9" md="10" class="mb-0 pt-0 ml-0 pr-0">
                 <VAutocomplete
                   v-model="order.customer_id"
                   :items="customers"
@@ -72,7 +72,7 @@
                   </template>
                 </VAutocomplete>
               </VCol>
-              <VCol cols="auto" class="mb-0 pt-0">
+              <VCol cols="auto" class="mb-0 pt-0 pl-2 pr-0">
                 <VBtn
                   @click="openCustomerDialog"
                   :color="$cv('principal')"
@@ -90,7 +90,23 @@
                   size="40"
                 />
               </VCol>-->
-              <VCol cols="9" sm="6" md="4" class="mb-0 pt-0 ml-0">
+              
+            </VRow>
+             <VRow class="mb-0 pt-0">
+               
+              <VCol cols="12" md="1" class="ml-0"> </VCol>
+              <VCol cols="12" sm="7" md="7" class="mb-0 pt-0">
+                <VTextField
+                  v-model="order.order_date"
+                  label="Fecha de Pedido"
+                  placeholder="dd/mm/yyyy"
+                  v-mask="'##/##/####'"
+                  clearable
+                  @focus="setDate(order.order_date)" 
+                  density="compact"
+                />
+              </VCol>
+              <VCol cols="12" sm="4" md="4" class="mb-0 pt-0 ml-0">
                 <VAutocomplete
                   v-model="selectedPriceList"
                   :items="priceLists"
@@ -658,7 +674,7 @@
   </VDialog>
 
   <!-- Dialog Registrar Pago -->
-  <VDialog v-model="paymentFormDialog" max-width="600px" persistent>
+  <VDialog v-model="paymentFormDialog" max-width="900px" persistent>
     <VCard class="rounded-lg">
       <!-- Header con gradiente y tipografía más limpia -->
       <VToolbar color="primary" density="compact" class="ml-0 pl-0">
@@ -830,6 +846,7 @@ export default {
         shipping: 0,
         shipping_address_status: false,
         seller_id: "",
+        order_date:""
       },
 
       // New item being added
@@ -959,6 +976,7 @@ export default {
           customer_id: orderData.customer.id,
           shipping_address: orderData.shipping_address,
           delivery_date: orderData.delivery_date,
+          order_date: orderData.order_date,
           subtotal: parseFloat(orderData.subtotal),
           aditional: parseFloat(orderData.aditional),
           discount_amount: parseFloat(orderData.discount_amount),
@@ -1011,8 +1029,13 @@ export default {
 
     setDate(value) {
       if (value) return;
-      let tomorrow = this.getDateTimeTomorrow();
+     const currentUser = this.$store.getters.currentUser;
 
+      let tomorrow = this.getDateTimeTomorrow();
+       if (currentUser.data.tenant.id == 3) {
+        tomorrow = this.getDateTimeNow();
+       }
+      this.order.order_date =this.getDateTimeNow();
       this.order.delivery_date = tomorrow;
     },
     updateTotal(newTotal) {
@@ -1079,6 +1102,8 @@ export default {
           this.onCustomerChange();
         }
         this.setDate(this.order.delivery_date);
+        this.setDate(this.order.order_date);
+        
 
         this.$forceUpdate();
       } catch (error) {
@@ -1404,6 +1429,7 @@ export default {
         shipping: 0,
         shipping_address: "",
         delivery_date: "",
+        order_date:"",
         subtotal: 0,
         aditional: 0,
         discount_amount: 0,
@@ -1550,8 +1576,8 @@ export default {
       return new Intl.NumberFormat("es-AR", {
         style: "currency",
         currency: "ARS",
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0,
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
       }).format(value);
     },
 

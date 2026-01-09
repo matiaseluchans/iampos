@@ -660,7 +660,7 @@
       </VDialog>
 
       <!-- Dialog Registrar pagos -->
-      <VDialog v-model="paymentFormDialog" max-width="600px" persistent>
+      <VDialog v-model="paymentFormDialog" max-width="900px" persistent>
         <VCard class="rounded-lg">
           <!-- Header con gradiente y tipografía más limpia -->
           <VToolbar color="primary" density="compact" class="ml-0 pl-0">
@@ -1312,8 +1312,8 @@ export default {
       return new Intl.NumberFormat("es-AR", {
         style: "currency",
         currency: "ARS",
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0,
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
       }).format(value);
     },
 
