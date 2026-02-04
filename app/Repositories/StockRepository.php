@@ -63,7 +63,8 @@ class StockRepository extends BaseRepository
             $stock = $this->model->findOrFail($stockId);
             $movements = $stock->movements()
                 ->with(['user' /*, 'sourceDocument'*/])
-                ->orderBy('created_at', 'desc')
+                //->orderBy('created_at', 'desc')
+                ->orderBy('id', 'desc')
                 ->get();
 
             return $this->successResponse($movements);

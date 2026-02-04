@@ -55,15 +55,13 @@ class PaymentSummaryController extends Controller
 
         // Paginación
         $perPage = $request->input('per_page', 10);
-        $payments = $query->paginate($perPage);
+        //$payments = $query->paginate($perPage);
+        $payments = $query->get();
 
         return response()->json([
             'success' => true,
-            'data' => $payments->items(),
-            'total' => $payments->total(),
-            'current_page' => $payments->currentPage(),
-            'last_page' => $payments->lastPage(),
-            'per_page' => $payments->perPage()
+            'data' => $payments,
+            'total' => $payments->count(), // Total de registros
         ]);
     }
 

@@ -728,7 +728,7 @@ class OrderRepository extends BaseRepository
 
                     // Calcular nueva cantidad
                     if ($operation === 'decrement') {
-                        $newQuantity = max(0, $previousQuantity - $quantityChange);
+                        $newQuantity =  $previousQuantity - $quantityChange;
                         $movementQuantity = -$quantityChange;
                     } else {
                         $newQuantity = $previousQuantity + $quantityChange;

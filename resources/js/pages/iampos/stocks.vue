@@ -13,13 +13,9 @@
             <VCardText>
               <VRow>
                 <VCol cols="12" sm="6" class="pl-0 pt-20 py-2">
-                  <VTextField
-                    v-model="search"
-                     
-                    label="Buscar en stock"
-                  />
+                  <VTextField v-model="search" label="Buscar en stock" />
                 </VCol>
-                
+
                 <VCol cols="12" sm="3" class="pt-20 py-2">
                   <VAutocomplete
                     v-model="selectedWarehouse"
@@ -98,10 +94,7 @@
 
         <template #item.quantity="{ item }">
           <div class="d-flex align-center gap-2">
-            <VChip
-              :color="getStockLevelColor(item)"
-              density="comfortable"
-            >
+            <VChip :color="getStockLevelColor(item)" density="comfortable">
               {{ item.quantity }}
             </VChip>
             <span v-if="item.reserved_quantity > 0" class="text-caption">
@@ -119,10 +112,7 @@
         </template>
 
         <template #item.available="{ item }">
-          <VChip
-            :color="item.available > 0 ? 'success' : 'error'"
-            density="comfortable"
-          >
+          <VChip :color="item.available > 0 ? 'success' : 'error'" density="comfortable">
             {{ item.available }}
           </VChip>
         </template>
@@ -187,11 +177,7 @@
       <v-dialog v-model="movementDialog" max-width="700px">
         <VCard>
           <v-toolbar color="primary">
-            <v-btn
-              icon="ri-close-line"
-              color="white"
-              @click="closeMovementDialog"
-            />
+            <v-btn icon="ri-close-line" color="white" @click="closeMovementDialog" />
             <v-toolbar-title>{{ movementFormTitle }}</v-toolbar-title>
             <v-spacer />
           </v-toolbar>
@@ -204,10 +190,9 @@
                       v-model="movement.product_id"
                       :items="products"
                       :item-title="productTitle"
-                      
                       item-value="id"
                       label="Producto"
-                      :rules="[v => !!v || 'Producto es requerido']"
+                      :rules="[(v) => !!v || 'Producto es requerido']"
                       :disabled="!!selectedStockItem"
                     />
                   </VCol>
@@ -218,7 +203,7 @@
                       item-title="name"
                       item-value="id"
                       label="Depósito"
-                      :rules="[v => !!v || 'Depósito es requerido']"
+                      :rules="[(v) => !!v || 'Depósito es requerido']"
                       :disabled="!!selectedStockItem"
                     />
                   </VCol>
@@ -229,7 +214,7 @@
                       item-title="text"
                       item-value="value"
                       label="Tipo de movimiento"
-                      :rules="[v => !!v || 'Tipo es requerido']"
+                      :rules="[(v) => !!v || 'Tipo es requerido']"
                     />
                   </VCol>
                   <VCol cols="12" sm="4">
@@ -238,7 +223,6 @@
                       label="Cantidad"
                       type="number"
                       step="1"
-                      
                     />
                   </VCol>
                   <VCol cols="12" sm="4" v-if="!selectedStockItem">
@@ -266,11 +250,11 @@
                       placeholder="Motivo del movimiento"
                     />
                   </VCol>
-                  <VCol cols="12" v-if="(movement.movement_type === 'salida') && selectedStockItem">
-                    <VAlert
-                      type="info"
-                      variant="tonal"
-                    >
+                  <VCol
+                    cols="12"
+                    v-if="movement.movement_type === 'salida' && selectedStockItem"
+                  >
+                    <VAlert type="info" variant="tonal">
                       Stock disponible: {{ selectedStockItem.available }}
                     </VAlert>
                   </VCol>
@@ -282,8 +266,8 @@
               <VBtn variant="outlined" color="primary" @click="closeMovementDialog">
                 Cancelar
               </VBtn>
-              <VBtn 
-                class="bg-primary" 
+              <VBtn
+                class="bg-primary"
                 color="white"
                 @click="saveMovement"
                 :loading="savingMovement"
@@ -299,11 +283,7 @@
       <v-dialog v-model="transferDialog" max-width="1100px">
         <VCard>
           <v-toolbar color="secondary">
-            <v-btn
-              icon="ri-close-line"
-              color="white"
-              @click="closeTransferDialog"
-            />
+            <v-btn icon="ri-close-line" color="white" @click="closeTransferDialog" />
             <v-toolbar-title>Transferir Stock</v-toolbar-title>
             <v-spacer />
           </v-toolbar>
@@ -318,7 +298,7 @@
                       :item-title="productTitle"
                       item-value="id"
                       label="Producto"
-                      :rules="[v => !!v || 'Producto es requerido']"
+                      :rules="[(v) => !!v || 'Producto es requerido']"
                     />
                   </VCol>
                   <VCol cols="12" sm="6">
@@ -328,7 +308,7 @@
                       item-title="name"
                       item-value="id"
                       label="Desde depósito"
-                      :rules="[v => !!v || 'Depósito origen es requerido']"
+                      :rules="[(v) => !!v || 'Depósito origen es requerido']"
                     />
                   </VCol>
                   <VCol cols="12" sm="6">
@@ -339,8 +319,10 @@
                       item-value="id"
                       label="Hacia depósito"
                       :rules="[
-                        v => !!v || 'Depósito destino es requerido',
-                        v => v !== transfer.from_warehouse_id || 'Debe ser diferente al origen'
+                        (v) => !!v || 'Depósito destino es requerido',
+                        (v) =>
+                          v !== transfer.from_warehouse_id ||
+                          'Debe ser diferente al origen',
                       ]"
                     />
                   </VCol>
@@ -351,8 +333,8 @@
                       type="number"
                       step="1"
                       :rules="[
-                        v => !!v || 'Cantidad es requerida',
-                        v => v > 0 || 'Debe ser mayor a 0'
+                        (v) => !!v || 'Cantidad es requerida',
+                        (v) => v > 0 || 'Debe ser mayor a 0',
                       ]"
                     />
                   </VCol>
@@ -371,9 +353,9 @@
               <VBtn variant="outlined" color="secondary" @click="closeTransferDialog">
                 Cancelar
               </VBtn>
-              <VBtn 
-                class="bg-secondary" 
-                color="white" 
+              <VBtn
+                class="bg-secondary"
+                color="white"
                 @click="saveTransfer"
                 :loading="savingTransfer"
               >
@@ -388,11 +370,7 @@
       <v-dialog v-model="reserveDialog" max-width="500px">
         <VCard>
           <v-toolbar color="info">
-            <v-btn
-              icon="ri-close-line"
-              color="white"
-              @click="closeReserveDialog"
-            />
+            <v-btn icon="ri-close-line" color="white" @click="closeReserveDialog" />
             <v-toolbar-title>Reservar Stock</v-toolbar-title>
             <v-spacer />
           </v-toolbar>
@@ -402,7 +380,7 @@
                 <VRow>
                   <VCol cols="12">
                     <VAlert type="info" variant="tonal">
-                      Producto: {{ selectedStockItem?.product?.name }}<br>
+                      Producto: {{ selectedStockItem?.product?.name }}<br />
                       Stock disponible: {{ selectedStockItem?.available }}
                     </VAlert>
                   </VCol>
@@ -413,9 +391,11 @@
                       type="number"
                       step="1"
                       :rules="[
-                        v => !!v || 'Cantidad es requerida',
-                        v => v > 0 || 'Debe ser mayor a 0',
-                        v => v <= selectedStockItem?.available || 'No hay suficiente stock disponible'
+                        (v) => !!v || 'Cantidad es requerida',
+                        (v) => v > 0 || 'Debe ser mayor a 0',
+                        (v) =>
+                          v <= selectedStockItem?.available ||
+                          'No hay suficiente stock disponible',
                       ]"
                     />
                   </VCol>
@@ -427,9 +407,9 @@
               <VBtn variant="outlined" color="info" @click="closeReserveDialog">
                 Cancelar
               </VBtn>
-              <VBtn 
-              class="bg-info"
-                color="white" 
+              <VBtn
+                class="bg-info"
+                color="white"
                 @click="saveReserve"
                 :loading="savingReserve"
               >
@@ -444,11 +424,7 @@
       <v-dialog v-model="historyDialog" max-width="1100px">
         <VCard>
           <v-toolbar color="primary">
-            <v-btn
-              icon="ri-close-line"
-              color="white"
-              @click="historyDialog = false"
-            />
+            <v-btn icon="ri-close-line" color="white" @click="historyDialog = false" />
             <v-toolbar-title>Historial de movimientos</v-toolbar-title>
             <v-spacer />
           </v-toolbar>
@@ -464,8 +440,8 @@
                 </VChip>
               </template>
               <template #item.quantity="{ item }">
-                <span :class="getQuantityClass(item.movement_type)">
-                  {{   item.quantity > 0 ? '+' : '' }}{{item.quantity }}
+                <span :class="getQuantityClass(item.quantity)">
+                  {{ item.quantity > 0 ? "+" : "" }}{{ item.quantity }}
                 </span>
               </template>
               <template #item.created_at="{ item }">
@@ -480,16 +456,11 @@
       <v-dialog v-model="summaryDialog" max-width="800px">
         <VCard>
           <v-toolbar color="info">
-            <v-btn
-              icon="ri-close-line"
-              color="white"
-              @click="summaryDialog = false"
-            />
+            <v-btn icon="ri-close-line" color="white" @click="summaryDialog = false" />
             <v-toolbar-title>Resumen de Stock</v-toolbar-title>
             <v-spacer />
           </v-toolbar>
           <VCardText>
-
             <VRow class="pt-6">
               <VCol cols="12" sm="6" md="6">
                 <VCard color="primary" variant="tonal">
@@ -502,7 +473,9 @@
               <VCol cols="12" sm="6" md="6">
                 <VCard color="success" variant="tonal">
                   <VCardText class="text-center">
-                    <div class="text-h4">${{ formatCurrency(stockSummary.total_stock_value) }}</div>
+                    <div class="text-h4">
+                      ${{ formatCurrency(stockSummary.total_stock_value) }}
+                    </div>
                     <div class="text-caption">Valor Total</div>
                   </VCardText>
                 </VCard>
@@ -533,9 +506,7 @@
       <v-snackbar v-model="snackbar" :color="snackbarColor" :timeout="3000">
         {{ snackbarText }}
         <template v-slot:action="{ attrs }">
-          <v-btn text v-bind="attrs" @click="snackbar = false">
-            Cerrar
-          </v-btn>
+          <v-btn text v-bind="attrs" @click="snackbar = false"> Cerrar </v-btn>
         </template>
       </v-snackbar>
     </VCardText>
@@ -547,7 +518,7 @@ export default {
   data() {
     return {
       loading: false,
-      search: '',
+      search: "",
       stock: [],
       products: [],
       warehouses: [],
@@ -555,129 +526,130 @@ export default {
       selectedWarehouse: null,
       selectedStockItem: null,
       stockFilter: null,
-      
+
       // Dialogs
       movementDialog: false,
       transferDialog: false,
       reserveDialog: false,
       historyDialog: false,
       summaryDialog: false,
-      
+
       // Form validations
       validMovement: false,
       validTransfer: false,
       validReserve: false,
-      
+
       // Loading states
       savingMovement: false,
       savingTransfer: false,
       savingReserve: false,
-      
+
       // Forms data
       movement: {
         product_id: null,
         warehouse_id: null,
-        movement_type: 'entrada',
+        movement_type: "entrada",
         quantity: 1,
         minimum_stock: 0,
         maximum_stock: 0,
-        notes: ''
+        notes: "",
       },
-      
+
       transfer: {
         product_id: null,
         from_warehouse_id: null,
         to_warehouse_id: null,
         quantity: 1,
-        notes: ''
+        notes: "",
       },
-      
+
       reserve: {
-        quantity: 1
+        quantity: 1,
       },
-      
+
       // Options
       movementTypes: [
-        { text: 'Entrada', value: 'entrada' },
-        { text: 'Salida', value: 'salida' },
-        { text: 'Fraccionado', value: 'fraccionado' },
-        { text: 'Ajuste', value: 'ajuste' },
-        { text: 'Transferencia', value: 'transferencia' }
+        { text: "Entrada", value: "entrada" },
+        { text: "Salida", value: "salida" },
+        { text: "Fraccionado", value: "fraccionado" },
+        { text: "Ajuste", value: "ajuste" },
+        { text: "Transferencia", value: "transferencia" },
       ],
-      
+
       stockFilterOptions: [
-        { title: 'Todos', value: null },
-        { title: 'Stock Bajo', value: 'low' },
-        { title: 'Sin Stock', value: 'empty' }
+        { title: "Todos", value: null },
+        { title: "Stock Bajo", value: "low" },
+        { title: "Sin Stock", value: "empty" },
       ],
-      
+
       // Data
       movementHistory: [],
       stockSummary: {
         total_products: 0,
         total_stock_value: 0,
         low_stock_count: 0,
-        out_of_stock_count: 0
+        out_of_stock_count: 0,
       },
-      
+
       // Snackbar
       snackbar: false,
-      snackbarText: '',
-      snackbarColor: 'success',
-      
+      snackbarText: "",
+      snackbarColor: "success",
+
       // Headers
       headers: [
-        { title: 'Acciones', key: 'actions', sortable: false, width: '100px' },
-        { title: 'Codigo', key: 'product.code', width: '50px' },
-        { title: 'Producto', key: 'product.name', width: '250px' },
-       /* { title: 'Depósito', key: 'warehouse.name', width: '150px' },*/
-        { title: 'Stock', key: 'quantity', width: '50px' },
+        { title: "Acciones", key: "actions", sortable: false, width: "100px" },
+        { title: "Codigo", key: "product.code", width: "50px" },
+        { title: "Producto", key: "product.name", width: "250px" },
+        /* { title: 'Depósito', key: 'warehouse.name', width: '150px' },*/
+        { title: "Stock", key: "quantity", width: "50px" },
         /*{ title: 'Disponible', key: 'available', width: '120px' },
         { title: 'Reservado', key: 'reserved_quantity', width: '120px' },*/
-        { title: 'Mín', key: 'minimum_stock', width: '80px' },
+        { title: "Mín", key: "minimum_stock", width: "80px" },
         //{ title: 'Nivel min', key: 'stock_level_min', width: '150px' },
         //{ title: 'Máx', key: 'maximum_stock', width: '50px' },
         //{ title: 'Nivel Max', key: 'stock_level', width: '150px' }
       ],
-      
+
       historyHeaders: [
-        { title: 'Fecha', key: 'created_at' },
-        { title: 'Tipo', key: 'movement_type' },
-        { title: 'Cantidad', key: 'quantity' },
-        { title: 'Stock anterior', key: 'previous_quantity' },
-        { title: 'Stock nuevo', key: 'new_quantity' },
-        { title: 'Usuario', key: 'user.name' },
-        { title: 'Notas', key: 'notes' }
-      ]
-    }
+        { title: "Fecha", key: "created_at" },
+        { title: "Tipo", key: "movement_type" },
+        { title: "Cantidad", key: "quantity" },
+        { title: "Stock anterior", key: "previous_quantity" },
+        { title: "Stock nuevo", key: "new_quantity" },
+        { title: "Usuario", key: "user.name" },
+        { title: "Notas", key: "notes" },
+      ],
+    };
   },
 
   computed: {
     showHeaders() {
-      return this.headers
+      return this.headers;
     },
 
     filteredStock() {
       let filtered = this.stock;
-      
-      
+
       // Filtrar por producto seleccionado
       if (this.selectedProduct) {
-        filtered = filtered.filter(item => item.product?.id === this.selectedProduct);
+        filtered = filtered.filter((item) => item.product?.id === this.selectedProduct);
       }
-      
+
       // Filtrar por depósito seleccionado
       if (this.selectedWarehouse) {
-        filtered = filtered.filter(item => item.warehouse?.id === this.selectedWarehouse);
+        filtered = filtered.filter(
+          (item) => item.warehouse?.id === this.selectedWarehouse
+        );
       }
-      
+
       // Filtrar por tipo de stock
-      if (this.stockFilter === 'low') {
-        filtered = filtered.filter(item => item.available < item.minimum_stock);
-      } else if (this.stockFilter === 'empty') {
-        filtered = filtered.filter(item => item.quantity <= 0);
+      if (this.stockFilter === "low") {
+        filtered = filtered.filter((item) => item.available < item.minimum_stock);
+      } else if (this.stockFilter === "empty") {
+        filtered = filtered.filter((item) => item.quantity <= 0);
       }
-      
+
       // Filtrar por término de búsqueda
       /*if (this.search) {
         const searchTerm = this.search.toLowerCase();
@@ -689,49 +661,47 @@ export default {
           );
         });
       }*/
-       
+
       return filtered;
     },
 
     movementFormTitle() {
-      return this.selectedStockItem 
+      return this.selectedStockItem
         ? `Registrar movimiento para ${this.selectedStockItem.product.name}`
-        : 'Registrar movimiento de stock'
+        : "Registrar movimiento de stock";
     },
 
     quantityRules() {
       const rules = [
-        v => !!v || 'Cantidad es requerida',
-        v => v > 0 || 'Debe ser mayor a 0'
+        (v) => !!v || "Cantidad es requerida",
+        (v) => v > 0 || "Debe ser mayor a 0",
       ];
 
-      if ((this.movement.movement_type === 'salida' ) && this.selectedStockItem) {
-        rules.push(v => v <= this.selectedStockItem.available || 'Stock insuficiente');
+      if (this.movement.movement_type === "salida" && this.selectedStockItem) {
+        rules.push((v) => v <= this.selectedStockItem.available || "Stock insuficiente");
       }
 
       return rules;
-    }
+    },
   },
 
   async created() {
-    await this.fetchData()
+    await this.fetchData();
   },
 
   methods: {
-
-     productTitle(item) {
+    productTitle(item) {
       const currentUser = this.$store.getters.currentUser;
       let title = item.name;
       const price = item.display_price || item.sale_price;
-       
+
       if (currentUser.data.tenant.id == 2) {
         title = `[${item.code}] ${item.name} `;
       }
       if (currentUser.data.tenant.id == 3) {
         title = `${item.name} [${item.code}]`;
       }
-      
-      
+
       // Agregar el precio al título
       //return `${title} - $${this.formatNumber(price)}`;
       return `${title}`;
@@ -749,29 +719,24 @@ export default {
     async fetchData() {
       this.loading = true;
       try {
-
-    
-
         const [stockRes, productsRes, warehousesRes] = await Promise.all([
           this.$axios.get(this.$routes["stocks"]),
           this.$axios.get(this.$routes["products"]),
-          this.$axios.get(this.$routes["warehouses"])
-        ])
-        
+          this.$axios.get(this.$routes["warehouses"]),
+        ]);
+
         this.stock = stockRes.data.data;
 
-      
-        this.stock = stockRes.data.data.map(item => ({
+        this.stock = stockRes.data.data.map((item) => ({
           ...item,
-          available: item.quantity - item.reserved_quantity
-        }))
-       
-        this.products = productsRes.data.data
-        this.warehouses = warehousesRes.data.data
- 
+          available: item.quantity - item.reserved_quantity,
+        }));
+
+        this.products = productsRes.data.data;
+        this.warehouses = warehousesRes.data.data;
       } catch (error) {
-        console.error('Error fetching data:', error)
-        this.showSnackbar('Error al cargar los datos', 'error')
+        console.error("Error fetching data:", error);
+        this.showSnackbar("Error al cargar los datos", "error");
       } finally {
         this.loading = false;
       }
@@ -780,57 +745,60 @@ export default {
     // Movement Dialog Methods
     openMovementDialog(item) {
       if (item) {
-        this.selectedStockItem = item
-        this.movement.product_id = item.product.id
-        this.movement.warehouse_id = item.warehouse ? item.warehouse.id : null
+        this.selectedStockItem = item;
+        this.movement.product_id = item.product.id;
+        this.movement.warehouse_id = item.warehouse ? item.warehouse.id : null;
       } else {
-        this.selectedStockItem = null
-        this.movement.product_id = null
+        this.selectedStockItem = null;
+        this.movement.product_id = null;
 
         //seteo el warehouse code = al tenant, tiene que existir un warehouse por tenant con el mismo codigo
         const currentUser = this.$store.getters.currentUser;
-        let warehouseCode = currentUser.data.tenant.id;     
-        this.movement.warehouse_id = warehouseCode
+        let warehouseCode = currentUser.data.tenant.id;
+        this.movement.warehouse_id = warehouseCode;
       }
-      
+
       console.log(this.movement);
-      this.movementDialog = true
+      this.movementDialog = true;
     },
 
     closeMovementDialog() {
-      this.movementDialog = false
-      this.$refs.movementForm?.reset()
-      this.selectedStockItem = null
+      this.movementDialog = false;
+      this.$refs.movementForm?.reset();
+      this.selectedStockItem = null;
       this.movement = {
         product_id: null,
         warehouse_id: null,
-        movement_type: 'entrada',
+        movement_type: "entrada",
         quantity: 1,
         minimum_stock: 0,
-        maximum_stock:0,
-        notes: ''
-      }
+        maximum_stock: 0,
+        notes: "",
+      };
     },
 
     async saveMovement() {
-      const isValid = await this.$refs.movementForm.validate()
-      if (!isValid) return
-      
+      const isValid = await this.$refs.movementForm.validate();
+      if (!isValid) return;
+
       this.savingMovement = true;
       try {
         let endpoint, data;
-        
+
         if (this.selectedStockItem) {
           // Existing stock - record movement
-          endpoint = `${this.$routes["stocks"]}/${this.selectedStockItem.id}/movements`
+          endpoint = `${this.$routes["stocks"]}/${this.selectedStockItem.id}/movements`;
           data = {
             movement_type: this.movement.movement_type,
-            quantity: (this.movement.movement_type === 'salida' ) ? -Math.abs(this.movement.quantity) : Math.abs(this.movement.quantity),
-            notes: this.movement.notes
-          }
+            quantity:
+              this.movement.movement_type === "salida"
+                ? -Math.abs(this.movement.quantity)
+                : Math.abs(this.movement.quantity),
+            notes: this.movement.notes,
+          };
         } else {
           // New stock - create or update
-          endpoint = `${this.$routes["stocks"]}/create-or-update`
+          endpoint = `${this.$routes["stocks"]}/create-or-update`;
           data = {
             product_id: this.movement.product_id,
             warehouse_id: this.movement.warehouse_id,
@@ -838,17 +806,19 @@ export default {
             minimum_stock: this.movement.minimum_stock,
             maximum_stock: this.movement.maximum_stock,
             movement_type: this.movement.movement_type,
-
-          }
+          };
         }
-        
-        await this.$axios.post(endpoint, data)
-        this.showSnackbar('Movimiento registrado correctamente', 'success')
-        this.closeMovementDialog()
-        await this.fetchData()
+
+        await this.$axios.post(endpoint, data);
+        this.showSnackbar("Movimiento registrado correctamente", "success");
+        this.closeMovementDialog();
+        await this.fetchData();
       } catch (error) {
-        console.error('Error saving movement:', error)
-        this.showSnackbar(error.response?.data?.message || 'Error al registrar el movimiento', 'error')
+        console.error("Error saving movement:", error);
+        this.showSnackbar(
+          error.response?.data?.message || "Error al registrar el movimiento",
+          "error"
+        );
       } finally {
         this.savingMovement = false;
       }
@@ -856,34 +826,37 @@ export default {
 
     // Transfer Dialog Methods
     openTransferDialog() {
-      this.transferDialog = true
+      this.transferDialog = true;
     },
 
     closeTransferDialog() {
-      this.transferDialog = false
-      this.$refs.transferForm?.reset()
+      this.transferDialog = false;
+      this.$refs.transferForm?.reset();
       this.transfer = {
         product_id: null,
         from_warehouse_id: null,
         to_warehouse_id: null,
         quantity: 1,
-        notes: ''
-      }
+        notes: "",
+      };
     },
 
     async saveTransfer() {
-      const isValid = await this.$refs.transferForm.validate()
-      if (!isValid) return
-      
+      const isValid = await this.$refs.transferForm.validate();
+      if (!isValid) return;
+
       this.savingTransfer = true;
       try {
-        await this.$axios.post(`${this.$routes["stocks"]}/transfer`, this.transfer)
-        this.showSnackbar('Transferencia realizada correctamente', 'success')
-        this.closeTransferDialog()
-        await this.fetchData()
+        await this.$axios.post(`${this.$routes["stocks"]}/transfer`, this.transfer);
+        this.showSnackbar("Transferencia realizada correctamente", "success");
+        this.closeTransferDialog();
+        await this.fetchData();
       } catch (error) {
-        console.error('Error saving transfer:', error)
-        this.showSnackbar(error.response?.data?.message || 'Error al realizar la transferencia', 'error')
+        console.error("Error saving transfer:", error);
+        this.showSnackbar(
+          error.response?.data?.message || "Error al realizar la transferencia",
+          "error"
+        );
       } finally {
         this.savingTransfer = false;
       }
@@ -892,30 +865,36 @@ export default {
     // Reserve Dialog Methods
     openReserveDialog(item) {
       console.log(item);
-      this.selectedStockItem = item
-      this.reserveDialog = true
+      this.selectedStockItem = item;
+      this.reserveDialog = true;
     },
 
     closeReserveDialog() {
-      this.reserveDialog = false
-      this.$refs.reserveForm?.reset()
-      this.selectedStockItem = null
-      this.reserve = { quantity: 1 }
+      this.reserveDialog = false;
+      this.$refs.reserveForm?.reset();
+      this.selectedStockItem = null;
+      this.reserve = { quantity: 1 };
     },
 
     async saveReserve() {
-      const isValid = await this.$refs.reserveForm.validate()
-      if (!isValid) return
-      
+      const isValid = await this.$refs.reserveForm.validate();
+      if (!isValid) return;
+
       this.savingReserve = true;
       try {
-        await this.$axios.post(`${this.$routes["stocks"]}/${this.selectedStockItem.id}/reserve`, this.reserve)
-        this.showSnackbar('Stock reservado correctamente', 'success')
-        this.closeReserveDialog()
-        await this.fetchData()
+        await this.$axios.post(
+          `${this.$routes["stocks"]}/${this.selectedStockItem.id}/reserve`,
+          this.reserve
+        );
+        this.showSnackbar("Stock reservado correctamente", "success");
+        this.closeReserveDialog();
+        await this.fetchData();
       } catch (error) {
-        console.error('Error reserving stock:', error)
-        this.showSnackbar(error.response?.data?.message || 'Error al reservar el stock', 'error')
+        console.error("Error reserving stock:", error);
+        this.showSnackbar(
+          error.response?.data?.message || "Error al reservar el stock",
+          "error"
+        );
       } finally {
         this.savingReserve = false;
       }
@@ -924,73 +903,80 @@ export default {
     // History Methods
     async showHistory(item) {
       try {
-        const res = await this.$axios.get(`${this.$routes["stocks"]}/${item.id}/movements?include=user`)
-        this.movementHistory = res.data.data
-        this.historyDialog = true
+        const res = await this.$axios.get(
+          `${this.$routes["stocks"]}/${item.id}/movements?include=user`
+        );
+        this.movementHistory = res.data.data;
+        this.historyDialog = true;
       } catch (error) {
-        console.error('Error fetching history:', error)
-        this.showSnackbar('Error al cargar el historial', 'error')
+        console.error("Error fetching history:", error);
+        this.showSnackbar("Error al cargar el historial", "error");
       }
     },
 
     // Summary Methods
     async showSummary() {
       try {
-        const res = await this.$axios.get(`${this.$routes["stocks"]}/summary`)
-        this.stockSummary = res.data.data
-        this.summaryDialog = true
+        const res = await this.$axios.get(`${this.$routes["stocks"]}/summary`);
+        this.stockSummary = res.data.data;
+        this.summaryDialog = true;
       } catch (error) {
-        console.error('Error fetching summary:', error)
-        this.showSnackbar('Error al cargar el resumen', 'error')
+        console.error("Error fetching summary:", error);
+        this.showSnackbar("Error al cargar el resumen", "error");
       }
     },
 
     // Utility Methods
     getStockLevelColor(item) {
-      if (!item.minimum_stock) return 'primary'
-      
-      if (item.available <= 0) return 'error'
-      if (item.available < item.minimum_stock) return 'warning'
-      return 'success'
+      if (!item.minimum_stock) return "primary";
+
+      if (item.available <= 0) return "error";
+      if (item.available < item.minimum_stock) return "warning";
+      return "success";
     },
 
     calculateStockPercentage(item) {
-      if (!item.maximum_stock || item.maximum_stock <= 0) return 0
-      return (item.quantity / item.maximum_stock) * 100
+      if (!item.maximum_stock || item.maximum_stock <= 0) return 0;
+      return (item.quantity / item.maximum_stock) * 100;
     },
     calculateStockPercentageMin(item) {
-      if (!item.minimum_stock || item.minimum_stock <= 0) return 0
-      return (item.quantity / item.minimum_stock) * 100
+      if (!item.minimum_stock || item.minimum_stock <= 0) return 0;
+      return (item.quantity / item.minimum_stock) * 100;
     },
 
     formatMovementType(type) {
       const types = {
-        entrada: 'Entrada',
-        salida: 'Salida',
-        ajuste: 'Ajuste',
-        transferencia: 'Transferencia',
-        fraccionado: "Fraccionado"
-      }
-      return types[type] || type
+        entrada: "Entrada",
+        salida: "Salida",
+        ajuste: "Ajuste",
+        transferencia: "Transferencia",
+        fraccionado: "Fraccionado",
+      };
+      return types[type] || type;
     },
 
     getMovementTypeColor(type) {
       const colors = {
-        entrada: 'success',
-        salida: 'error',
-        fraccionado: 'error',
-        ajuste: 'warning',
-        transferencia: 'info'
-      }
-      return colors[type] || 'primary'
+        entrada: "success",
+        salida: "error",
+        fraccionado: "error",
+        ajuste: "warning",
+        transferencia: "info",
+      };
+      return colors[type] || "primary";
     },
 
-    getQuantityClass(type) {
-      return ['entrada', 'ajuste','inicial'].includes(type) ? 'text-success' : 'text-error'
+    getQuantityClass(quantity) {
+      if (quantity > 0) {
+        return "text-success";
+      } else {
+        return "text-error";
+      }
+      //return ['entrada', 'ajuste','inicial','ajuste pre edicion'].includes(type) ? 'text-success' : 'text-error'
     },
 
     formatDate(date) {
-      return new Date(date).toLocaleString()
+      return new Date(date).toLocaleString();
     },
 
     formatCurrency(value) {
@@ -999,29 +985,29 @@ export default {
         style: "currency",
         currency: "ARS",
         minimumFractionDigits: 2,
-        maximumFractionDigits: 2
+        maximumFractionDigits: 2,
       }).format(value);
     },
 
     showSnackbar(text, color) {
-      this.snackbarText = text
-      this.snackbarColor = color
-      this.snackbar = true
-    }
-  }
-}
+      this.snackbarText = text;
+      this.snackbarColor = color;
+      this.snackbar = true;
+    },
+  },
+};
 </script>
 
 <style scoped>
 .text-success {
-  color: #4CAF50;
+  color: #4caf50;
 }
 
 .text-error {
-  color: #F44336;
+  color: #f44336;
 }
 
 .text-disabled {
-  color: #9E9E9E;
+  color: #9e9e9e;
 }
 </style>
