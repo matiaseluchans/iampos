@@ -68,11 +68,14 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::apiResource('customers', App\Http\Controllers\CustomerController::class);
     Route::apiResource('categories', App\Http\Controllers\CategoryController::class);
 
-    //Route::post('products/{id}', [App\Http\Controllers\ProductController::class, 'update']);
+    // Product Excel Import Routes (Must be before apiResource)
+    Route::get('/listproduct/export-excel', [App\Http\Controllers\ProductController::class, 'exportExcel']);
+    Route::post('/products/import-excel-preview', [App\Http\Controllers\ProductController::class, 'importExcelPreview']);
+    Route::post('/products/import-excel-confirm', [App\Http\Controllers\ProductController::class, 'importExcelConfirm']);
+    Route::get('/products/import-excel-history', [App\Http\Controllers\ProductController::class, 'importExcelHistory']);
+
     Route::apiResource('products', App\Http\Controllers\ProductController::class);
     Route::put('products_changestatus/{id}', [App\Http\Controllers\ProductController::class, 'changestatus']);
-
-    Route::get('/listproduct/export-excel', [App\Http\Controllers\ProductController::class, 'exportExcel']);
     /*
         Route::post('products/{id}', [App\Http\Controllers\OrderController::class, 'update']);
     Route::apiResource('products', App\Http\Controllers\ProductController::class)->except(['update']);

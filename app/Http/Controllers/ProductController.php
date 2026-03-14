@@ -10,12 +10,15 @@ use App\Models\Brand;
 use App\Models\Category;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
-
-
+use App\Models\ProductImportLog;
+use App\Models\PriceList;
 use App\Exports\ProductsListAndStockExport;
+use App\Imports\ProductImport;
+use App\Jobs\UpdateProductPricesJob;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Str;
 
 class ProductController extends ApiController
 {
@@ -401,6 +404,185 @@ class ProductController extends ApiController
                 'success' => false,
                 'message' => 'Error al generar el archivo: ' . $e->getMessage()
             ], 500);
+        }
+    }
+
+    /**
+     * Preview changes from Excel import
+     */
+    public function importExcelPreview(Request $request)
+    {
+        // Debug logging to see exactly what's arriving
+        \Log::info('📥 Petición de importación recibida', [
+            'has_file' => $request->hasFile('file'),
+            'file_name' => $request->hasFile('file') ? $request->file('file')->getClientOriginalName() : null,
+            'file_mime' => $request->hasFile('file') ? $request->file('file')->getMimeType() : null,
+            'all_data' => $request->except('file')
+        ]);
+
+        $validator = Validator::make($request->all(), [
+            'file' => 'required|max:10240', // Relaxed mime validation
+        ]);
+
+        if ($validator->fails()) {
+            \Log::warning('⚠️ Fallo de validación en importExcelPreview', ['errors' => $validator->errors()->toArray()]);
+            return $this->errorResponse(new \Exception($validator->errors()->first()), 'Error de validación', 422);
+        }
+
+        try {
+            $file = $request->file('file');
+            
+            if (!$file || !$file->isValid()) {
+                throw new \Exception('El archivo no es válido o no se cargó correctamente');
+            }
+
+            $data = Excel::toCollection(new ProductImport, $file);
+
+            if ($data->isEmpty() || $data->first()->isEmpty()) {
+                return $this->errorResponse(new \Exception('El archivo está vacío'), 'Archivo vacío', 400);
+            }
+
+            $rows = $data->first();
+            $previews = [];
+            $allPriceLists = PriceList::all();
+
+            foreach ($rows as $row) {
+                $productId = $row['id'] ?? null;
+                $productCode = $row['codigo'] ?? null;
+
+                $product = null;
+                if ($productId) {
+                    $product = Product::with('priceLists')->find($productId);
+                } elseif ($productCode) {
+                    $product = Product::with('priceLists')->where('code', $productCode)->first();
+                }
+
+                if (!$product) {
+                    continue;
+                }
+
+                $newPurchasePrice = $row['precio_compra'] ?? null;
+                $changes = [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'code' => $product->code,
+                    'old_purchase_price' => $product->purchase_price,
+                    'new_purchase_price' => $newPurchasePrice,
+                    'price_lists' => []
+                ];
+
+                $hasChanges = false;
+                if ($newPurchasePrice != $product->purchase_price) {
+                    $hasChanges = true;
+                }
+
+                foreach ($row as $key => $value) {
+                    if (strpos($key, 'precio_') === 0) {
+                        $priceListName = str_replace('precio_', '', $key);
+                        // Clean "Precio: " prefix if exists (mapping from export)
+                        $priceListName = trim(str_replace('precio_precio_', '', $key));
+                        // The heading row normally replaces spaces with underscores.
+                        // We need to match it back to the PriceList name.
+                        
+                        // Let's find the matching price list by slugifying the name
+                        $matchedPriceList = $allPriceLists->first(function($pl) use ($priceListName) {
+                           return Str::slug($pl->name, '_') === $priceListName || Str::slug("Precio: ".$pl->name, '_') === $priceListName;
+                        });
+
+                        if ($matchedPriceList) {
+                            $oldPrice = 0;
+                            $pivot = $product->priceLists->where('id', $matchedPriceList->id)->first();
+                            if ($pivot) {
+                                $oldPrice = $pivot->pivot->sale_price;
+                            }
+
+                            if ($value != $oldPrice) {
+                                $hasChanges = true;
+                                $changes['price_lists'][] = [
+                                    'name' => $matchedPriceList->name,
+                                    'old_sale_price' => $oldPrice,
+                                    'new_sale_price' => $value
+                                ];
+                            }
+                        }
+                    }
+                }
+
+                if ($hasChanges) {
+                    $previews[] = $changes;
+                }
+            }
+
+            $cacheKey = 'import_preview_' . Auth::id() . '_' . time();
+            Cache::put($cacheKey, $previews, 60 * 30); // 30 minutes
+
+            return $this->successResponse([
+                'preview_key' => $cacheKey,
+                'changes_count' => count($previews),
+                'changes' => $previews
+            ], 'Vista previa generada correctamente');
+
+        } catch (\Exception $e) {
+            \Log::error('Error en importExcelPreview: ' . $e->getMessage());
+            return $this->errorResponse($e, 'Error al procesar el archivo');
+        }
+    }
+
+    /**
+     * Confirm and process the import updates (ASYNCHRONOUS)
+     */
+    public function importExcelConfirm(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'preview_key' => 'required|string',
+            'file_name' => 'nullable|string',
+            'file_size' => 'nullable|string',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->errorResponse(new \Exception($validator->errors()->first()), 'Error de validación', 422);
+        }
+
+        $cacheKey = $request->preview_key;
+        $updates = Cache::get($cacheKey);
+
+        if (!$updates) {
+            return $this->errorResponse(new \Exception('La vista previa ha expirado o no existe'), 'Error de sesión', 400);
+        }
+
+        // Create import log
+        $importLog = ProductImportLog::create([
+            'file_name' => $request->file_name ?? 'Importación de Precios',
+            'file_size' => $request->file_size ?? 'N/A',
+            'status' => 'pending',
+            'total_rows' => count($updates),
+            'user_id' => Auth::id(),
+            'tenant_id' => Auth::user()->tenant_id,
+        ]);
+
+        // Dispatch job asynchronously
+        UpdateProductPricesJob::dispatch($updates, $importLog->id);
+        
+        Cache::forget($cacheKey);
+
+        // Clear products cache
+        $tenantId = Auth::user()->tenant_id;
+        $cacheKeyProducts = "tenant_{$tenantId}_products";
+        Cache::forget($cacheKeyProducts);
+
+        return $this->successResponse($importLog, 'El proceso de actualización ha comenzado en segundo plano');
+    }
+
+    /**
+     * Get import history
+     */
+    public function importExcelHistory()
+    {
+        try {
+            $history = ProductImportLog::latest()->take(20)->get();
+            return $this->successResponse($history);
+        } catch (\Exception $e) {
+            return $this->errorResponse($e, 'Error al obtener el historial');
         }
     }
 }

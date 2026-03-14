@@ -105,6 +105,15 @@ const navItems = [
       {
         component: 'VerticalNavLink',
         item: {
+          title: 'Importar Productos',
+          to: '/products-import',
+          icon: 'ri-stock-line',
+      
+        }
+      },
+      {
+        component: 'VerticalNavLink',
+        item: {
           title: 'Lista de precios',
           to: '/pricelist',
           icon: 'ri-stock-line',

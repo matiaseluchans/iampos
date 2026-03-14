@@ -1,15 +1,15 @@
 export const routes = [
   { path: '/', redirect: '/order-search' },
-   
+
   {
     path: '/',
     component: () => import('@/layouts/default.vue'),
     children: [
       {
         path: '/dashboard',
-        
+
         component: () => import('@/pages/dashboard.vue'),
-        meta: { 
+        meta: {
           title: "Dashboard",
           requiresAuth: true,
           allowedRoles: ['*'],
@@ -17,183 +17,192 @@ export const routes = [
       },
       {
         path: 'order-create',
-        
+
         component: () => import('@/pages/iampos/orderCreate.vue'),
-        
-        meta: { 
+
+        meta: {
           title: "Crear Orden",
           requiresAuth: true,
-          allowedRoles: ['*'], 
+          allowedRoles: ['*'],
         },
       },
       {
         path: 'order-list',
-        
+
         component: () => import('@/pages/iampos/orderList.vue'),
-        meta: { 
+        meta: {
           title: "Ordenes",
-          requiresAuth: true, 
-          allowedRoles: ['*'], 
+          requiresAuth: true,
+          allowedRoles: ['*'],
         },
       },
       {
         path: 'order-search',
-        
+
         component: () => import('@/pages/iampos/orderSearch.vue'),
-        meta: { 
+        meta: {
           title: "Buscador de ordenes",
-          requiresAuth: true, 
-          allowedRoles: ['*'], 
+          requiresAuth: true,
+          allowedRoles: ['*'],
         },
       },
       {
         path: 'order-pending-deliveries',
-        
+
         component: () => import('@/pages/iampos/orderDelivery.vue'),
-        meta: { 
+        meta: {
           title: "Ordenes pendientes de entrega",
-          requiresAuth: true, 
-          allowedRoles: ['superadmin','bebidas-admin','petshop-admin','petshop-user'],
+          requiresAuth: true,
+          allowedRoles: ['superadmin', 'bebidas-admin', 'petshop-admin', 'petshop-user'],
         },
-      },     
+      },
       {
         path: 'payments',
-        
+
         component: () => import('@/pages/iampos/payments.vue'),
-        meta: { 
+        meta: {
           title: "Pagos",
           requiresAuth: true,
-          allowedRoles: ['superadmin','bebidas-admin','petshop-admin','petshop-user'],
+          allowedRoles: ['superadmin', 'bebidas-admin', 'petshop-admin', 'petshop-user'],
         },
-      },  
+      },
       {
         path: 'customers',
-        
+
         component: () => import('@/pages/iampos/customers.vue'),
-        meta: { 
+        meta: {
           title: "Clientes",
           requiresAuth: true,
-          
+
         },
-      }, 
-      
+      },
+
       {
         path: 'localities',
-        
+
         component: () => import('@/pages/iampos/localities.vue'),
-        meta: { 
+        meta: {
           title: "Localidades",
-          requiresAuth: true, 
+          requiresAuth: true,
         },
-      }, 
+      },
       {
         path: 'products',
         component: () => import('@/pages/iampos/products.vue'),
-        meta: { 
+        meta: {
           title: "Productos",
-          requiresAuth: true, 
-          allowedRoles: ['superadmin','bebidas-admin','petshop-admin','petshop-user']
+          requiresAuth: true,
+          allowedRoles: ['superadmin', 'bebidas-admin', 'petshop-admin', 'petshop-user']
         },
-      }, 
+      },
+      {
+        path: 'products-import',
+        component: () => import('@/pages/iampos/product-import.vue'),
+        meta: {
+          title: "ImportarProductos",
+          requiresAuth: true,
+          allowedRoles: ['superadmin', 'bebidas-admin', 'petshop-admin', 'petshop-user']
+        },
+      },
       {
         path: 'stocks',
-        
+
         component: () => import('@/pages/iampos/stocks.vue'),
-        meta: { 
+        meta: {
           title: "Stock",
           requiresAuth: true,
-          allowedRoles: ['superadmin','bebidas-admin','petshop-admin','petshop-user']
+          allowedRoles: ['superadmin', 'bebidas-admin', 'petshop-admin', 'petshop-user']
         },
       },
       {
         path: 'warehouses',
         component: () => import('@/pages/iampos/warehouses.vue'),
-        meta: { 
+        meta: {
           title: "Depositos",
-          requiresAuth: true, 
-          allowedRoles: ['superadmin','bebidas-admin','petshop-admin']
+          requiresAuth: true,
+          allowedRoles: ['superadmin', 'bebidas-admin', 'petshop-admin']
         },
-      }, 
+      },
       {
         path: 'categories',
         component: () => import('@/pages/iampos/categories.vue'),
-        meta: { 
+        meta: {
           title: "Categorias",
-          requiresAuth: true ,
-          allowedRoles: ['superadmin','bebidas-admin','petshop-admin']
+          requiresAuth: true,
+          allowedRoles: ['superadmin', 'bebidas-admin', 'petshop-admin']
         },
-      }, 
+      },
       {
         path: 'brands',
-        
+
         component: () => import('@/pages/iampos/brands.vue'),
-        meta: { 
+        meta: {
           title: "Marcas",
           requiresAuth: true,
-          allowedRoles: ['superadmin','bebidas-admin','petshop-admin']
+          allowedRoles: ['superadmin', 'bebidas-admin', 'petshop-admin']
         },
-      }, 
+      },
       {
         path: 'tenants',
-        
+
         component: () => import('@/pages/iampos/tenants.vue'),
-        meta: { 
+        meta: {
           title: "Tenants",
-          requiresAuth: true ,
+          requiresAuth: true,
           allowedRoles: ['superadmin'],
         },
-      }, 
+      },
 
       {
         path: 'users',
-        
+
         component: () => import('@/pages/iampos/users.vue'),
-        meta: { 
+        meta: {
           title: "Usuarios",
           requiresAuth: true,
           allowedRoles: ['superadmin'],
         },
       },
-      
+
       {
         path: 'statuses',
-        
+
         component: () => import('@/pages/iampos/statuses.vue'),
-        meta: { 
+        meta: {
           title: "Estados",
           requiresAuth: true,
-          allowedRoles: ['superadmin' ]
-       },
-          
+          allowedRoles: ['superadmin']
+        },
+
       },
 
       {
         path: 'paymentMethods',
-        
+
         component: () => import('@/pages/iampos/paymentMethods.vue'),
-        meta: { 
+        meta: {
           title: "Métodos de pago",
           requiresAuth: true,
-          allowedRoles: ['superadmin','petshop-admin']
+          allowedRoles: ['superadmin', 'petshop-admin']
         },
       },
 
       {
         path: 'pricelist',
-        
+
         component: () => import('@/pages/iampos/priceList.vue'),
-        meta: { 
+        meta: {
           title: "Lista de Precios",
           requiresAuth: true,
-          allowedRoles: ['superadmin','bebidas-admin','petshop-admin','petshop-user']
+          allowedRoles: ['superadmin', 'bebidas-admin', 'petshop-admin', 'petshop-user']
         },
       },
 
       {
         path: 'turner-calendar',
-        
+
         component: () => import('@/pages/iampos/turnerCalendar.vue'),
-        meta: { 
+        meta: {
           title: "Turnos",
           requiresAuth: true,
           allowedRoles: ['superadmin'],
@@ -201,9 +210,9 @@ export const routes = [
       },
       {
         path: 'turner-grid',
-        
+
         component: () => import('@/pages/iampos/turner.vue'),
-        meta: { 
+        meta: {
           title: "Turnos Grilla",
           requiresAuth: true,
           allowedRoles: ['superadmin'],
@@ -213,7 +222,7 @@ export const routes = [
         path: 'resource-types',
         name: 'resource-types',
         component: () => import('@/pages/iampos/resource-types/ResourceTypeList.vue'),
-        meta: { 
+        meta: {
           title: "Tipos de Recursos",
           requiresAuth: true,
           allowedRoles: ['superadmin'],
@@ -223,7 +232,7 @@ export const routes = [
         path: 'service-types',
         name: 'service-types',
         component: () => import('@/pages/iampos/service-types/ServiceTypeList.vue'),
-        meta: { 
+        meta: {
           title: "Tipos de Servicios",
           requiresAuth: true,
           allowedRoles: ['superadmin'],
@@ -233,7 +242,7 @@ export const routes = [
         path: 'resources',
         name: 'resources',
         component: () => import('@/pages/iampos/resources/ResourceList.vue'),
-        meta: { 
+        meta: {
           title: "Recursos",
           requiresAuth: true,
           allowedRoles: ['superadmin'],
@@ -271,7 +280,7 @@ export const routes = [
         path: 'about',
         component: () => import('@/pages/about.vue'),
       },
-      
+
     ],
   },
   {
@@ -292,5 +301,5 @@ export const routes = [
         component: () => import('@/pages/[...error].vue'),
       },
     ],
-  }, 
+  },
 ]
