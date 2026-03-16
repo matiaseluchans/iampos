@@ -5,6 +5,9 @@ namespace App\Jobs;
 use App\Models\Product;
 use App\Models\PriceList;
 use App\Models\ProductImportLog;
+use App\Models\Stock;
+use App\Models\StockMovement;
+use App\Models\Warehouse;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -60,9 +63,53 @@ class UpdateProductPricesJob implements ShouldQueue
                 }
 
                 // Update purchase price if changed
-                if (isset($update['new_purchase_price'])) {
+                if (isset($update['new_purchase_price']) && $product->purchase_price != $update['new_purchase_price']) {
                     $product->purchase_price = $update['new_purchase_price'];
                     $product->save();
+                }
+
+                // Update stock if changed
+                if (isset($update['new_stock']) && isset($update['old_stock']) && $update['new_stock'] != $update['old_stock']) {
+                    $newStock = $update['new_stock'];
+                    $delta = $newStock - $update['old_stock'];
+                    
+                    // Encontrar un stock de almacén existente para el producto
+                    $stock = Stock::where('product_id', $product->id)
+                                    ->where('tenant_id', $log->tenant_id)
+                                    ->first();
+                                    
+                    if (!$stock) {
+                        // Si no tiene stock en ningún almacén, buscar el primer almacén del tenant
+                        $warehouse = Warehouse::where('tenant_id', $log->tenant_id)->first();
+                        if ($warehouse) {
+                            $stock = new Stock();
+                            $stock->product_id = $product->id;
+                            $stock->warehouse_id = $warehouse->id;
+                            $stock->tenant_id = $log->tenant_id;
+                            $stock->quantity = 0;
+                            // Se guardará abajo
+                        }
+                    }
+                    
+                    if ($stock) {
+                        $movementType = $stock->exists ? 'ajuste' : 'inicial';
+                        $previousQuantity = $stock->exists ? $stock->quantity : 0;
+                        
+                        $stock->quantity += $delta;
+                        $stock->save();
+                        
+                        // Registrar el movimiento manualmente porque estamos en un Job de sistema y Auth no funciona
+                        $movement = new StockMovement();
+                        $movement->stock_id = $stock->id;
+                        $movement->movement_type = $movementType;
+                        $movement->quantity = $delta;
+                        $movement->previous_quantity = $previousQuantity;
+                        $movement->new_quantity = $stock->quantity;
+                        $movement->notes = "Actualización via Importación Excel (#{$log->id})";
+                        $movement->tenant_id = $log->tenant_id;
+                        $movement->user_id = $log->user_id;
+                        $movement->save();
+                    }
                 }
 
                 // Update price lists (sale prices)

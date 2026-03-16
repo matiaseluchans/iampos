@@ -57,20 +57,26 @@
           class="text-no-wrap striped-table pb-5"
           density="comfortable"
         >
-          <template #item.old_purchase_price="{ item }">
-            <span class="text-grey">{{ formatCurrency(item.old_purchase_price) }}</span>
+          <template #item.purchase_price="{ item }">
+            <div v-if="item.new_purchase_price != item.old_purchase_price">
+              <span class="text-grey">{{ formatCurrency(item.old_purchase_price) }}</span>
+              <VIcon icon="ri-arrow-right-line" size="small" color="grey" class="mx-1" />
+              <VChip color="info" size="x-small" label class="font-weight-bold">
+                {{ formatCurrency(item.new_purchase_price) }}
+              </VChip>
+            </div>
+            <span v-else class="text-grey">{{ formatCurrency(item.old_purchase_price) }}</span>
           </template>
-          
-          <template #item.new_purchase_price="{ item }">
-            <VChip
-              v-if="item.new_purchase_price != item.old_purchase_price"
-              color="info"
-              size="small"
-              class="font-weight-bold"
-            >
-              {{ formatCurrency(item.new_purchase_price) }}
-            </VChip>
-            <span v-else>{{ formatCurrency(item.new_purchase_price) }}</span>
+
+          <template #item.stock="{ item }">
+            <div v-if="item.new_stock !== null && item.new_stock != item.old_stock">
+              <span class="text-grey">{{ item.old_stock !== null ? item.old_stock : '-' }}</span>
+              <VIcon icon="ri-arrow-right-line" size="small" color="grey" class="mx-1" />
+              <VChip color="warning" size="x-small" label class="font-weight-bold">
+                {{ item.new_stock }}
+              </VChip>
+            </div>
+            <span v-else class="text-grey">{{ item.old_stock !== null ? item.old_stock : '-' }}</span>
           </template>
 
           <template #item.price_lists="{ item }">
@@ -177,8 +183,8 @@ export default {
     previewHeaders: [
       { title: 'Código', key: 'code', sortable: true },
       { title: 'Producto', key: 'name', sortable: true },
-      { title: 'P. Compra (Anterior)', key: 'old_purchase_price', sortable: false },
-      { title: 'P. Compra (Nuevo)', key: 'new_purchase_price', sortable: false },
+      { title: 'Precio de Compra', key: 'purchase_price', sortable: false },
+      { title: 'Stock', key: 'stock', sortable: false },
       { title: 'Listas de Precios (Cambios)', key: 'price_lists', sortable: false },
     ],
     historyHeaders: [

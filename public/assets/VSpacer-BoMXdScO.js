@@ -1,0 +1,1 @@
+import"./VRow-C9QX1yYB.js";import{c as r}from"./VAvatar-D3ody0Qt.js";const e=r("v-spacer","div","VSpacer");export{e as V};

@@ -452,9 +452,9 @@ class ProductController extends ApiController
 
                 $product = null;
                 if ($productId) {
-                    $product = Product::with('priceLists')->find($productId);
+                    $product = Product::with('priceLists', 'stocks')->find($productId);
                 } elseif ($productCode) {
-                    $product = Product::with('priceLists')->where('code', $productCode)->first();
+                    $product = Product::with('priceLists', 'stocks')->where('code', $productCode)->first();
                 }
 
                 if (!$product) {
@@ -462,17 +462,26 @@ class ProductController extends ApiController
                 }
 
                 $newPurchasePrice = $row['precio_compra'] ?? null;
+                $newStock = isset($row['stock_disponible']) ? (float)$row['stock_disponible'] : null;
+                $currentStock = $product->stocks ? $product->stocks->sum('quantity') : 0;
+
                 $changes = [
                     'id' => $product->id,
                     'name' => $product->name,
                     'code' => $product->code,
                     'old_purchase_price' => $product->purchase_price,
                     'new_purchase_price' => $newPurchasePrice,
+                    'old_stock' => $currentStock,
+                    'new_stock' => $newStock,
                     'price_lists' => []
                 ];
 
                 $hasChanges = false;
                 if ($newPurchasePrice != $product->purchase_price) {
+                    $hasChanges = true;
+                }
+
+                if ($newStock !== null && $newStock != $currentStock) {
                     $hasChanges = true;
                 }
 
