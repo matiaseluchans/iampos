@@ -462,7 +462,7 @@ class ProductController extends ApiController
                 }
 
                 $newPurchasePrice = $row['precio_compra'] ?? null;
-                $newStock = isset($row['stock_disponible']) ? (float)$row['stock_disponible'] : null;
+                $newStock = isset($row['stock_a_ingresar']) ? (float)$row['stock_a_ingresar'] : null;
                 $currentStock = $product->stocks ? $product->stocks->sum('quantity') : 0;
 
                 $changes = [
@@ -481,7 +481,7 @@ class ProductController extends ApiController
                     $hasChanges = true;
                 }
 
-                if ($newStock !== null && $newStock != $currentStock) {
+                if ($newStock !== null) {
                     $hasChanges = true;
                 }
 

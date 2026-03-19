@@ -69,9 +69,9 @@ class UpdateProductPricesJob implements ShouldQueue
                 }
 
                 // Update stock if changed
-                if (isset($update['new_stock']) && isset($update['old_stock']) && $update['new_stock'] != $update['old_stock']) {
-                    $newStock = $update['new_stock'];
-                    $delta = $newStock - $update['old_stock'];
+                if (isset($update['new_stock'])) {
+                    $newStock = $update['old_stock']+ $update['new_stock'];
+                    $delta = $update['new_stock'];
                     
                     // Encontrar un stock de almacén existente para el producto
                     $stock = Stock::where('product_id', $product->id)

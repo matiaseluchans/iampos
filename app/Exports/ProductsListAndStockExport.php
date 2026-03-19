@@ -63,6 +63,7 @@ class ProductsListAndStockExport implements
             'Código',
             'Nombre',
             'Stock Disponible',
+            'Stock a Ingresar',
             'Precio Compra',
         ];
         //$headings[] = 'Stock Disponible';
@@ -96,6 +97,7 @@ class ProductsListAndStockExport implements
                 $codigo,
                 $product->name ?? '',
                 $stockTotal,
+                '',
                 $product->precio_compra ?? ($product->purchase_price ?? 0),
             ];
 
