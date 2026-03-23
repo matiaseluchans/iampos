@@ -140,6 +140,7 @@ class OrderRepository extends BaseRepository
                     ->first();
                 $form['payment_status_id'] = $paymentStatus ? $paymentStatus->id : null; // Asignar 0 si no se encuentra el estado
             }
+             
             // Asignación de los datos al modelo
             $model->fill([
                 'order_date' => isset($form['order_date']) ?  Carbon::createFromFormat('d/m/Y', $form['order_date'])->format('Y-m-d H:i:s') : Carbon::now(),
@@ -648,7 +649,7 @@ class OrderRepository extends BaseRepository
                 $form['payment_status_id'] = $paymentStatus ? $paymentStatus->id : null;
             }
 
-
+ 
             // Actualizar campos de la orden
             $model->fill([
                 'delivery_date' => isset($form['delivery_date']) ? Carbon::createFromFormat('d/m/Y', $form['delivery_date'])->format('Y-m-d') : null,
@@ -666,6 +667,7 @@ class OrderRepository extends BaseRepository
                 'notes' => $form['notes'],
                 'seller_id' => $sellerId,
                 'seller_name' => $sellerName,
+                'aditional' => $form['aditional'],
             ]);
 
             $model->save();
