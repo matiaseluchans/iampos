@@ -634,6 +634,18 @@ export default {
       }
     },
 
+    openDialog() {
+      this.editedIndex = -1;
+      this.editedItem = Object.assign({}, this.defaultItem);
+      // Asegurarse de que price_lists esté inicializado
+      this.editedItem.price_lists = {};
+      this.priceLists.forEach((list) => {
+        this.editedItem.price_lists[list.id] = null;
+      });
+      this.imagePreview = "";
+      this.dialog = true;
+    },
+
     async saveProduct() {
       try {
         const data = new FormData();

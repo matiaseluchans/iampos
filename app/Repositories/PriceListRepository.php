@@ -10,9 +10,10 @@ use Illuminate\Support\Facades\Cache;
 class PriceListRepository extends BaseRepository
 {
 
-    private $relations = ['products'];
+    private $relations = [];
+    private $fullRelations = ['products'];
 
-    public function __construct(PriceList $m, array $relations = ['products'])
+    public function __construct(PriceList $m, array $relations = [])
     {
         parent::__construct($m, $relations);
     }
@@ -64,11 +65,23 @@ class PriceListRepository extends BaseRepository
             if (Auth::user()->id == 3) {
                 $query->where('id', 1);
             }
-            if (!empty($this->relations)) {
-                $query = $query->with($this->relations);
-            }
 
             return $this->successResponse($query->get());
+        } catch (\Exception $e) {
+            report($e);
+            return $this->errorResponse($e);
+        }
+    }
+
+    public function get($id)
+    {
+        try {
+            $query = $this->model->query();
+
+            // Al obtener una lista individual, sí cargamos los productos para editar
+            $query = $query->with($this->fullRelations);
+
+            return $this->successResponse($query->findOrFail($id));
         } catch (\Exception $e) {
             report($e);
             return $this->errorResponse($e);

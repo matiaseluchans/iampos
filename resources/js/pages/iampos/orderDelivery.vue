@@ -241,7 +241,6 @@
         <template #item.payment_status_id="{ item }">
           <div class="d-flex flex-column align-center gap-0">
             <VChip
-              v-bind="props"
               :color="getStatusCodeColor(item.payment_status.code)"
               prepend-icon="ri-money-dollar-circle-line"
               density="comfortable"

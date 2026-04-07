@@ -26,7 +26,7 @@ class ProductController extends ApiController
     private $relations;
 
 
-    public function __construct(array $relations = ['brand', 'category', 'priceLists', 'stocks'])
+    public function __construct(array $relations = ['brand:id,name', 'category:id,name', 'priceLists:id,name,is_default'])
     {
         $this->model = new Product();
         $this->relations = $relations;
@@ -44,7 +44,9 @@ class ProductController extends ApiController
 
             return Cache::remember($cacheKey, 60 * 24, function () {
 
-                $query = $this->model->with($this->relations);
+                $query = $this->model->with($this->relations)
+                    ->withSum('stocks as total_stock', 'quantity')
+                    ->withSum('stocks as total_reserved', 'reserved_quantity');
 
                 return $this->successResponse($query->get());
             });

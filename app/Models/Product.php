@@ -29,7 +29,7 @@ class Product extends Model
         'last_modified_by'
     ];
 
-    protected $appends = ['total_stock'];
+    protected $appends = ['total_stock', 'total_reserved'];
 
     protected static function booted(): void
     {
@@ -118,6 +118,17 @@ class Product extends Model
 
     public function getTotalStockAttribute()
     {
+        if (array_key_exists('total_stock', $this->attributes)) {
+            return (float) $this->attributes['total_stock'];
+        }
         return $this->stocks->sum('quantity');
+    }
+
+    public function getTotalReservedAttribute()
+    {
+        if (array_key_exists('total_reserved', $this->attributes)) {
+            return (float) $this->attributes['total_reserved'];
+        }
+        return $this->stocks->sum('reserved_quantity');
     }
 }

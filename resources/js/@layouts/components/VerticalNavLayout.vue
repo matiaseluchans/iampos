@@ -18,11 +18,11 @@ export default defineComponent({
       isMenuPinned.value = !isMenuPinned.value
       if(isMenuPinned.value)
       {
-        isCollapsed.value = 0
+        isCollapsed.value = false
       }
       else
       {
-        isCollapsed.value = 1
+        isCollapsed.value = true
       }
     }
 

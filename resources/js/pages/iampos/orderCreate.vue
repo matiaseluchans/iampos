@@ -1179,17 +1179,15 @@ export default {
      
 
     getProductStock(productId) {
-      if (!productId) return null;
-      const stockItem = this.products.find((s) => s.id === productId);
+      if (!productId) return 0;
+      const product = this.getProductById(productId);
 
-      if(stockItem.stocks[0])
-      {
-        return stockItem ? parseFloat(stockItem.stocks[0].quantity) - parseFloat(stockItem.stocks[0].reserved_quantity) : 0;
-      }
-      else
-      {
-        return 0;
-      }
+      if (!product) return 0;
+
+      const totalStock = parseFloat(product.total_stock || 0);
+      const totalReserved = parseFloat(product.total_reserved || 0);
+
+      return Math.max(0, totalStock - totalReserved);
     },
     showStockWarning(productId, quantity) {
       return quantity > this.getProductStock(productId);
