@@ -414,26 +414,20 @@ class ProductController extends ApiController
      */
     public function importExcelPreview(Request $request)
     {
-        // Debug logging to see exactly what's arriving
-        \Log::info('📥 Petición de importación recibida', [
-            'has_file' => $request->hasFile('file'),
-            'file_name' => $request->hasFile('file') ? $request->file('file')->getClientOriginalName() : null,
-            'file_mime' => $request->hasFile('file') ? $request->file('file')->getMimeType() : null,
-            'all_data' => $request->except('file')
-        ]);
-
         $validator = Validator::make($request->all(), [
-            'file' => 'required|max:10240', // Relaxed mime validation
+            'file' => 'required|max:10240',
         ]);
 
         if ($validator->fails()) {
-            \Log::warning('⚠️ Fallo de validación en importExcelPreview', ['errors' => $validator->errors()->toArray()]);
             return $this->errorResponse(new \Exception($validator->errors()->first()), 'Error de validación', 422);
         }
 
         try {
+            set_time_limit(300);
+            ini_set('memory_limit', '512M');
+
             $file = $request->file('file');
-            
+
             if (!$file || !$file->isValid()) {
                 throw new \Exception('El archivo no es válido o no se cargó correctamente');
             }
@@ -445,23 +439,37 @@ class ProductController extends ApiController
             }
 
             $rows = $data->first();
-            $previews = [];
             $allPriceLists = PriceList::all();
 
+            // ── Batch-load all products (2 queries instead of N) ──
+            $idsFromRows = [];
+            $codesFromRows = [];
             foreach ($rows as $row) {
-                $productId = $row['id'] ?? null;
-                $productCode = $row['codigo'] ?? null;
+                if (!empty($row['id']))      $idsFromRows[]   = $row['id'];
+                elseif (!empty($row['codigo'])) $codesFromRows[] = $row['codigo'];
+            }
 
+            $productsById = collect();
+            $productsByCode = collect();
+
+            if (!empty($idsFromRows)) {
+                $productsById = Product::with('priceLists', 'stocks')
+                    ->whereIn('id', $idsFromRows)->get()->keyBy('id');
+            }
+            if (!empty($codesFromRows)) {
+                $productsByCode = Product::with('priceLists', 'stocks')
+                    ->whereIn('code', $codesFromRows)->get()->keyBy('code');
+            }
+
+            // ── Build preview comparing each row ──
+            $previews = [];
+
+            foreach ($rows as $row) {
                 $product = null;
-                if ($productId) {
-                    $product = Product::with('priceLists', 'stocks')->find($productId);
-                } elseif ($productCode) {
-                    $product = Product::with('priceLists', 'stocks')->where('code', $productCode)->first();
-                }
+                if (!empty($row['id']))          $product = $productsById->get($row['id']);
+                elseif (!empty($row['codigo']))  $product = $productsByCode->get($row['codigo']);
 
-                if (!$product) {
-                    continue;
-                }
+                if (!$product) continue;
 
                 $newPurchasePrice = $row['precio_compra'] ?? null;
                 $newStock = isset($row['stock_a_ingresar']) ? (float)$row['stock_a_ingresar'] : null;
@@ -482,20 +490,14 @@ class ProductController extends ApiController
                 if ($newPurchasePrice != $product->purchase_price) {
                     $hasChanges = true;
                 }
-
                 if ($newStock !== null) {
                     $hasChanges = true;
                 }
 
                 foreach ($row as $key => $value) {
                     if (strpos($key, 'precio_') === 0) {
-                        $priceListName = str_replace('precio_', '', $key);
-                        // Clean "Precio: " prefix if exists (mapping from export)
                         $priceListName = trim(str_replace('precio_precio_', '', $key));
-                        // The heading row normally replaces spaces with underscores.
-                        // We need to match it back to the PriceList name.
-                        
-                        // Let's find the matching price list by slugifying the name
+
                         $matchedPriceList = $allPriceLists->first(function($pl) use ($priceListName) {
                            return Str::slug($pl->name, '_') === $priceListName || Str::slug("Precio: ".$pl->name, '_') === $priceListName;
                         });
@@ -506,13 +508,12 @@ class ProductController extends ApiController
                             if ($pivot) {
                                 $oldPrice = $pivot->pivot->sale_price;
                             }
-
-                            if ($value != $oldPrice) {
+                            if ($value !== null && $value !== '' && $value != $oldPrice) {
                                 $hasChanges = true;
                                 $changes['price_lists'][] = [
                                     'name' => $matchedPriceList->name,
                                     'old_sale_price' => $oldPrice,
-                                    'new_sale_price' => $value
+                                    'new_sale_price' => (float) $value
                                 ];
                             }
                         }
@@ -525,11 +526,20 @@ class ProductController extends ApiController
             }
 
             $cacheKey = 'import_preview_' . Auth::id() . '_' . time();
-            Cache::put($cacheKey, $previews, 60 * 30); // 30 minutes
+            Cache::put($cacheKey, $previews, 60 * 30);
+
+            // ── Summary stats ──
+            $stats = [
+                'total_changes' => count($previews),
+                'purchase_price_changes' => count(array_filter($previews, fn($p) => $p['new_purchase_price'] != $p['old_purchase_price'])),
+                'stock_changes' => count(array_filter($previews, fn($p) => $p['new_stock'] !== null)),
+                'price_list_changes' => count(array_filter($previews, fn($p) => count($p['price_lists']) > 0)),
+            ];
 
             return $this->successResponse([
                 'preview_key' => $cacheKey,
                 'changes_count' => count($previews),
+                'stats' => $stats,
                 'changes' => $previews
             ], 'Vista previa generada correctamente');
 
@@ -561,7 +571,7 @@ class ProductController extends ApiController
             return $this->errorResponse(new \Exception('La vista previa ha expirado o no existe'), 'Error de sesión', 400);
         }
 
-        // Create import log
+        // Create import log with row count from cache
         $importLog = ProductImportLog::create([
             'file_name' => $request->file_name ?? 'Importación de Precios',
             'file_size' => $request->file_size ?? 'N/A',
@@ -571,17 +581,15 @@ class ProductController extends ApiController
             'tenant_id' => Auth::user()->tenant_id,
         ]);
 
-        // Dispatch job asynchronously
-        UpdateProductPricesJob::dispatch($updates, $importLog->id);
-        
-        Cache::forget($cacheKey);
+        // Pass cache key to job — NOT the full data array
+        // Job reads from cache and cleans up when done
+        UpdateProductPricesJob::dispatch($cacheKey, $importLog->id);
 
         // Clear products cache
         $tenantId = Auth::user()->tenant_id;
-        $cacheKeyProducts = "tenant_{$tenantId}_products";
-        Cache::forget($cacheKeyProducts);
+        Cache::forget("tenant_{$tenantId}_products");
 
-        return $this->successResponse($importLog, 'El proceso de actualización ha comenzado en segundo plano');
+        return $this->successResponse($importLog, 'El proceso de actualización ha comenzado');
     }
 
     /**

@@ -7,8 +7,8 @@ import eCommerce2 from '@images/eCommerce/2.png'
 import pages1 from '@images/pages/1.png'
 import pages2 from '@images/pages/2.png'
 import pages3 from '@images/pages/3.png'
-import pages5 from '@images/pages/5.jpg'
-import pages6 from '@images/pages/6.jpg'
+//import pages5 from '@images/pages/5.jpg'
+//import pages6 from '@images/pages/6.jpg'
 
 const avatars = [
   avatar1,
@@ -214,11 +214,11 @@ const isCardDetailsVisible = ref(false)
           </div>
 
           <div class="ma-auto pa-5">
-            <VImg
+            <!--<VImg
               :width="176"
               :src="pages5"
               class="rounded"
-            />
+            />-->
           </div>
         </div>
       </VCard>
@@ -231,7 +231,7 @@ const isCardDetailsVisible = ref(false)
       cols="12"
     >
       <VCard>
-        <VImg :src="pages6" />
+        <VImg :src="pages3" />
 
         <VCardItem>
           <VCardTitle>Apple Watch</VCardTitle>

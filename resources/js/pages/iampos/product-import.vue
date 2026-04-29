@@ -1,6 +1,7 @@
 <template>
   <VCard title="Importación y Actualización de Precios via Excel">
     <VCardText>
+      <!-- ── Upload + Download Section ── -->
       <VRow>
         <VCol cols="12" md="8">
           <p class="text-body-1">
@@ -38,22 +39,53 @@
             color="primary"
             block
             size="large"
-            @click="confirmUpdate"
+            @click="showConfirmDialog = true"
             :loading="confirmLoading"
+            prepend-icon="ri-check-double-line"
           >
             Confirmar Actualización ({{ previewData.length }} productos)
           </VBtn>
         </VCol>
       </VRow>
 
+      <!-- ── Summary Stats Cards ── -->
+      <VRow v-if="previewStats" class="mt-4">
+        <VCol cols="6" sm="3">
+          <VCard variant="tonal" color="primary" class="text-center pa-3">
+            <div class="text-h5 font-weight-bold">{{ previewStats.total_changes }}</div>
+            <div class="text-caption text-medium-emphasis">Total Cambios</div>
+          </VCard>
+        </VCol>
+        <VCol cols="6" sm="3">
+          <VCard variant="tonal" color="info" class="text-center pa-3">
+            <div class="text-h5 font-weight-bold">{{ previewStats.purchase_price_changes }}</div>
+            <div class="text-caption text-medium-emphasis">Precio Compra</div>
+          </VCard>
+        </VCol>
+        <VCol cols="6" sm="3">
+          <VCard variant="tonal" color="success" class="text-center pa-3">
+            <div class="text-h5 font-weight-bold">{{ previewStats.price_list_changes }}</div>
+            <div class="text-caption text-medium-emphasis">Listas de Precio</div>
+          </VCard>
+        </VCol>
+        <VCol cols="6" sm="3">
+          <VCard variant="tonal" color="warning" class="text-center pa-3">
+            <div class="text-h5 font-weight-bold">{{ previewStats.stock_changes }}</div>
+            <div class="text-caption text-medium-emphasis">Stock</div>
+          </VCard>
+        </VCol>
+      </VRow>
+
       <VDivider class="my-6" v-if="previewData.length > 0" />
 
-      <!-- Vista previa de cambios antes de confirmar -->
+      <!-- ── Preview Table with Pagination ── -->
       <div v-if="previewData.length > 0">
         <h3 class="text-h6 mb-4">Vista Previa de Cambios</h3>
         <VDataTable
           :headers="previewHeaders"
           :items="previewData"
+          :items-per-page="50"
+          :items-per-page-options="[25, 50, 100, { value: -1, title: 'Todos' }]"
           class="text-no-wrap striped-table pb-5"
           density="comfortable"
         >
@@ -95,7 +127,7 @@
 
       <VDivider class="my-10" />
 
-      <!-- Historial de Importaciones -->
+      <!-- ── Import History ── -->
       <div>
         <div class="d-flex justify-space-between align-center mb-4">
           <h3 class="text-h6">Historial de Importaciones</h3>
@@ -131,15 +163,18 @@
           </template>
 
           <template #item.progress="{ item }">
-            <div class="d-flex align-center" style="min-width: 120px;">
+            <div class="d-flex align-center" style="min-width: 150px;">
               <VProgressLinear
                 v-if="item.status === 'processing' || item.status === 'completed'"
-                :model-value="(item.processed_rows / item.total_rows) * 100"
-                color="primary"
+                :model-value="item.total_rows > 0 ? (item.processed_rows / item.total_rows) * 100 : 0"
+                :color="item.status === 'completed' ? 'success' : 'primary'"
                 height="8"
                 rounded
+                class="flex-grow-1"
               />
-              <span class="ml-2 text-caption">{{ item.processed_rows }}/{{ item.total_rows }}</span>
+              <span class="ml-2 text-caption font-weight-medium">
+                {{ item.processed_rows }}/{{ item.total_rows }}
+              </span>
             </div>
           </template>
 
@@ -154,6 +189,57 @@
         </VDataTable>
       </div>
     </VCardText>
+
+    <!-- ── Confirmation Dialog ── -->
+    <VDialog v-model="showConfirmDialog" max-width="520" persistent>
+      <VCard>
+        <VCardTitle class="text-h6 pa-5 pb-2">
+          <VIcon icon="ri-error-warning-line" color="warning" class="mr-2" />
+          Confirmar Actualización Masiva
+        </VCardTitle>
+        <VCardText class="px-5">
+          <p class="mb-4">Estás a punto de actualizar <strong>{{ previewData.length }}</strong> productos. Este proceso no se puede deshacer.</p>
+
+          <div v-if="previewStats" class="mb-4">
+            <div v-if="previewStats.purchase_price_changes > 0" class="d-flex align-center mb-1">
+              <VIcon icon="ri-price-tag-3-line" size="18" color="info" class="mr-2" />
+              <span>{{ previewStats.purchase_price_changes }} precios de compra</span>
+            </div>
+            <div v-if="previewStats.price_list_changes > 0" class="d-flex align-center mb-1">
+              <VIcon icon="ri-list-check-2" size="18" color="success" class="mr-2" />
+              <span>{{ previewStats.price_list_changes }} listas de precio</span>
+            </div>
+            <div v-if="previewStats.stock_changes > 0" class="d-flex align-center mb-1">
+              <VIcon icon="ri-stack-line" size="18" color="warning" class="mr-2" />
+              <span>{{ previewStats.stock_changes }} stocks</span>
+            </div>
+          </div>
+
+          <VAlert type="info" variant="tonal" density="compact" class="mt-2">
+            El proceso puede tomar unos minutos dependiendo de la cantidad de registros.
+          </VAlert>
+        </VCardText>
+        <VCardActions class="pa-5 pt-2">
+          <VSpacer />
+          <VBtn variant="text" @click="showConfirmDialog = false">Cancelar</VBtn>
+          <VBtn color="primary" variant="elevated" @click="executeUpdate" :loading="confirmLoading">
+            Sí, Actualizar
+          </VBtn>
+        </VCardActions>
+      </VCard>
+    </VDialog>
+
+    <!-- ── Processing Overlay ── -->
+    <VOverlay v-model="isProcessing" persistent contained class="align-center justify-center" scrim="rgba(0,0,0,0.7)">
+      <VCard class="pa-8 text-center" min-width="320" elevation="24">
+        <VProgressCircular indeterminate size="56" width="5" color="primary" />
+        <p class="text-h6 mt-4 mb-1">Procesando Importación</p>
+        <p class="text-body-2 text-medium-emphasis">
+          Actualizando {{ previewData.length }} productos...
+        </p>
+        <p class="text-caption text-medium-emphasis mt-2">Por favor no cierres esta ventana</p>
+      </VCard>
+    </VOverlay>
 
     <v-snackbar v-model="snackbar" :color="snackbarColor" :timeout="4000">
       {{ snackbarText }}
@@ -173,8 +259,11 @@ export default {
     confirmLoading: false,
     exportLoading: false,
     historyLoading: false,
+    isProcessing: false,
+    showConfirmDialog: false,
     previewKey: null,
     previewData: [],
+    previewStats: null,
     historyData: [],
     polling: null,
     snackbar: false,
@@ -199,20 +288,51 @@ export default {
 
   mounted() {
     this.fetchHistory();
-    // Iniciar polling para actualizar historial cada 5 segundos
-    this.polling = setInterval(this.fetchHistory, 5000);
+    this.startSmartPolling();
   },
 
   beforeUnmount() {
-    clearInterval(this.polling);
+    this.stopPolling();
   },
 
   methods: {
+    // ── Smart Polling: only poll when there are active imports ──
+    startSmartPolling() {
+      this.polling = setInterval(() => {
+        const hasActive = this.historyData.some(
+          h => h.status === 'pending' || h.status === 'processing'
+        );
+        if (hasActive) {
+          this.fetchHistory();
+        }
+      }, 3000);
+    },
+
+    stopPolling() {
+      if (this.polling) {
+        clearInterval(this.polling);
+        this.polling = null;
+      }
+    },
+
     async fetchHistory() {
       try {
         const response = await this.$axios.get('/api/products/import-excel-history');
         if (response.data.status === 'Success' || response.data.status === 'success') {
+          const oldData = this.historyData;
           this.historyData = response.data.data;
+
+          // Detect when a processing import just completed
+          if (oldData.length > 0) {
+            for (const item of this.historyData) {
+              const oldItem = oldData.find(o => o.id === item.id);
+              if (oldItem && (oldItem.status === 'processing' || oldItem.status === 'pending') && item.status === 'completed') {
+                this.showSnackbar(`Importación "${item.file_name}" completada (${item.processed_rows} productos)`, 'success');
+              } else if (oldItem && oldItem.status === 'processing' && item.status === 'failed') {
+                this.showSnackbar(`Importación "${item.file_name}" falló`, 'error');
+              }
+            }
+          }
         }
       } catch (error) {
         console.error("Error fetching history:", error);
@@ -252,6 +372,7 @@ export default {
       if (!this.excelFile) {
         this.previewData = [];
         this.previewKey = null;
+        this.previewStats = null;
         return;
       }
 
@@ -271,6 +392,7 @@ export default {
 
         this.previewData = response.data.data.changes;
         this.previewKey = response.data.data.preview_key;
+        this.previewStats = response.data.data.stats || null;
         
         if (this.previewData.length === 0) {
           this.showSnackbar("No se encontraron cambios en el archivo", "info");
@@ -286,10 +408,20 @@ export default {
       }
     },
 
-    async confirmUpdate() {
+    // Opens the confirmation dialog — the actual button handler
+    confirmUpdate() {
+      if (!this.previewKey) return;
+      this.showConfirmDialog = true;
+    },
+
+    // Executes the actual update after user confirms in dialog
+    async executeUpdate() {
+      this.showConfirmDialog = false;
+
       if (!this.previewKey) return;
 
       this.confirmLoading = true;
+      this.isProcessing = true;
       
       const file = Array.isArray(this.excelFile) ? this.excelFile[0] : this.excelFile;
       const fileName = file ? file.name : 'Importación';
@@ -304,8 +436,8 @@ export default {
 
         Swal.fire({
           icon: 'success',
-          title: 'Importación Iniciada',
-          text: 'El proceso se ejecutará en segundo plano. Puedes ver el progreso en el historial debajo.',
+          title: 'Actualización Completada',
+          text: `Se procesaron ${this.previewData.length} productos correctamente.`,
           confirmButtonColor: '#4472C4',
         });
 
@@ -313,13 +445,15 @@ export default {
         this.fetchHistory();
       } catch (error) {
         console.error("Error confirming update:", error);
+        const errorMsg = error.response?.data?.message || 'Hubo un problema al realizar la actualización.';
         Swal.fire({
           icon: 'error',
           title: 'Error',
-          text: 'Hubo un problema al iniciar la actualización.',
+          text: errorMsg,
         });
       } finally {
         this.confirmLoading = false;
+        this.isProcessing = false;
       }
     },
 
@@ -327,6 +461,7 @@ export default {
       this.excelFile = null;
       this.previewData = [];
       this.previewKey = null;
+      this.previewStats = null;
     },
 
     formatCurrency(value) {
