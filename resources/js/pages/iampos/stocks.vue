@@ -573,7 +573,7 @@ export default {
         { text: "Salida", value: "salida" },
         { text: "Fraccionado", value: "fraccionado" },
         { text: "Ajuste", value: "ajuste" },
-        { text: "Transferencia", value: "transferencia" },
+        //{ text: "Transferencia", value: "transferencia" },
       ],
 
       stockFilterOptions: [
@@ -601,7 +601,7 @@ export default {
         { title: "Acciones", key: "actions", sortable: false, width: "100px" },
         { title: "Codigo", key: "product.code", width: "50px" },
         { title: "Producto", key: "product.name", width: "250px" },
-        /* { title: 'Depósito', key: 'warehouse.name', width: '150px' },*/
+        { title: 'Depósito', key: 'warehouse.name', width: '150px' },
         { title: "Stock", key: "quantity", width: "50px" },
         /*{ title: 'Disponible', key: 'available', width: '120px' },
         { title: 'Reservado', key: 'reserved_quantity', width: '120px' },*/
