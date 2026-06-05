@@ -5,6 +5,7 @@
         :headers="showHeaders"
         :items="filteredStock"
         :search="search"
+        :items-per-page="50"
         class="text-no-wrap striped-table"
         :loading="loading"
       >
@@ -13,7 +14,7 @@
             <VCardText>
               <VRow>
                 <VCol cols="12" sm="6" class="pl-0 pt-20 py-2">
-                  <VTextField v-model="search" label="Buscar en stock" />
+                  <VTextField v-model="searchInput" label="Buscar en stock" />
                 </VCol>
 
                 <VCol cols="12" sm="3" class="pt-20 py-2">
@@ -519,6 +520,7 @@ export default {
     return {
       loading: false,
       search: "",
+      searchInput: "",
       stock: [],
       products: [],
       warehouses: [],
@@ -573,7 +575,7 @@ export default {
         { text: "Salida", value: "salida" },
         { text: "Fraccionado", value: "fraccionado" },
         { text: "Ajuste", value: "ajuste" },
-        { text: "Transferencia", value: "transferencia" },
+        //{ text: "Transferencia", value: "transferencia" },
       ],
 
       stockFilterOptions: [
@@ -601,7 +603,7 @@ export default {
         { title: "Acciones", key: "actions", sortable: false, width: "100px" },
         { title: "Codigo", key: "product.code", width: "50px" },
         { title: "Producto", key: "product.name", width: "250px" },
-        /* { title: 'Depósito', key: 'warehouse.name', width: '150px' },*/
+        { title: 'Depósito', key: 'warehouse.name', width: '150px' },
         { title: "Stock", key: "quantity", width: "50px" },
         /*{ title: 'Disponible', key: 'available', width: '120px' },
         { title: 'Reservado', key: 'reserved_quantity', width: '120px' },*/
@@ -629,40 +631,17 @@ export default {
     },
 
     filteredStock() {
-      let filtered = this.stock;
+      const pid = this.selectedProduct;
+      const wid = this.selectedWarehouse;
+      const sf  = this.stockFilter;
 
-      // Filtrar por producto seleccionado
-      if (this.selectedProduct) {
-        filtered = filtered.filter((item) => item.product?.id === this.selectedProduct);
-      }
-
-      // Filtrar por depósito seleccionado
-      if (this.selectedWarehouse) {
-        filtered = filtered.filter(
-          (item) => item.warehouse?.id === this.selectedWarehouse
-        );
-      }
-
-      // Filtrar por tipo de stock
-      if (this.stockFilter === "low") {
-        filtered = filtered.filter((item) => item.available < item.minimum_stock);
-      } else if (this.stockFilter === "empty") {
-        filtered = filtered.filter((item) => item.quantity <= 0);
-      }
-
-      // Filtrar por término de búsqueda
-      /*if (this.search) {
-        const searchTerm = this.search.toLowerCase();
-        filtered = filtered.filter(item => {
-          return (
-            item.product?.name?.toLowerCase().includes(searchTerm) ||
-            (item.product?.code && item.product.code.toLowerCase().includes(searchTerm)) ||
-            (item.warehouse?.name && item.warehouse.name.toLowerCase().includes(searchTerm))
-          );
-        });
-      }*/
-
-      return filtered;
+      return this.stock.filter((item) => {
+        if (pid && item.product?.id !== pid) return false;
+        if (wid && item.warehouse?.id !== wid) return false;
+        if (sf === "low"   && item.available >= item.minimum_stock) return false;
+        if (sf === "empty" && item.quantity > 0) return false;
+        return true;
+      });
     },
 
     movementFormTitle() {
@@ -682,6 +661,15 @@ export default {
       }
 
       return rules;
+    },
+  },
+
+  watch: {
+    searchInput(val) {
+      clearTimeout(this._searchDebounce);
+      this._searchDebounce = setTimeout(() => {
+        this.search = val;
+      }, 300);
     },
   },
 
@@ -726,12 +714,6 @@ export default {
         ]);
 
         this.stock = stockRes.data.data;
-
-        this.stock = stockRes.data.data.map((item) => ({
-          ...item,
-          available: item.quantity - item.reserved_quantity,
-        }));
-
         this.products = productsRes.data.data;
         this.warehouses = warehousesRes.data.data;
       } catch (error) {
@@ -783,12 +765,11 @@ export default {
 
       this.savingMovement = true;
       try {
-        let endpoint, data;
+        let endpoint, payload;
 
         if (this.selectedStockItem) {
-          // Existing stock - record movement
           endpoint = `${this.$routes["stocks"]}/${this.selectedStockItem.id}/movements`;
-          data = {
+          payload = {
             movement_type: this.movement.movement_type,
             quantity:
               this.movement.movement_type === "salida"
@@ -797,22 +778,29 @@ export default {
             notes: this.movement.notes,
           };
         } else {
-          // New stock - create or update
           endpoint = `${this.$routes["stocks"]}/create-or-update`;
-          data = {
-            product_id: this.movement.product_id,
-            warehouse_id: this.movement.warehouse_id,
-            quantity: this.movement.quantity,
+          payload = {
+            product_id:    this.movement.product_id,
+            warehouse_id:  this.movement.warehouse_id,
+            quantity:      this.movement.quantity,
             minimum_stock: this.movement.minimum_stock,
             maximum_stock: this.movement.maximum_stock,
             movement_type: this.movement.movement_type,
           };
         }
 
-        await this.$axios.post(endpoint, data);
+        const response = await this.$axios.post(endpoint, payload);
+        const updatedStock = response.data.data;
+
+        const idx = this.stock.findIndex((s) => s.id === updatedStock.id);
+        if (idx !== -1) {
+          this.stock.splice(idx, 1, updatedStock);
+        } else {
+          this.stock.push(updatedStock);
+        }
+
         this.showSnackbar("Movimiento registrado correctamente", "success");
         this.closeMovementDialog();
-        await this.fetchData();
       } catch (error) {
         console.error("Error saving movement:", error);
         this.showSnackbar(
@@ -847,10 +835,20 @@ export default {
 
       this.savingTransfer = true;
       try {
-        await this.$axios.post(`${this.$routes["stocks"]}/transfer`, this.transfer);
+        const response = await this.$axios.post(`${this.$routes["stocks"]}/transfer`, this.transfer);
+        const { from_stock, to_stock } = response.data.data;
+
+        [from_stock, to_stock].forEach((updatedStock) => {
+          const idx = this.stock.findIndex((s) => s.id === updatedStock.id);
+          if (idx !== -1) {
+            this.stock.splice(idx, 1, updatedStock);
+          } else {
+            this.stock.push(updatedStock);
+          }
+        });
+
         this.showSnackbar("Transferencia realizada correctamente", "success");
         this.closeTransferDialog();
-        await this.fetchData();
       } catch (error) {
         console.error("Error saving transfer:", error);
         this.showSnackbar(
@@ -882,13 +880,19 @@ export default {
 
       this.savingReserve = true;
       try {
-        await this.$axios.post(
+        const response = await this.$axios.post(
           `${this.$routes["stocks"]}/${this.selectedStockItem.id}/reserve`,
           this.reserve
         );
+        const updatedStock = response.data.data;
+
+        const idx = this.stock.findIndex((s) => s.id === updatedStock.id);
+        if (idx !== -1) {
+          this.stock.splice(idx, 1, updatedStock);
+        }
+
         this.showSnackbar("Stock reservado correctamente", "success");
         this.closeReserveDialog();
-        await this.fetchData();
       } catch (error) {
         console.error("Error reserving stock:", error);
         this.showSnackbar(
