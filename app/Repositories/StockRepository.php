@@ -6,6 +6,9 @@ use App\Models\Stock;
 use App\Models\StockMovement;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Auth;
+
 
 class StockRepository extends BaseRepository
 {
@@ -124,12 +127,14 @@ class StockRepository extends BaseRepository
 
             $this->recordMovement($stock->id, $operationType, $quantity);
 
-            return $this->successResponse($stock);
+            return $this->successResponse($stock->fresh(['product', 'warehouse']));
         } catch (\Exception $e) {
             report($e);
             return $this->errorResponse($e);
         }
     }
+
+
 
     /**
      * Registrar movimiento de stock con validaciones
@@ -191,7 +196,8 @@ class StockRepository extends BaseRepository
             ]);
 
             DB::commit();
-            return $this->successResponse($movement->load('stock.product'));
+            $this->cacheForget();
+            return $this->successResponse($stock->fresh(['product', 'warehouse']));
         } catch (\Exception $e) {
             DB::rollBack();
             report($e);
@@ -231,15 +237,16 @@ class StockRepository extends BaseRepository
             ]);
 
             // Registrar salida del almacén origen
-            $this->recordMovement($fromStock->id, 'transferencia', -$quantity, $notes);
+            $this->recordMovement($fromStock->id, 'salida', $quantity, $notes);
 
             // Registrar entrada al almacén destino
-            $this->recordMovement($toStock->id, 'transferencia', $quantity, $notes);
+            $this->recordMovement($toStock->id, 'entrada', $quantity, $notes);
 
             DB::commit();
+            $this->cacheForget();
             return $this->successResponse([
-                'from_stock' => $fromStock->fresh(),
-                'to_stock' => $toStock->fresh()
+                'from_stock' => $fromStock->fresh(['product', 'warehouse']),
+                'to_stock'   => $toStock->fresh(['product', 'warehouse']),
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -283,7 +290,8 @@ class StockRepository extends BaseRepository
             $stock->reserve($quantity);
 
             DB::commit();
-            return $this->successResponse($stock);
+            $this->cacheForget();
+            return $this->successResponse($stock->fresh(['product', 'warehouse']));
         } catch (\Exception $e) {
             DB::rollBack();
             report($e);
@@ -302,6 +310,7 @@ class StockRepository extends BaseRepository
             $stock->releaseReservation($quantity);
 
             DB::commit();
+            $this->cacheForget();
             return $this->successResponse($stock);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -318,14 +327,17 @@ class StockRepository extends BaseRepository
         try {
 
 
+            $tenantId = auth()->user()->tenant_id;
+
             $summary = [
-                'total_products' => $this->model->distinct('product_id')->count(),
-                'total_stock_value' => $this->model->with('product')
-                    ->get()
-                    ->sum(function ($stock) {
-                        return $stock->quantity * ($stock->product->purchase_price ?? 0);
-                    }),
-                'low_stock_count' => $this->model->whereRaw('quantity - reserved_quantity < minimum_stock')->count(),
+                'total_products'    => $this->model->distinct('product_id')->count(),
+                'total_stock_value' => DB::table('stocks')
+                    ->join('products', 'stocks.product_id', '=', 'products.id')
+                    ->where('stocks.tenant_id', $tenantId)
+                    ->whereNull('stocks.deleted_at')
+                    ->whereNull('products.deleted_at')
+                    ->sum(DB::raw('stocks.quantity * COALESCE(products.purchase_price, 0)')),
+                'low_stock_count'   => $this->model->whereRaw('quantity - reserved_quantity < minimum_stock')->count(),
                 'out_of_stock_count' => $this->model->where('quantity', '<=', 0)->count(),
             ];
 
@@ -370,5 +382,18 @@ class StockRepository extends BaseRepository
             report($e);
             return $this->errorResponse($e);
         }
+    }
+
+    /**
+     * Borrar la cache de productos del tenant.
+     *
+     * El listado de productos (ProductController) cachea el stock total
+     * (total_stock / total_reserved) bajo la clave "tenant_{tenantId}_products",
+     * por lo que cualquier movimiento de stock la deja desactualizada.
+     */
+    protected function cacheForget()
+    {
+        $tenantId = Auth::user()->tenant_id;
+        Cache::forget("tenant_{$tenantId}_products");
     }
 }

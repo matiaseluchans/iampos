@@ -25,6 +25,8 @@ class Stock  extends Model
         'created_by'
     ];
 
+    protected $appends = ['available'];
+
     protected $casts = [
         //'quantity' => 'decimal:2',
         //'reserved_quantity' => 'decimal:2',
