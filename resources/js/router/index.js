@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { routes } from './routes'
 import store from '@/store/modules'
-import { initializeAuth } from "@/api/auth"
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -35,16 +34,14 @@ function hasAccess(to, user) {
 
 
 
-router.beforeEach(async (to, from, next) => {
+router.beforeEach((to, from, next) => {
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
   const isLoginRoute = to.path === '/login'
-  
-  // Intentar inicializar la autenticación si hay token
-  const token = localStorage.getItem('token')
-  if (token) {
-    await initializeAuth()
-  }
 
+  // La autenticación ya se inicializa una única vez al bootstrapear la app (main.js).
+  // Revalidar el token contra el backend en cada navegación agregaba latencia a cada
+  // click del menú; el interceptor 401 de axios (axios/axios.js) ya cubre el caso
+  // de token vencido durante la sesión.
   const currentUser = store.getters.currentUser
   
   //console.log(currentUser);
