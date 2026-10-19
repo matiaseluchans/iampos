@@ -363,8 +363,7 @@ class ProductController extends ApiController
                 });
             }
 
-            // Ordenar
-            $query->orderBy('id');
+            // El orden (campo "order") lo aplica el global scope de Product
 
             $products = $query->get();
 

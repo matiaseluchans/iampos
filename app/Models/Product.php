@@ -34,6 +34,11 @@ class Product extends Model
     protected static function booted(): void
     {
         static::addGlobalScope(new TenantScope);
+
+        // Orden por defecto: campo "order" (desempate por id). Se puede anular con reorder().
+        static::addGlobalScope('order', function ($query) {
+            $query->orderBy('products.order');
+        });
     }
 
     // Relación con tenant
