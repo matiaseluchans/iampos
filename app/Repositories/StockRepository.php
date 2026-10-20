@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Auth;
 
 class StockRepository extends BaseRepository
 {
-
+    private $relations = ['product', 'warehouse'];
 
     public function __construct(Stock $m, array $relations = ['product', 'warehouse'])
     {

@@ -368,6 +368,18 @@ export default {
       }
     },
 
+    // Modal bloqueante con spinner; se reemplaza por el Swal de éxito/error o se cierra con Swal.close()
+    showProcessingAlert() {
+      Swal.fire({
+        title: 'Procesando información',
+        text: 'Por favor, no cierres esta ventana...',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        showConfirmButton: false,
+        didOpen: () => Swal.showLoading(),
+      });
+    },
+
     async generatePreview() {
       if (!this.excelFile) {
         this.previewData = [];
@@ -387,13 +399,17 @@ export default {
 
       formData.append('file', file);
 
+      this.showProcessingAlert();
+
       try {
         const response = await this.$axios.post('/api/products/import-excel-preview', formData);
 
         this.previewData = response.data.data.changes;
         this.previewKey = response.data.data.preview_key;
         this.previewStats = response.data.data.stats || null;
-        
+
+        Swal.close();
+
         if (this.previewData.length === 0) {
           this.showSnackbar("No se encontraron cambios en el archivo", "info");
         } else {
@@ -401,7 +417,11 @@ export default {
         }
       } catch (error) {
         console.error("Error generating preview:", error);
-        this.showSnackbar("Error al procesar el archivo Excel", "error");
+        Swal.fire({
+          icon: 'error',
+          title: 'Error al procesar el archivo',
+          text: error.response?.data?.message || 'No se pudo procesar el archivo Excel.',
+        });
         this.excelFile = null;
       } finally {
         this.previewLoading = false;
@@ -426,6 +446,8 @@ export default {
       const file = Array.isArray(this.excelFile) ? this.excelFile[0] : this.excelFile;
       const fileName = file ? file.name : 'Importación';
       const fileSize = file ? this.formatFileSize(file.size) : 'N/A';
+
+      this.showProcessingAlert();
 
       try {
         await this.$axios.post('/api/products/import-excel-confirm', {

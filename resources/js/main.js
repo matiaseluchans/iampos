@@ -54,14 +54,15 @@ app.config.globalProperties.moment = moment
 app.component('filter-component', './components/Filter.vue');
 app.config.globalProperties.$axios = axios  
 
-app.use(router)
-
 // Register plugins
 registerPlugins(app)
 
-// Mount vue app
+// El router se instala recién cuando la auth ya está restaurada: app.use(router) dispara
+// la navegación inicial, y si corre antes de que se cargue el usuario (roles), el guard
+// rechaza las rutas con allowedRoles y manda a "/" (order-search) al hacer F5.
 initializeAuth().finally(() => {
-// Mount vue app
+  app.use(router)
 
+  // Mount vue app
   app.mount('#app')
 })

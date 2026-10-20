@@ -36,6 +36,20 @@ class Stock  extends Model
     protected static function booted(): void
     {
         static::addGlobalScope(new TenantScope);
+
+        // Orden por defecto: products.order (desempate por id). Sin producto o sin "order" van al final.
+        // Se puede anular con reorder().
+        static::addGlobalScope('order', function ($query) {
+            $sub = Product::withoutGlobalScope('order')
+                ->select('products.order')
+                ->whereColumn('products.id', 'stocks.product_id')
+                ->limit(1);
+
+            $query->orderByRaw(
+                'COALESCE((' . $sub->toSql() . '), 2147483647)',
+                $sub->getBindings()
+            );
+        });
     }
 
     /**
