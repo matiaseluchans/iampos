@@ -96,6 +96,12 @@ class UpdateProductPricesJob implements ShouldQueue
                         $product->save();
                     }
 
+                    // Update order if changed
+                    if (isset($update['new_order']) && (int) $product->order !== (int) $update['new_order']) {
+                        $product->order = (int) $update['new_order'];
+                        $product->save();
+                    }
+
                     // Update stock if provided
                     if (isset($update['new_stock']) && $update['new_stock'] !== null) {
                         $this->updateStock($product, $update, $log);

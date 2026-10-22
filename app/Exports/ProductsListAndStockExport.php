@@ -72,6 +72,8 @@ class ProductsListAndStockExport implements
             $headings[] = "Precio: " . $priceListName;
         }
 
+        // Última columna, para no desplazar las columnas de precios
+        $headings[] = 'Order';
 
         return $headings;
     }
@@ -118,6 +120,7 @@ class ProductsListAndStockExport implements
                 $row[] = number_format($price, 2, '.', '');
             }
 
+            $row[] = $product->order;
 
             return $row;
         } catch (\Exception $e) {

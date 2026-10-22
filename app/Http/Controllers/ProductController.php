@@ -473,6 +473,7 @@ class ProductController extends ApiController
                 $newPurchasePrice = $row['precio_compra'] ?? null;
                 $newStock = isset($row['stock_a_ingresar']) ? (float)$row['stock_a_ingresar'] : null;
                 $currentStock = $product->stocks ? $product->stocks->sum('quantity') : 0;
+                $newOrder = (isset($row['order']) && is_numeric($row['order'])) ? (int) $row['order'] : null;
 
                 $changes = [
                     'id' => $product->id,
@@ -482,10 +483,17 @@ class ProductController extends ApiController
                     'new_purchase_price' => $newPurchasePrice,
                     'old_stock' => $currentStock,
                     'new_stock' => $newStock,
+                    'old_order' => $product->order,
+                    'new_order' => $newOrder,
                     'price_lists' => []
                 ];
 
                 $hasChanges = false;
+                if ($newOrder !== null && $newOrder !== (int) $product->order) {
+                    $hasChanges = true;
+                } else {
+                    $changes['new_order'] = null;
+                }
                 if ($newPurchasePrice != $product->purchase_price) {
                     $hasChanges = true;
                 }
@@ -533,6 +541,7 @@ class ProductController extends ApiController
                 'purchase_price_changes' => count(array_filter($previews, fn($p) => $p['new_purchase_price'] != $p['old_purchase_price'])),
                 'stock_changes' => count(array_filter($previews, fn($p) => $p['new_stock'] !== null)),
                 'price_list_changes' => count(array_filter($previews, fn($p) => count($p['price_lists']) > 0)),
+                'order_changes' => count(array_filter($previews, fn($p) => $p['new_order'] !== null)),
             ];
 
             return $this->successResponse([
