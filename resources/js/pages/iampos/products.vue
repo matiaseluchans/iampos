@@ -570,6 +570,7 @@ export default {
         sortable: false,
       }));
 
+      
       const baseHeaders = [
         {
           title: "Acciones",
