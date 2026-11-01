@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Order;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Mpdf\Mpdf;
 use Mpdf\Config\ConfigVariables;
 use Mpdf\Config\FontVariables;
@@ -59,19 +60,8 @@ class OrderController extends Controller
         return $this->repository->changestatus($request, $id);
     }
 
-    public function generateRemitoComanda($id)
+    private function buildComandaPdf(Order $order): string
     {
-
-
-        $order = Order::with([
-            'customer',
-            'items',
-            /*'items' => function ($query) {
-                $query->orderByProductName('asc');
-            },*/
-            'payment',
-            'payment.paymentMethod'
-        ])->findOrFail($id);
 
         // Configuración de mPDF
         $defaultConfig = (new ConfigVariables())->getDefaults();
@@ -108,22 +98,102 @@ class OrderController extends Controller
 
         $mpdf->WriteHTML($html);
 
-        // Generar PDF
-        $mpdf->Output("remito_{$order->order_number}.pdf", \Mpdf\Output\Destination::INLINE);
+        return $mpdf->Output($this->comandaFileName($order), \Mpdf\Output\Destination::STRING_RETURN);
     }
 
+    /**
+     * Nombre público de la comanda: fecha_hora_direccion_importe.pdf
+     * Ej: 2026-11-01_153045_av-corrientes-1234_15000.pdf
+     */
+    private function comandaFileName(Order $order): string
+    {
+        $address = $order->customer->address ?: $order->shipping_address ?: 'sin-direccion';
+
+        return implode('_', [
+            $order->order_date->format('Y-m-d'),
+            $order->order_date->format('His'),
+            Str::limit(Str::slug($address), 80, '') ?: 'sin-direccion',
+            (int) round($order->total_amount),
+        ]) . '.pdf';
+    }
+
+    private function comandaRelations(): array
+    {
+        return ['customer', 'items', 'payment', 'payment.paymentMethod'];
+    }
+
+    // Autenticado: devuelve el link público (no guarda nada en disco)
+    public function generateRemitoComanda($id)
+    {
+        $order = Order::with($this->comandaRelations())->findOrFail($id);
+        $fileName = $this->comandaFileName($order);
+
+        return response()->json([
+            'filename' => $fileName,
+            'url' => url("/api/comanda/{$fileName}"),
+        ]);
+    }
+
+    // Público: sin login. El PDF se genera al vuelo a partir del nombre.
+    public function publicRemitoComanda($file)
+    {
+        $order = $this->findOrderByPublicFileName($file, $this->comandaRelations());
+
+        return response($this->buildComandaPdf($order), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="' . $file . '"',
+        ]);
+    }
+
+    private function findOrderByPublicFileName(string $file, array $relations): Order
+    {
+        if (!preg_match('/^(\d{4}-\d{2}-\d{2})_(\d{6})_.+_\d+\.pdf$/', $file, $m)) {
+            abort(404);
+        }
+
+        $orderDate = \Carbon\Carbon::createFromFormat('Y-m-d His', "{$m[1]} {$m[2]}");
+
+        $order = Order::with($relations)
+            ->where('order_date', $orderDate->format('Y-m-d H:i:s'))
+            ->get()
+            ->first(fn($o) => $this->comandaFileName($o) === $file);
+
+        abort_unless($order, 404);
+
+        return $order;
+    }
+
+
+    private function remitoRelations(): array
+    {
+        return ['customer', 'items', 'payment', 'payment.paymentMethod', 'paymentStatus', 'shipmentStatus'];
+    }
+
+    // Autenticado: devuelve el link público (no guarda nada en disco)
     public function generateRemito($id)
     {
-        $order = Order::with([
-            'customer',
-            'items' /*=> function ($query) {
-                $query->orderByProductName('asc');
-            }*/,
-            'payment',
-            'payment.paymentMethod',
-            'paymentStatus',
-            'shipmentStatus',
-        ])->findOrFail($id);
+        $order = Order::with($this->remitoRelations())->findOrFail($id);
+        $fileName = $this->comandaFileName($order);
+
+        return response()->json([
+            'filename' => $fileName,
+            'url' => url("/api/remito/{$fileName}"),
+        ]);
+    }
+
+    // Público: sin login. El PDF se genera al vuelo a partir del nombre.
+    public function publicRemito($file)
+    {
+        $order = $this->findOrderByPublicFileName($file, $this->remitoRelations());
+
+        return response($this->buildRemitoPdf($order), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="' . $file . '"',
+        ]);
+    }
+
+    private function buildRemitoPdf(Order $order): string
+    {
 
 
 
@@ -170,7 +240,7 @@ class OrderController extends Controller
         $mpdf->WriteHTML($html1);
 
 
-        if (Auth::user()->tenant_id == 2) // si es bebida hago 2 copias
+        if ($order->tenant_id == 2) // si es bebida hago 2 copias
         {
 
             $mpdf->WriteHTML('<div style="page-break-after: always;"></div>');
@@ -180,7 +250,7 @@ class OrderController extends Controller
             $mpdf->WriteHTML($html2);
         }
 
-        $mpdf->Output("remito_{$order->order_number}.pdf", \Mpdf\Output\Destination::INLINE);
+        return $mpdf->Output($this->comandaFileName($order), \Mpdf\Output\Destination::STRING_RETURN);
     }
 
     public function generateCustomerDeliveryReport(Request $request)

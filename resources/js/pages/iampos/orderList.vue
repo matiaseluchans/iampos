@@ -1027,22 +1027,11 @@ export default {
         
         // Llamar al endpoint de Laravel que genera el PDF
         const response = await this.$axios.get(
-          `${this.$routes["orders"]}/remito/${item.id}`,
-          { 
-            responseType: 'blob' 
-          }
+          `${this.$routes["orders"]}/remito/${item.id}`
         );
-        
-         
-        var blob = new Blob([response.data], { type: "application/pdf" });
-        const url = window.URL.createObjectURL(blob, { oneTimeOnly: true });
-        const link = document.createElement("a");
-        link.target = "_blank";
 
-        link.href = url;
-
-        document.body.appendChild(link);
-        link.click();
+        // Link público al PDF (fecha_hora_direccion_importe.pdf)
+        window.open(response.data.url, "_blank");
     
         
       } catch (error) {
@@ -1059,23 +1048,11 @@ export default {
         
         // Llamar al endpoint de Laravel que genera el PDF
         const response = await this.$axios.get(
-          `${this.$routes["orders"]}/remito-comanda/${item.id}`,
-          { 
-            responseType: 'blob' 
-          }
+          `${this.$routes["orders"]}/remito-comanda/${item.id}`
         );
-        
-         
-        var blob = new Blob([response.data], { type: "application/pdf" });
-        const url = window.URL.createObjectURL(blob, { oneTimeOnly: true });
-        const link = document.createElement("a");
-        link.target = "_blank";
-        //link.download = `Factura_${item.order_number}.pdf`;
 
-        link.href = url;
-
-        document.body.appendChild(link);
-        link.click();
+        // Link público al PDF (fecha_hora_direccion_importe.pdf)
+        window.open(response.data.url, "_blank");
     
         
       } catch (error) {

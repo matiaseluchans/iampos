@@ -5,7 +5,7 @@
         :headers="showHeaders"
         :items="filteredDesserts"
         :search="search"
-        class="text-no-wrap striped-table"
+        class="text-no-wrap striped-table products-table"
       >
         <template v-slot:top>
           <VCard flat color="white">
@@ -389,6 +389,18 @@ export default {
     this.loadInitialData();
   },
 
+  mounted() {
+    // Capture: engancha el scroll sea cual sea el contenedor que scrollea (window o layout)
+    window.addEventListener("scroll", this.scheduleHeaderUpdate, true);
+    window.addEventListener("resize", this.scheduleHeaderUpdate);
+  },
+
+  beforeUnmount() {
+    window.removeEventListener("scroll", this.scheduleHeaderUpdate, true);
+    window.removeEventListener("resize", this.scheduleHeaderUpdate);
+    cancelAnimationFrame(this.headerRaf);
+  },
+
   watch: {
     dialog(val) {
       val || this.closeDialog();
@@ -396,6 +408,20 @@ export default {
   },
 
   methods: {
+    // Header "fijo" al scrollear la página: se desplaza el thead (translateY) en lugar de
+    // usar position: sticky, que obligaría a quitar el scroll horizontal de la tabla.
+    scheduleHeaderUpdate() {
+      cancelAnimationFrame(this.headerRaf);
+      this.headerRaf = requestAnimationFrame(this.updateHeaderOffset);
+    },
+    updateHeaderOffset() {
+      const table = this.$el?.querySelector?.(".products-table .v-table__wrapper > table");
+      if (!table) return;
+      const thead = table.tHead;
+      const maxOffset = Math.max(0, table.getBoundingClientRect().height - (thead?.offsetHeight || 0) * 2);
+      const offset = Math.min(Math.max(0, -table.getBoundingClientRect().top), maxOffset);
+      this.$el.style.setProperty("--products-header-offset", `${offset}px`);
+    },
     async exportToExcel() {
       this.exportLoading = true;
       try {
@@ -734,3 +760,18 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+/* La variable la calcula updateHeaderOffset() según el scroll vertical de la página */
+.products-table :deep(thead th) {
+  position: relative;
+  z-index: 2;
+  transform: translateY(var(--products-header-offset, 0px));
+}
+
+/* Mismo gris del tema (--v-table-header-color) un poco más oscuro.
+   Más específico que la regla global con !important de _components.scss */
+.products-table.v-table :deep(.v-table__wrapper > table > thead > tr > th) {
+  background: color-mix(in srgb, rgb(var(--v-table-header-color)) 88%, rgb(100, 100, 100)) !important;
+}
+</style>

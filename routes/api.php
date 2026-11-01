@@ -50,6 +50,10 @@ Route::middleware('auth:sanctum')->post('/logout', function (Request $request) {
 
 Route::post('/login', [App\Http\Controllers\AuthController::class, 'login']);
 
+// Comanda pública (sin login), se genera al vuelo
+Route::get('comanda/{file}', [App\Http\Controllers\OrderController::class, 'publicRemitoComanda'])->where('file', '[^/]+');
+Route::get('remito/{file}', [App\Http\Controllers\OrderController::class, 'publicRemito'])->where('file', '[^/]+');
+
 
 
 
