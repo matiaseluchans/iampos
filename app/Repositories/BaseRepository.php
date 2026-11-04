@@ -17,6 +17,20 @@ class BaseRepository extends ApiController
         $this->relations = $relations;
     }
 
+    /**
+     * Error de negocio (validación, regla, no encontrado): el mensaje llega siempre al usuario,
+     * a diferencia de errorResponse() que lo oculta cuando APP_DEBUG=false.
+     */
+    protected function domainError(string $message, int $code = 422)
+    {
+        return response()->json([
+            'status' => 'Error',
+            'message' => $message,
+            'data' => null,
+            'code' => $code,
+        ], $code);
+    }
+
     public function with(array $relations)
     {
         $this->relations = $relations;

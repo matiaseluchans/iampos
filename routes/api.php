@@ -86,6 +86,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
      */
     Route::apiResource('brands', App\Http\Controllers\BrandController::class);
     Route::post('brands/{id}', [App\Http\Controllers\BrandController::class, "update"]);
+    // Compras a proveedores
+    Route::get('suppliers/{id}/statement', [App\Http\Controllers\SupplierController::class, 'statement']);
+    Route::apiResource('suppliers', App\Http\Controllers\SupplierController::class);
+    Route::post('suppliers/{id}', [App\Http\Controllers\SupplierController::class, 'update']);
+    Route::apiResource('purchases', App\Http\Controllers\PurchaseController::class)->only(['index', 'show', 'store']);
+    Route::post('purchases-cancel/{id}', [App\Http\Controllers\PurchaseController::class, 'cancel']);
+    Route::apiResource('supplier-payments', App\Http\Controllers\SupplierPaymentController::class)->only(['store', 'destroy']);
 
     Route::apiResource('localities', App\Http\Controllers\LocalityController::class);
     Route::post('localities/{id}', [App\Http\Controllers\LocalityController::class, "update"]);

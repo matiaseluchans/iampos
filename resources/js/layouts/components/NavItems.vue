@@ -80,6 +80,39 @@ const navItems = [
   {
     component: 'VerticalNavGroup',
     item: {
+      title: 'Compras',
+      icon: 'ri-shopping-cart-2-line'
+    },
+    children: [
+      {
+        component: 'VerticalNavLink',
+        item: {
+          title: 'Registrar Compra',
+          to: '/purchase-create',
+          icon: 'ri-draft-line',
+        }
+      },
+      {
+        component: 'VerticalNavLink',
+        item: {
+          title: 'Compras y Pagos',
+          to: '/purchase-list',
+          icon: 'ri-file-list-3-line',
+        }
+      },
+      {
+        component: 'VerticalNavLink',
+        item: {
+          title: 'Proveedores',
+          to: '/suppliers',
+          icon: 'ri-truck-line',
+        }
+      },
+    ]
+  },
+  {
+    component: 'VerticalNavGroup',
+    item: {
       title: 'Productos',
       icon: 'ri-stock-line'
     },

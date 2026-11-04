@@ -133,6 +133,36 @@ export const routes = [
         },
       },
       {
+        path: 'purchase-create',
+
+        component: () => import('@/pages/iampos/purchaseCreate.vue'),
+        meta: {
+          title: "Registrar Compra",
+          requiresAuth: true,
+          allowedRoles: ['superadmin', 'bebidas-admin', 'petshop-admin']
+        },
+      },
+      {
+        path: 'purchase-list',
+
+        component: () => import('@/pages/iampos/purchaseList.vue'),
+        meta: {
+          title: "Compras",
+          requiresAuth: true,
+          allowedRoles: ['superadmin', 'bebidas-admin', 'petshop-admin']
+        },
+      },
+      {
+        path: 'suppliers',
+
+        component: () => import('@/pages/iampos/suppliers.vue'),
+        meta: {
+          title: "Proveedores",
+          requiresAuth: true,
+          allowedRoles: ['superadmin', 'bebidas-admin', 'petshop-admin']
+        },
+      },
+      {
         path: 'brands',
 
         component: () => import('@/pages/iampos/brands.vue'),
