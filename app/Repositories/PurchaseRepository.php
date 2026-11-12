@@ -161,6 +161,111 @@ class PurchaseRepository extends BaseRepository
         }
     }
 
+    /**
+     * Edita los ítems (productos, cantidades, costos), descuento, adicional y datos libres de una compra
+     * recibida y sin pagos. Proveedor, depósito y fecha no se modifican. El stock se ajusta por diferencia.
+     */
+    public function update($request, $id)
+    {
+        try {
+            $user = Auth::user();
+            $form = $request->all();
+
+            DB::transaction(function () use ($id, $form, $user) {
+                $purchase = Purchase::where('id', $id)->where('tenant_id', $user->tenant_id)->lockForUpdate()->first();
+                if (!$purchase) {
+                    throw new \DomainException('La compra no existe');
+                }
+                if ($purchase->status !== Purchase::STATUS_RECEIVED) {
+                    throw new \DomainException('La compra está anulada y no se puede editar');
+                }
+                if ($purchase->payments()->lockForUpdate()->exists()) {
+                    throw new \DomainException('La compra tiene pagos registrados. Anulá los pagos antes de editarla');
+                }
+
+                $items = $this->validatedItems($form['items'] ?? []);
+                $this->assertProductsBelongToTenant($items, $user->tenant_id);
+
+                $subtotal = round(collect($items)->sum('total_cost'), 2);
+                $discount = round((float) ($form['discount_amount'] ?? 0), 2);
+                $additional = round((float) ($form['aditional'] ?? 0), 2);
+                if ($discount < 0 || $additional < 0) {
+                    throw new \DomainException('El descuento y el adicional no pueden ser negativos');
+                }
+                if ($discount > $subtotal) {
+                    throw new \DomainException('El descuento no puede ser mayor al subtotal');
+                }
+
+                $oldItems = $purchase->items()->lockForUpdate()->get();
+                $oldQuantities = $oldItems->groupBy('product_id')->map(fn($rows) => (float) $rows->sum('quantity'));
+                $newQuantities = collect($items)->groupBy('product_id')->map(fn($rows) => (float) $rows->sum('quantity'));
+
+                $increase = [];
+                $decrease = [];
+                foreach ($oldQuantities->keys()->merge($newQuantities->keys())->unique() as $productId) {
+                    $delta = round(($newQuantities[$productId] ?? 0) - ($oldQuantities[$productId] ?? 0), 2);
+                    if ($delta > 0) {
+                        $increase[] = ['product_id' => $productId, 'quantity' => $delta];
+                    } elseif ($delta < 0) {
+                        $decrease[] = ['product_id' => $productId, 'quantity' => abs($delta)];
+                    }
+                }
+
+                $notes = "Edición compra #{$purchase->purchase_number}";
+                $this->moveStock($decrease, $purchase->warehouse_id, -1, 'ajuste', $notes, $user);
+                $this->moveStock($increase, $purchase->warehouse_id, 1, 'ajuste', $notes, $user);
+
+                foreach ($oldItems as $old) {
+                    $old->delete();
+                }
+                foreach ($items as $item) {
+                    PurchaseItem::create([
+                        'purchase_id' => $purchase->id,
+                        'product_id' => $item['product_id'],
+                        'quantity' => $item['quantity'],
+                        'unit_cost' => $item['unit_cost'],
+                        'total_cost' => $item['total_cost'],
+                    ]);
+                }
+
+                if (array_key_exists('due_date', $form)) {
+                    $dueDate = DateInput::parse($form['due_date'], 'fecha de vencimiento');
+                    $purchase->due_date = $dueDate ? $dueDate->format('Y-m-d') : null;
+                }
+                if (array_key_exists('supplier_document', $form)) {
+                    $purchase->supplier_document = $form['supplier_document'];
+                }
+                if (array_key_exists('notes', $form)) {
+                    $purchase->notes = $form['notes'];
+                }
+                $purchase->quantity_products = count($items);
+                $purchase->subtotal = $subtotal;
+                $purchase->discount_amount = $discount;
+                $purchase->aditional = $additional;
+                $purchase->total_amount = round($subtotal - $discount + $additional, 2);
+                $purchase->save();
+
+                if (!empty($form['update_cost'])) {
+                    foreach ($items as $item) {
+                        if ($item['unit_cost'] <= 0) {
+                            continue;
+                        }
+                        Product::withoutGlobalScope('order')
+                            ->where('id', $item['product_id'])
+                            ->update(['purchase_price' => $item['unit_cost']]);
+                    }
+                }
+            });
+
+            return $this->successResponse(Purchase::with(self::DETAIL_RELATIONS)->find($id));
+        } catch (\DomainException $e) {
+            return $this->domainError($e->getMessage());
+        } catch (\Exception $e) {
+            report($e);
+            return $this->errorResponse($e);
+        }
+    }
+
     public function cancel($request, $id)
     {
         try {
@@ -214,6 +319,7 @@ class PurchaseRepository extends BaseRepository
         }
 
         $items = [];
+        $seen = [];
         foreach ($rawItems as $raw) {
             $quantity = $raw['quantity'] ?? null;
             $cost = $raw['unit_cost'] ?? null;
@@ -221,6 +327,10 @@ class PurchaseRepository extends BaseRepository
             if (empty($raw['product_id'])) {
                 throw new \DomainException('Todos los ítems deben tener un producto');
             }
+            if (isset($seen[$raw['product_id']])) {
+                throw new \DomainException('Un producto no puede repetirse en la compra');
+            }
+            $seen[$raw['product_id']] = true;
             if (!is_numeric($quantity) || (float) $quantity <= 0) {
                 throw new \DomainException('La cantidad de cada producto debe ser mayor a 0');
             }

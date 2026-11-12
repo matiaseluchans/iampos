@@ -1,5 +1,10 @@
 <template>
   <VForm ref="purchaseForm" v-model="validPurchase">
+    <VAlert v-if="isEdit" type="info" variant="tonal" class="mb-4">
+      Editando la compra #{{ editingNumber }}. Podés cambiar productos, cantidades, costos,
+      descuento y adicional; el stock se ajusta por la diferencia. El proveedor, el depósito y
+      la fecha no se pueden modificar.
+    </VAlert>
     <VRow>
       <!-- Proveedor y fechas -->
       <VCol cols="12" sm="12" md="6">
@@ -24,10 +29,11 @@
                   :rules="[(v) => !!v || 'Proveedor es requerido']"
                   clearable
                   density="compact"
+                  :disabled="isEdit"
                   @update:model-value="onSupplierChange"
                 />
               </VCol>
-              <VCol cols="auto" md="auto" class="mb-0 pt-4">
+              <VCol v-if="!isEdit" cols="auto" md="auto" class="mb-0 pt-4">
                 <VBtn
                   :color="$cv('principal')"
                   title="Nuevo proveedor"
@@ -49,6 +55,7 @@
                   :rules="[(v) => !!v || 'Fecha requerida']"
                   clearable
                   density="compact"
+                  :disabled="isEdit"
                   @update:model-value="onPurchaseDateChange"
                 />
               </VCol>
@@ -82,6 +89,7 @@
                   label="Depósito donde ingresa la mercadería"
                   :rules="[(v) => !!v || 'Depósito es requerido']"
                   density="compact"
+                  :disabled="isEdit"
                 />
               </VCol>
             </VRow>
@@ -239,7 +247,7 @@
                       >
                         <template #bottom></template>
                         <template #item.product_name="{ item }">
-                          {{ getProductById(item.product_id)?.name }}
+                          {{ getProductById(item.product_id)?.name || item.product_name }}
                         </template>
                         <template #item.quantity="{ item }">
                           <VTextField
@@ -405,10 +413,10 @@
           color="primary"
           :loading="creatingPurchase"
           :disabled="!canCreatePurchase"
-          @click="createPurchase"
+          @click="isEdit ? updatePurchase() : createPurchase()"
         >
           <VIcon icon="ri-save-line" class="mr-2" />
-          Registrar Compra
+          {{ isEdit ? "Guardar cambios" : "Registrar Compra" }}
         </VBtn>
       </VCol>
     </VRow>
@@ -701,6 +709,7 @@ export default {
       purchase: emptyPurchase(),
       newItem: emptyItem(),
       dueDateTouched: false,
+      editingNumber: "",
 
       newSupplier: { name: "", tax_id: "", telephone: "", payment_term_days: 0 },
 
@@ -725,6 +734,14 @@ export default {
   },
 
   computed: {
+    editId() {
+      return this.$route?.params?.id || null;
+    },
+
+    isEdit() {
+      return !!this.editId;
+    },
+
     selectedSupplier() {
       return this.suppliers.find((s) => s.id === this.purchase.supplier_id);
     },
@@ -774,6 +791,7 @@ export default {
 
   async created() {
     await this.loadData();
+    if (this.isEdit) await this.loadPurchaseForEdit();
   },
 
   methods: {
@@ -808,6 +826,94 @@ export default {
       } finally {
         Swal.close();
       }
+    },
+
+    // ---- Edición de compra
+    async loadPurchaseForEdit() {
+      Swal.alertGetInfo();
+      try {
+        const res = await this.$axios.get(`${this.$routes["purchases"]}/${this.editId}`);
+        const p = res.data.data || res.data;
+
+        if (p.status !== "received" || (p.payments || []).length > 0) {
+          this.showSnackbar(
+            p.status !== "received"
+              ? "La compra está anulada y no se puede editar"
+              : "La compra tiene pagos registrados. Anulá los pagos antes de editarla",
+            "error"
+          );
+          this.$router.push({ path: "/purchase-list" });
+          return;
+        }
+
+        this.editingNumber = p.purchase_number;
+        this.dueDateTouched = true;
+        this.purchase = {
+          supplier_id: p.supplier_id,
+          warehouse_id: p.warehouse_id,
+          purchase_date: String(p.purchase_date || "").substring(0, 10), // "d/m/Y H:i:s"
+          supplier_document: p.supplier_document || "",
+          due_date: this.ymdToDmy(p.due_date),
+          update_cost: false,
+          subtotal: p.subtotal,
+          aditional: p.aditional,
+          discount_amount: p.discount_amount,
+          total_amount: p.total_amount,
+          notes: p.notes || "",
+          items: (p.items || []).map((i) => ({
+            product_id: i.product_id,
+            product_name: i.product?.name,
+            quantity: parseFloat(i.quantity),
+            unit_cost: parseFloat(i.unit_cost),
+            total_cost: this.round2(parseFloat(i.quantity) * parseFloat(i.unit_cost)),
+          })),
+        };
+        this.calculateTotals();
+      } catch (error) {
+        this.showSnackbar(this.errorMessage(error, "No se pudo cargar la compra"), "error");
+        this.$router.push({ path: "/purchase-list" });
+      } finally {
+        Swal.close();
+      }
+    },
+
+    async updatePurchase() {
+      if (this.creatingPurchase) return;
+
+      const { valid } = await this.$refs.purchaseForm.validate();
+      if (!valid) return;
+
+      this.creatingPurchase = true;
+      Swal.alertGetInfo();
+      try {
+        const payload = {
+          supplier_document: this.purchase.supplier_document,
+          due_date: this.purchase.due_date,
+          notes: this.purchase.notes,
+          update_cost: this.purchase.update_cost,
+          discount_amount: this.purchase.discount_amount,
+          aditional: this.purchase.aditional,
+          items: this.purchase.items.map((i) => ({
+            product_id: i.product_id,
+            quantity: i.quantity,
+            unit_cost: i.unit_cost,
+          })),
+        };
+        await this.$axios.put(`${this.$routes["purchases"]}/${this.editId}`, payload);
+        Swal.close();
+        this.showSnackbar("Compra actualizada y stock ajustado", "success");
+        this.$router.push({ path: "/purchase-list" });
+      } catch (error) {
+        this.showSnackbar(this.errorMessage(error, "Error al actualizar la compra"), "error");
+      } finally {
+        this.creatingPurchase = false;
+        Swal.close();
+      }
+    },
+
+    ymdToDmy(value) {
+      const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(value || "");
+      return match ? `${match[3]}/${match[2]}/${match[1]}` : "";
     },
 
     // ---- Fechas (dd/mm/aaaa)

@@ -29,6 +29,11 @@ class PurchaseController extends Controller
         return $this->repository->save($request);
     }
 
+    public function update(Request $request, $id)
+    {
+        return $this->repository->update($request, $id);
+    }
+
     public function cancel(Request $request, $id)
     {
         return $this->repository->cancel($request, $id);

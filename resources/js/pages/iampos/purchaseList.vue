@@ -131,6 +131,11 @@
                   <VIcon icon="ri-money-dollar-circle-line" class="mr-2" />Registrar pago
                 </VListItemTitle>
               </VListItem>
+              <VListItem v-if="canEdit(item)" @click="editPurchase(item)">
+                <VListItemTitle>
+                  <VIcon icon="ri-edit-line" class="mr-2" />Editar compra
+                </VListItemTitle>
+              </VListItem>
               <VListItem v-if="item.status === 'received'" @click="openCancel(item)">
                 <VListItemTitle class="text-error">
                   <VIcon icon="ri-close-circle-line" class="mr-2" />Anular compra
@@ -308,6 +313,14 @@
 
       <VCardActions class="px-4 pb-4">
         <VSpacer />
+        <VBtn
+          v-if="canEdit(detail) && !(detail.payments || []).length"
+          color="primary"
+          variant="tonal"
+          @click="editPurchase(detail)"
+        >
+          <VIcon icon="ri-edit-line" class="mr-1" /> Editar compra
+        </VBtn>
         <VBtn v-if="canPay(detail)" color="primary" @click="openPayment(detail)">
           <VIcon icon="ri-money-dollar-circle-line" class="mr-1" /> Registrar pago
         </VBtn>
@@ -635,6 +648,15 @@ export default {
       if (!this.detail) return;
       const res = await this.$axios.get(`${this.$routes["purchases"]}/${this.detail.id}`);
       this.detail = res.data.data || res.data;
+    },
+
+    // ---- Edición: solo compras recibidas y sin pagos registrados
+    canEdit(item) {
+      return item.status === "received" && Number(item.total_paid || 0) === 0;
+    },
+
+    editPurchase(item) {
+      this.$router.push({ path: `/purchase-edit/${item.id}` });
     },
 
     // ---- Pagos

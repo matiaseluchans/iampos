@@ -392,6 +392,198 @@ class PurchaseModuleTest extends TestCase
         $this->assertSame(0, $purchase->payments()->count());
     }
 
+    // ---------------------------------------------------------------- Edición de compra
+
+    private function secondProduct(int $stock = 4): Product
+    {
+        $product = Product::create(['name' => 'Fanta 1.5', 'purchase_price' => 90, 'sale_price' => 130, 'active' => 1]);
+        Stock::create(['product_id' => $product->id, 'warehouse_id' => $this->warehouse->id, 'quantity' => $stock]);
+
+        return $product;
+    }
+
+    private function stockOf(Product $product): float
+    {
+        return (float) Stock::where('product_id', $product->id)->value('quantity');
+    }
+
+    public function test_edit_changes_quantity_recalculates_totals_and_adjusts_stock_by_difference(): void
+    {
+        $purchase = $this->createPurchase(['discount_amount' => 50, 'aditional' => 20])['purchase']; // 5 x 120 = 600 -> total 570
+        $this->assertEquals(15, $this->stockQuantity());
+
+        $response = $this->putJson("/api/purchases/{$purchase['id']}", $this->purchasePayload([
+            'discount_amount' => 50,
+            'aditional' => 20,
+            'items' => [['product_id' => $this->product->id, 'quantity' => 3, 'unit_cost' => 130]],
+        ]))->assertOk();
+
+        $this->assertEquals(390, $response->json('data.subtotal'));
+        $this->assertEquals(360, $response->json('data.total_amount'));   // 390 - 50 + 20
+        $this->assertEquals(13, $this->stockQuantity());                  // 15 - 2 (de 5 a 3 unidades)
+
+        $fresh = Purchase::find($purchase['id']);
+        $this->assertEquals(360, $fresh->total_amount);
+        $this->assertEquals(1, $fresh->quantity_products);
+        $this->assertEquals(0, $fresh->total_paid);
+        $this->assertSame('pending', $fresh->payment_status);
+        $this->assertSame('0000000001', $fresh->purchase_number);
+
+        $last = Stock::where('product_id', $this->product->id)->first()->movements()->orderByDesc('id')->first();
+        $this->assertSame('ajuste', $last->movement_type);
+        $this->assertEquals(-2, $last->quantity);
+        $this->assertEquals(15, $last->previous_quantity);
+        $this->assertEquals(13, $last->new_quantity);
+        $this->assertStringContainsString('Edición compra #0000000001', $last->notes);
+    }
+
+    public function test_edit_can_add_and_remove_products(): void
+    {
+        $second = $this->secondProduct(4);
+        $purchase = $this->createPurchase()['purchase'];   // product 5 x 120
+
+        $this->putJson("/api/purchases/{$purchase['id']}", $this->purchasePayload([
+            'items' => [['product_id' => $second->id, 'quantity' => 6, 'unit_cost' => 90]],
+        ]))->assertOk();
+
+        $this->assertEquals(10, $this->stockQuantity());        // se quitó: vuelve a 10
+        $this->assertEquals(10, $this->stockOf($second));       // 4 + 6
+
+        $items = Purchase::find($purchase['id'])->items()->get();
+        $this->assertCount(1, $items);
+        $this->assertSame($second->id, $items->first()->product_id);
+        $this->assertEquals(540, Purchase::find($purchase['id'])->total_amount);
+    }
+
+    public function test_edit_without_stock_changes_does_not_log_movements(): void
+    {
+        $purchase = $this->createPurchase()['purchase'];
+        $movements = Stock::where('product_id', $this->product->id)->first()->movements()->count();
+
+        $this->putJson("/api/purchases/{$purchase['id']}", $this->purchasePayload([
+            'items' => [['product_id' => $this->product->id, 'quantity' => 5, 'unit_cost' => 200]],
+        ]))->assertOk();
+
+        $this->assertEquals(15, $this->stockQuantity());
+        $this->assertSame($movements, Stock::where('product_id', $this->product->id)->first()->movements()->count());
+        $this->assertEquals(1000, Purchase::find($purchase['id'])->total_amount);
+    }
+
+    public function test_edit_keeps_supplier_warehouse_and_date(): void
+    {
+        $otherSupplier = Supplier::create(['name' => 'Otro']);
+        $otherWarehouse = Warehouse::create(['name' => 'Sucursal', 'active' => true]);
+        $purchase = $this->createPurchase()['purchase'];
+
+        $this->putJson("/api/purchases/{$purchase['id']}", $this->purchasePayload([
+            'supplier_id' => $otherSupplier->id,
+            'warehouse_id' => $otherWarehouse->id,
+            'purchase_date' => '01/01/2020',
+            'notes' => 'Corregida',
+            'supplier_document' => 'B-0002-00000009',
+        ]))->assertOk();
+
+        $fresh = Purchase::find($purchase['id']);
+        $this->assertSame($this->supplier->id, $fresh->supplier_id);
+        $this->assertSame($this->warehouse->id, $fresh->warehouse_id);
+        $this->assertSame('2026-11-02', $fresh->purchase_date->format('Y-m-d'));
+        $this->assertSame('Corregida', $fresh->notes);
+        $this->assertSame('B-0002-00000009', $fresh->supplier_document);
+    }
+
+    public function test_edit_blocked_when_purchase_has_payments(): void
+    {
+        $purchase = $this->createPurchase()['purchase'];
+        $this->postJson('/api/supplier-payments', $this->payload($purchase['id'], 100))->assertStatus(201);
+
+        $message = $this->putJson("/api/purchases/{$purchase['id']}", $this->purchasePayload([
+            'items' => [['product_id' => $this->product->id, 'quantity' => 1, 'unit_cost' => 1]],
+        ]))->assertStatus(422)->json('message');
+
+        $this->assertStringContainsString('pagos', $message);
+        $this->assertEquals(15, $this->stockQuantity());
+        $this->assertEquals(600, Purchase::find($purchase['id'])->total_amount);
+    }
+
+    public function test_can_edit_again_after_voiding_the_payment(): void
+    {
+        $purchase = $this->createPurchase()['purchase'];
+        $this->postJson('/api/supplier-payments', $this->payload($purchase['id'], 100))->assertStatus(201);
+        $paymentId = Purchase::find($purchase['id'])->payments()->first()->id;
+        $this->deleteJson("/api/supplier-payments/{$paymentId}")->assertOk();
+
+        $this->putJson("/api/purchases/{$purchase['id']}", $this->purchasePayload([
+            'items' => [['product_id' => $this->product->id, 'quantity' => 2, 'unit_cost' => 100]],
+        ]))->assertOk();
+
+        $this->assertEquals(200, Purchase::find($purchase['id'])->total_amount);
+        $this->assertEquals(12, $this->stockQuantity());
+    }
+
+    public function test_cancelled_purchase_cannot_be_edited(): void
+    {
+        $purchase = $this->createPurchase()['purchase'];
+        $this->postJson("/api/purchases-cancel/{$purchase['id']}", ['reason' => 'x'])->assertOk();
+
+        $this->putJson("/api/purchases/{$purchase['id']}", $this->purchasePayload())->assertStatus(422);
+
+        $this->assertEquals(10, $this->stockQuantity());
+        $this->assertSame('cancelled', Purchase::find($purchase['id'])->status);
+    }
+
+    public function test_invalid_edit_changes_nothing(): void
+    {
+        $purchase = $this->createPurchase()['purchase'];
+
+        $invalid = [
+            'sin items' => ['items' => []],
+            'cantidad cero' => ['items' => [['product_id' => $this->product->id, 'quantity' => 0, 'unit_cost' => 10]]],
+            'costo negativo' => ['items' => [['product_id' => $this->product->id, 'quantity' => 1, 'unit_cost' => -1]]],
+            'descuento mayor al subtotal' => ['discount_amount' => 100000],
+            'producto repetido' => ['items' => [
+                ['product_id' => $this->product->id, 'quantity' => 1, 'unit_cost' => 10],
+                ['product_id' => $this->product->id, 'quantity' => 2, 'unit_cost' => 10],
+            ]],
+        ];
+
+        foreach ($invalid as $case => $override) {
+            $this->putJson("/api/purchases/{$purchase['id']}", $this->purchasePayload($override))->assertStatus(422, $case);
+        }
+
+        $this->assertEquals(15, $this->stockQuantity());
+        $this->assertEquals(600, Purchase::find($purchase['id'])->total_amount);
+        $this->assertSame(1, Purchase::find($purchase['id'])->items()->count());
+    }
+
+    public function test_edit_update_cost_sets_product_purchase_price_and_ignores_zero_cost(): void
+    {
+        $second = $this->secondProduct(0);
+        $purchase = $this->createPurchase()['purchase'];
+
+        $this->putJson("/api/purchases/{$purchase['id']}", $this->purchasePayload([
+            'update_cost' => true,
+            'items' => [
+                ['product_id' => $this->product->id, 'quantity' => 5, 'unit_cost' => 140],
+                ['product_id' => $second->id, 'quantity' => 1, 'unit_cost' => 0],
+            ],
+        ]))->assertOk();
+
+        $this->assertEquals(140, $this->product->fresh()->purchase_price);
+        $this->assertEquals(90, $second->fresh()->purchase_price);
+    }
+
+    public function test_other_tenant_cannot_edit_purchase(): void
+    {
+        $purchase = $this->createPurchase()['purchase'];
+
+        Sanctum::actingAs($this->otherUser);
+        $this->putJson("/api/purchases/{$purchase['id']}", $this->purchasePayload())->assertStatus(422);
+
+        Sanctum::actingAs($this->user);
+        $this->assertEquals(15, $this->stockQuantity());
+        $this->assertEquals(600, Purchase::find($purchase['id'])->total_amount);
+    }
+
     // ---------------------------------------------------------------- Listado y detalle
 
     public function test_list_filters_by_supplier_and_payment_status(): void

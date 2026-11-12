@@ -143,6 +143,16 @@ export const routes = [
         },
       },
       {
+        path: 'purchase-edit/:id',
+
+        component: () => import('@/pages/iampos/purchaseCreate.vue'),
+        meta: {
+          title: "Editar Compra",
+          requiresAuth: true,
+          allowedRoles: ['superadmin', 'bebidas-admin', 'petshop-admin']
+        },
+      },
+      {
         path: 'purchase-list',
 
         component: () => import('@/pages/iampos/purchaseList.vue'),
