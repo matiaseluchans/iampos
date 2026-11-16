@@ -122,6 +122,16 @@
                       </VCardActions>
                     </VCard>
                   </v-dialog>
+                  <VBtn
+                    class="mt-2"
+                    color="info"
+                    size="x-large"
+                    title="Actualizar información"
+                    :loading="refreshing"
+                    @click="refreshData"
+                  >
+                    <VIcon size="large" icon="ri-refresh-line" />
+                  </VBtn>
                 </VCol>
               </VRow>
             </VCardText>
@@ -197,6 +207,7 @@ export default {
     valid: true,
     title: title(),
     route: "priceLists",
+    refreshing: false,
     dialog: false,
     snackbar: false,
     visible: true,
@@ -303,6 +314,23 @@ export default {
   },
 
   methods: {
+    // Recarga las listas de precios con sus precios actuales
+    async refreshData() {
+      this.refreshing = true;
+      try {
+        const r = await this.$axios.get(this.$routes[this.route]);
+        this.desserts = r.data.data;
+        this.snackbar = true;
+        this.text = "Información actualizada";
+        this.color = "success";
+      } catch (error) {
+        this.snackbar = true;
+        this.text = "Error al actualizar. Error: " + error;
+        this.color = "error";
+      } finally {
+        this.refreshing = false;
+      }
+    },
     filterDessertName(item) {
       return item.name.toLowerCase().includes(this.dessertName.toLowerCase());
     },

@@ -105,6 +105,16 @@
             <VCardActions class="justify-end">
               <VBtn variant="outlined" color="primary" @click="reset"> Reset </VBtn>
               <VBtn
+                color="info"
+                variant="outlined"
+                title="Actualizar información"
+                :loading="loading"
+                @click="fetchData"
+              >
+                <VIcon icon="ri-refresh-line" class="mr-1" />
+                Actualizar
+              </VBtn>
+              <VBtn
                 variant="outlined"
                 color="white"
                 @click="

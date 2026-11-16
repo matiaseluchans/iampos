@@ -28,6 +28,11 @@ class PriceListRepository extends BaseRepository
 
             $cacheKey = "tenant_{$tenantId}_price_lists_only";
 
+            // ?refresh=1 -> descarta la caché (botón "Actualizar" del front)
+            if (request()->boolean('refresh')) {
+                Cache::forget($cacheKey);
+            }
+
             return Cache::remember($cacheKey, 60 * 24, function () use ($userId) {
                 $query = $this->model->query();
 

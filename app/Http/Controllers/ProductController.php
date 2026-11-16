@@ -40,7 +40,10 @@ class ProductController extends ApiController
 
             $cacheKey = "tenant_{$tenantId}_products";
 
-
+            // ?refresh=1 -> descarta la caché y devuelve datos actuales (botón "Actualizar" del front)
+            if (request()->boolean('refresh')) {
+                Cache::forget($cacheKey);
+            }
 
             return Cache::remember($cacheKey, 60 * 24, function () {
 
@@ -94,6 +97,12 @@ class ProductController extends ApiController
             }
 
             //$data['activo'] = filter_var($request->input('activo', true), FILTER_VALIDATE_BOOLEAN);
+
+            // Si no se informa orden, se asigna el mayor orden + 1 (queda al final de la lista).
+            if (!isset($data['order']) || !is_numeric($data['order'])) {
+                $maxOrder = Product::withoutGlobalScope('order')->max('order');
+                $data['order'] = ((int) $maxOrder) + 1;
+            }
 
             $p = $this->model->create($data);
 

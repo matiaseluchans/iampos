@@ -73,12 +73,24 @@
                 </VCol>
               </VRow>
               <VRow>                                                
-                <VCol cols="12" sm="6" class="pl-0 pt-20 py-2">
+                <VCol cols="12" sm="5" class="pl-0 pt-20 py-2">
                   <DateRangeField ref="dateOrderRange" v-model="dateOrderRange" modelLabel='Fecha Orden' />
                 </VCol>
-                <VCol cols="12" sm="6" class="pl-0 pt-20 py-2">
+                <VCol cols="12" sm="5" class="pl-0 pt-20 py-2">
                   <DateRangeField ref="dateDeliveryRange" v-model="dateRange" modelLabel='Fecha Entrega' />                  
                 </VCol>              
+                <VCol cols="12" sm="2" class="pt-20 py-2">
+                  <VBtn
+                    color="info"
+                    size="large"
+                    title="Actualizar información"
+                    :loading="loading"
+                    @click="fetchData"
+                  >
+                    <VIcon icon="ri-refresh-line" class="mr-1" />
+                    Actualizar
+                  </VBtn>
+                </VCol>
               </VRow>
             </VCardText>
           </VCard>

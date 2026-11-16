@@ -64,6 +64,9 @@
             <VIcon icon="ri-search-line" class="mr-1" /> Buscar
           </VBtn>
           <VBtn variant="outlined" color="primary" @click="clearFilters">Limpiar</VBtn>
+          <VBtn color="info" :loading="loading" title="Actualizar información" @click="loadPurchases">
+            <VIcon icon="ri-refresh-line" class="mr-1" /> Actualizar
+          </VBtn>
           <VBtn variant="tonal" color="warning" @click="showPending">
             <VIcon icon="ri-time-line" class="mr-1" /> Pendientes de pago
           </VBtn>

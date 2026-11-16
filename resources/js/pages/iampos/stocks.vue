@@ -74,6 +74,15 @@
                   >
                     <VIcon icon="ri-pie-chart-line" />
                   </VBtn>
+                  <VBtn
+                    color="info"
+                    size="large"
+                    title="Actualizar información"
+                    :loading="loading"
+                    @click="fetchData(true)"
+                  >
+                    <VIcon icon="ri-refresh-line" />
+                  </VBtn>
                 </VCol>
               </VRow>
             </VCardText>
@@ -704,12 +713,14 @@ export default {
       }
     },
 
-    async fetchData() {
+    async fetchData(force = false) {
       this.loading = true;
       try {
         const [stockRes, productsRes, warehousesRes] = await Promise.all([
           this.$axios.get(this.$routes["stocks"]),
-          this.$axios.get(this.$routes["products"]),
+          this.$axios.get(this.$routes["products"], {
+            params: force ? { refresh: 1 } : {},
+          }),
           this.$axios.get(this.$routes["warehouses"]),
         ]);
 

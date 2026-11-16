@@ -152,6 +152,10 @@
                   item-value="id"
                   label="Seleccionar Producto"
                   clearable
+                  
+                  :loading="refreshingCatalog"
+                  title="Actualizar precios, stock y productos"
+                  @click:append="refreshCatalog"
                   density="compact"
                   @update:model-value="onProductChange"
                 >
@@ -224,7 +228,7 @@
                 <VCard>
                   <div class="v-card-item">
                     <div class="v-card-item__content">
-                      <div class="v-card-title">
+                      <div class="v-card-title d-flex align-center">
                         <h5 class="text-h5">
                           <VAvatar
                             icon="ri-luggage-cart-line"
@@ -232,6 +236,17 @@
                             variant="tonal"
                           />Productos a ingresar
                         </h5>
+                        <VSpacer />
+                        <VBtn
+                          color="info"
+                          size="small"
+                          title="Actualizar precios, stock y productos"
+                          :loading="refreshingCatalog"
+                          @click="refreshCatalog"
+                        >
+                          <VIcon icon="ri-refresh-line" class="mr-1" />
+                          Actualizar
+                        </VBtn>
                       </div>
                     </div>
                   </div>
@@ -686,6 +701,7 @@ export default {
 
   data() {
     return {
+      refreshingCatalog: false,
       keyPurchaseForm: 1,
       validPurchase: false,
       validSupplier: false,
@@ -795,6 +811,22 @@ export default {
   },
 
   methods: {
+    // Recarga productos (stock/precios de compra) sin perder lo ya cargado en la compra
+    async refreshCatalog() {
+      this.refreshingCatalog = true;
+      try {
+        const res = await this.$axios.get(this.$routes["products"], {
+          params: { refresh: 1 },
+        });
+        this.products = (res.data.data || res.data).filter((p) => p.active !== 0);
+        this.showSnackbar("Productos actualizados", "success");
+      } catch (error) {
+        console.error("Error al actualizar:", error);
+        this.showSnackbar("Error al actualizar la información", "error");
+      } finally {
+        this.refreshingCatalog = false;
+      }
+    },
     async loadData() {
       Swal.alertGetInfo();
       try {

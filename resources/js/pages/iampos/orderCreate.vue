@@ -206,6 +206,10 @@
                   item-value="id"
                   label="Seleccionar Producto"
                   clearable
+                   
+                  :loading="refreshingCatalog"
+                  title="Actualizar precios, stock y productos"
+                  @click:append="refreshCatalog"
                   @update:model-value="onProductChange"
                   density="compact"
                 >
@@ -305,7 +309,7 @@
                 <VCard>
                   <div class="v-card-item">
                     <div class="v-card-item__content">
-                      <div class="v-card-title">
+                      <div class="v-card-title d-flex align-center">
                         <h5 class="text-h5">
                           <VAvatar
                             icon="ri-luggage-cart-line"
@@ -313,6 +317,17 @@
                             variant="tonal"
                           />Productos agregados
                         </h5>
+                        <VSpacer />
+                        <VBtn
+                          color="info"
+                          size="small"
+                          title="Actualizar precios, stock y productos"
+                          :loading="refreshingCatalog"
+                          @click="refreshCatalog"
+                        >
+                          <VIcon icon="ri-refresh-line" class="mr-1" />
+                          Actualizar
+                        </VBtn>
                       </div>
                     </div>
                   </div>
@@ -808,6 +823,7 @@ import { mapGetters } from "vuex";
 export default {
   data() {
     return {
+      refreshingCatalog: false,
       isEditing: false,
       editingOrderId: null,
       keyOrderForm: 1,
@@ -1044,6 +1060,26 @@ export default {
         this.totalPaid > this.createdOrder.order.total_amount
           ? this.totalPaid - this.createdOrder.order.total_amount
           : 0;
+    },
+    // Recarga productos (stock/precios) y listas de precios sin perder lo ya cargado en la orden
+    async refreshCatalog() {
+      this.refreshingCatalog = true;
+      try {
+        const params = { refresh: 1 };
+        const [productsRes, priceListsRes] = await Promise.all([
+          this.$axios.get(this.$routes["products"], { params }),
+          this.$axios.get(this.$routes["priceListsOnly"], { params }),
+        ]);
+        this.products = productsRes.data.data || productsRes.data;
+        this.priceLists = priceListsRes.data.data || priceListsRes.data;
+        this.onPriceListChange();
+        this.showSnackbar("Precios, stock y productos actualizados", "success");
+      } catch (error) {
+        console.error("Error al actualizar:", error);
+        this.showSnackbar("Error al actualizar la información", "error");
+      } finally {
+        this.refreshingCatalog = false;
+      }
     },
     async loadData() {
       Swal.alertGetInfo();

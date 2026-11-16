@@ -57,6 +57,16 @@
                       >
                         <VIcon size="large" icon="ri-file-excel-2-line" />
                       </VBtn>
+                      <VBtn
+                        class="ml-2"
+                        color="info"
+                        size="x-large"
+                        title="Actualizar información"
+                        :loading="refreshing"
+                        @click="refreshData"
+                      >
+                        <VIcon size="large" icon="ri-refresh-line" />
+                      </VBtn>
                     </template>
                     <VCard>
                       <v-toolbar :color="$cv('principal')">
@@ -355,6 +365,7 @@ export default {
       { title: "Precio de Venta", key: "sale_price", sortable: false, width: "200px" },
     ],
     exportLoading: false,
+    refreshing: false,
   }),
 
   computed: {
@@ -421,6 +432,28 @@ export default {
       const maxOffset = Math.max(0, table.getBoundingClientRect().height - (thead?.offsetHeight || 0) * 2);
       const offset = Math.min(Math.max(0, -table.getBoundingClientRect().top), maxOffset);
       this.$el.style.setProperty("--products-header-offset", `${offset}px`);
+    },
+    // Recarga productos (sin caché del servidor), stock y listas de precios
+    async refreshData() {
+      this.refreshing = true;
+      try {
+        const prevCount = this.priceLists.length;
+        const [productsRes] = await Promise.all([
+          this.$axios.get(this.$routes[this.route], { params: { refresh: 1 } }),
+          this.loadPriceLists(),
+        ]);
+        this.desserts = productsRes.data.data;
+        if (this.priceLists.length !== prevCount) {
+          this.buildHeaders();
+          this.selectedHeaders = this.headers;
+        }
+        this.showSnackbar("Información actualizada", "success");
+      } catch (error) {
+        console.error("Error al actualizar:", error);
+        this.showSnackbar("Error al actualizar la información", "error");
+      } finally {
+        this.refreshing = false;
+      }
     },
     async exportToExcel() {
       this.exportLoading = true;
