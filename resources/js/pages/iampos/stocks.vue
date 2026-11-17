@@ -1,5 +1,6 @@
 <template>
   <VCard title="Gestión de Stock">
+    <LastUpdated :timestamp="lastUpdatedAt" />
     <VCardText class="d-flex px-2">
       <VDataTable
         :headers="showHeaders"
@@ -524,7 +525,10 @@
 </template>
 
 <script>
+import autoRefreshMixin from "@/utils/autoRefreshMixin";
+
 export default {
+  mixins: [autoRefreshMixin((vm) => vm.fetchData(true), { watch: "stock" })],
   data() {
     return {
       loading: false,

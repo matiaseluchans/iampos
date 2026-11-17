@@ -1,5 +1,6 @@
 <template>
   <VCard :title="'Administración de ' + title">
+    <LastUpdated :timestamp="lastUpdatedAt" />
     <VCardText class="d-flex px-2">
       <VDataTable
         :headers="showHeaders"
@@ -312,7 +313,10 @@
 </template>
 
 <script>
+import autoRefreshMixin from "@/utils/autoRefreshMixin";
+
 export default {
+  mixins: [autoRefreshMixin((vm) => vm.refreshData(true), { watch: "desserts" })],
   data: () => ({
     title: "Productos",
     route: "products",
@@ -434,7 +438,7 @@ export default {
       this.$el.style.setProperty("--products-header-offset", `${offset}px`);
     },
     // Recarga productos (sin caché del servidor), stock y listas de precios
-    async refreshData() {
+    async refreshData(silent = false) {
       this.refreshing = true;
       try {
         const prevCount = this.priceLists.length;
@@ -447,10 +451,10 @@ export default {
           this.buildHeaders();
           this.selectedHeaders = this.headers;
         }
-        this.showSnackbar("Información actualizada", "success");
+        if (silent !== true) this.showSnackbar("Información actualizada", "success");
       } catch (error) {
         console.error("Error al actualizar:", error);
-        this.showSnackbar("Error al actualizar la información", "error");
+        if (silent !== true) this.showSnackbar("Error al actualizar la información", "error");
       } finally {
         this.refreshing = false;
       }

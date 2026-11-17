@@ -318,6 +318,7 @@
                           />Productos agregados
                         </h5>
                         <VSpacer />
+                        <LastUpdated :timestamp="lastUpdatedAt" inline class="mr-3" />
                         <VBtn
                           color="info"
                           size="small"
@@ -518,6 +519,18 @@
         >
           <VIcon icon="ri-shopping-bag-line" class="mr-2" />
           Ordenes
+        </VBtn>
+        <VBtn
+          color="info"
+          variant="outlined"
+          class="mr-4"
+          title="Genera un PDF de presupuesto con los datos cargados (no guarda la orden)"
+          :loading="creatingQuote"
+          :disabled="!canCreateOrder"
+          @click="createQuote"
+        >
+          <VIcon icon="ri-file-pdf-2-line" class="mr-2" />
+          Presupuesto
         </VBtn>
         <VBtn
           color="primary"
@@ -815,12 +828,14 @@
 </template>
 
 <script>
+import autoRefreshMixin from "@/utils/autoRefreshMixin";
 import { VAvatar, VCardItem, VTextField } from "vuetify/lib/components/index.mjs";
 import PaymentsRow from "@/components/PaymentsRow.vue";
 
 import { mapGetters } from "vuex";
 
 export default {
+  mixins: [autoRefreshMixin((vm) => vm.refreshCatalog(true))],
   data() {
     return {
       refreshingCatalog: false,
@@ -834,6 +849,7 @@ export default {
 
       // Loading states
       creatingOrder: false,
+      creatingQuote: false,
       savingCustomer: false,
       savingPayment: false,
 
@@ -1062,7 +1078,7 @@ export default {
           : 0;
     },
     // Recarga productos (stock/precios) y listas de precios sin perder lo ya cargado en la orden
-    async refreshCatalog() {
+    async refreshCatalog(silent = false) {
       this.refreshingCatalog = true;
       try {
         const params = { refresh: 1 };
@@ -1073,10 +1089,11 @@ export default {
         this.products = productsRes.data.data || productsRes.data;
         this.priceLists = priceListsRes.data.data || priceListsRes.data;
         this.onPriceListChange();
-        this.showSnackbar("Precios, stock y productos actualizados", "success");
+        this.markUpdated();
+        if (silent !== true) this.showSnackbar("Precios, stock y productos actualizados", "success");
       } catch (error) {
         console.error("Error al actualizar:", error);
-        this.showSnackbar("Error al actualizar la información", "error");
+        if (silent !== true) this.showSnackbar("Error al actualizar la información", "error");
       } finally {
         this.refreshingCatalog = false;
       }
@@ -1111,6 +1128,7 @@ export default {
         //this.stock = stockRes.data.data || stockRes.data;
         this.localities = localitiesRes.data.data || localitiesRes.data;
         this.priceLists = priceListsRes.data.data || priceListsRes.data;
+        this.markUpdated();
 
         if (this.$store.getters.currentUser.data.id == 9) {
           this.selectedPriceList = 2;
@@ -1350,6 +1368,45 @@ export default {
         this.showSnackbar("Error al crear el cliente", "error");
       } finally {
         this.savingCustomer = false;
+      }
+    },
+
+    // Presupuesto: PDF (remito con marca de agua) con lo cargado en pantalla. No guarda nada.
+    async createQuote() {
+      if (!this.canCreateOrder) return;
+
+      this.creatingQuote = true;
+      try {
+        const payload = {
+          customer_id: this.order.customer_id,
+          shipping_address: this.order.shipping_address,
+          notes: this.order.notes,
+          aditional: this.order.aditional,
+          discount_amount: this.order.discount_amount,
+          items: this.order.items.map((item) => ({
+            product_id: item.product_id,
+            quantity: item.quantity,
+            unit_price: item.unit_price,
+          })),
+        };
+
+        const response = await this.$axios.post(this.$routes["orders"] + "-quote", payload, {
+          responseType: "blob",
+        });
+
+        const blob = new Blob([response.data], { type: "application/pdf" });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.target = "_blank";
+        link.href = url;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+      } catch (error) {
+        console.error("Error generando presupuesto:", error);
+        this.showSnackbar("Error al generar el presupuesto", "error");
+      } finally {
+        this.creatingQuote = false;
       }
     },
 

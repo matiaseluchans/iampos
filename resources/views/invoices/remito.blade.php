@@ -3,7 +3,7 @@
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>REMITO #{{ $order->order_number }}</title>
+    <title>{{ !empty($presupuesto) ? 'PRESUPUESTO' : 'REMITO #' . $order->order_number }}</title>
     <style>
         /* Estilos optimizados para mPDF 150mm */
         body {
@@ -275,8 +275,12 @@
                 @endif
 
                 <div class="invoice-info">
+                    @if(!empty($presupuesto))
+                    <div class="invoice-title">PRESUPUESTO</div>
+                    @else
                     <div class="invoice-title">REMITO</div>
                     <div class="invoice-number">N° {{ $order->order_number }}</div>
+                    @endif
                     <div class="invoice-date">Fecha: {{ $order->order_date->format("d/m/Y H:i:s") }}</div>
 
                 </div>
@@ -296,7 +300,7 @@
                 </div>
 
                 <!-- Métodos de pago y envío -->
-                @if($order->tenant->id != 2)
+                @if($order->tenant->id != 2 && empty($presupuesto))
                 <div class="client-info" style="width:50mm;height:21.5mm;margin-left:5px">
                     <div class="section-title">ESTADO DE PAGO</div>
 
@@ -420,7 +424,7 @@
             </table>
 
 
-            @if(isset($order->payment) && count($order->payment)> 0)
+            @if(empty($presupuesto) && isset($order->payment) && count($order->payment)> 0)
             <div class="section-title" style="margin-top:2mm">DETALLE DE PAGOS</div>
             <table>
                 <thead>
@@ -456,6 +460,14 @@
 
             <!-- Pie de página -->
             <div class="footer">
+                @if(!empty($presupuesto))
+                <div>¡Gracias por su consulta!</div>
+
+                <div class="legal-info">
+                    Presupuesto sin valor comercial ni fiscal. Los precios y la disponibilidad
+                    están sujetos a modificación. No constituye una venta.
+                </div>
+                @else
                 <div>¡Gracias por su compra!</div>
 
                 <div class="legal-info">
@@ -465,6 +477,7 @@
                     Conserve este documento para cualquier gestión posterior
                 </div>
                 <div class="barcode">*{{ $order->order_number }}*</div>
+                @endif
             </div>
         </div>
 

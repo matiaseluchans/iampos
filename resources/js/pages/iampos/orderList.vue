@@ -1,5 +1,6 @@
 <template>
   <VCard>
+    <LastUpdated :timestamp="lastUpdatedAt" />
     <VCardTitle class="d-flex align-center">
       <div>
         <div class="text-h5">Últimas Órdenes</div>
@@ -530,10 +531,12 @@
 </template>
 
 <script>
+import autoRefreshMixin from "@/utils/autoRefreshMixin";
 import DateRangeField from '@/components/DateRangeField.vue';
 import { mapGetters } from 'vuex';
 
 export default {
+  mixins: [autoRefreshMixin((vm) => vm.fetchData(), { watch: "orders" })],
   components: { DateRangeField },
   data() {   
     return {

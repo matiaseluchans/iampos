@@ -1,5 +1,6 @@
 <template>
   <VCard :title="'Administración de ' + title">
+    <LastUpdated :timestamp="lastUpdatedAt" />
     <VCardText class="d-flex px-2">
       <VDataTable
         :headers="showHeaders"
@@ -197,11 +198,14 @@
 </template>
 
 <script>
+import autoRefreshMixin from "@/utils/autoRefreshMixin";
+
 function title() {
   return "Listas de Precios";
 }
 
 export default {
+  mixins: [autoRefreshMixin((vm) => vm.refreshData(true), { watch: "desserts" })],
   data: (vm) => ({
     dessertName: "",
     valid: true,
@@ -315,18 +319,22 @@ export default {
 
   methods: {
     // Recarga las listas de precios con sus precios actuales
-    async refreshData() {
+    async refreshData(silent = false) {
       this.refreshing = true;
       try {
         const r = await this.$axios.get(this.$routes[this.route]);
         this.desserts = r.data.data;
-        this.snackbar = true;
-        this.text = "Información actualizada";
-        this.color = "success";
+        if (silent !== true) {
+          this.snackbar = true;
+          this.text = "Información actualizada";
+          this.color = "success";
+        }
       } catch (error) {
-        this.snackbar = true;
-        this.text = "Error al actualizar. Error: " + error;
-        this.color = "error";
+        if (silent !== true) {
+          this.snackbar = true;
+          this.text = "Error al actualizar. Error: " + error;
+          this.color = "error";
+        }
       } finally {
         this.refreshing = false;
       }

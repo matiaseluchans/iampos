@@ -21,6 +21,7 @@ declare module 'vue' {
     FormCompleted: typeof import('./resources/js/components/dialogs/FormCompleted.vue')['default']
     FormConfirm: typeof import('./resources/js/components/dialogs/FormConfirm.vue')['default']
     FormValidate: typeof import('./resources/js/components/dialogs/FormValidate.vue')['default']
+    LastUpdated: typeof import('./resources/js/components/LastUpdated.vue')['default']
     MoreBtn: typeof import('./resources/js/@core/components/MoreBtn.vue')['default']
     PaymentsRow: typeof import('./resources/js/components/PaymentsRow.vue')['default']
     ReservationForm: typeof import('./resources/js/components/ReservationForm.vue')['default']

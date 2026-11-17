@@ -1,5 +1,6 @@
 <template>
   <VCard>
+    <LastUpdated :timestamp="lastUpdatedAt" />
     <VCardTitle class="d-flex flex-wrap align-center justify-space-between ga-2">
       <div class="d-flex flex-column" style="min-width: 250px; flex-grow: 1">
         <h2 class="text-h5 mb-1">Órdenes</h2>
@@ -829,12 +830,14 @@
 </template>
 
 <script>
+import autoRefreshMixin from "@/utils/autoRefreshMixin";
 import DateRangeField from "@/components/DateRangeField.vue";
 import { mapGetters } from "vuex";
 import DialogConfirmar from "@/components/dialogs/Confirm.vue";
 //import { debounce } from 'lodash';
 
 export default {
+  mixins: [autoRefreshMixin((vm) => vm.fetchData(), { watch: "orders" })],
   components: { DateRangeField, DialogConfirmar },
   data() {
     return {

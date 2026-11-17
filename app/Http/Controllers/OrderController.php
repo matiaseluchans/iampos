@@ -7,6 +7,10 @@ use App\Repositories\OrderRepository;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Order;
+use App\Models\OrderItem;
+use App\Models\Customer;
+use App\Models\Product;
+use App\Models\Tenant;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Mpdf\Mpdf;
@@ -192,7 +196,75 @@ class OrderController extends Controller
         ]);
     }
 
-    private function buildRemitoPdf(Order $order): string
+    /**
+     * Presupuesto: reutiliza el remito pero con los datos cargados en pantalla.
+     * No guarda nada (ni orden, ni número, ni stock): arma una Order en memoria.
+     */
+    public function generateQuote(Request $request)
+    {
+        $data = $request->validate([
+            'customer_id' => 'required|integer',
+            'shipping_address' => 'nullable|string',
+            'notes' => 'nullable|string',
+            'aditional' => 'nullable|numeric',
+            'discount_amount' => 'nullable|numeric',
+            'items' => 'required|array|min:1',
+            'items.*.product_id' => 'required|integer',
+            'items.*.quantity' => 'required|numeric|min:0',
+            'items.*.unit_price' => 'required|numeric|min:0',
+        ]);
+
+        $customer = Customer::with('locality')->findOrFail($data['customer_id']);
+        $products = Product::withoutGlobalScope('order')
+            ->whereIn('id', collect($data['items'])->pluck('product_id')->unique())
+            ->get()
+            ->keyBy('id');
+
+        $items = collect($data['items'])->map(function ($row) use ($products) {
+            abort_unless($products->has($row['product_id']), 422, 'Producto inexistente en el presupuesto.');
+
+            $item = new OrderItem([
+                'product_id' => $row['product_id'],
+                'quantity' => $row['quantity'],
+                'unit_price' => $row['unit_price'],
+                'total_price' => $row['quantity'] * $row['unit_price'],
+            ]);
+            $item->setRelation('product', $products[$row['product_id']]);
+
+            return $item;
+        });
+
+        $subtotal = $items->sum('total_price');
+        $aditional = (float) ($data['aditional'] ?? 0);
+        $discount = (float) ($data['discount_amount'] ?? 0);
+
+        $order = new Order([
+            'order_date' => now(),
+            'order_number' => 'PRESUPUESTO',
+            'customer_id' => $customer->id,
+            'shipping_address' => $data['shipping_address'] ?? $customer->address,
+            'quantity_products' => $items->count(),
+            'subtotal' => $subtotal,
+            'aditional' => $aditional,
+            'discount_amount' => $discount,
+            'total_amount' => $subtotal + $aditional - $discount,
+            'notes' => $data['notes'] ?? null,
+            'tenant_id' => Auth::user()->tenant_id,
+        ]);
+        $order->setRelation('customer', $customer);
+        $order->setRelation('items', $items);
+        $order->setRelation('payment', collect());
+        $order->setRelation('tenant', Tenant::findOrFail(Auth::user()->tenant_id));
+
+        $fileName = 'presupuesto_' . now()->format('Y-m-d_His') . '.pdf';
+
+        return response($this->buildRemitoPdf($order, true), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="' . $fileName . '"',
+        ]);
+    }
+
+    private function buildRemitoPdf(Order $order, bool $presupuesto = false): string
     {
 
 
@@ -224,7 +296,8 @@ class OrderController extends Controller
             'order' => $order,
             'date' => now()->format('d/m/Y'),
             'logo' => public_path('logo.png'),
-            'copyText' => 'ORIGINAL' // Texto para identificar la copia
+            'copyText' => 'ORIGINAL', // Texto para identificar la copia
+            'presupuesto' => $presupuesto,
         ])->render();
 
 
@@ -233,14 +306,20 @@ class OrderController extends Controller
             'order' => $order,
             'date' => now()->format('d/m/Y'),
             'logo' => public_path('logo.png'),
-            'copyText' => 'DUPLICADO' // Texto para identificar la copia
+            'copyText' => 'DUPLICADO', // Texto para identificar la copia
+            'presupuesto' => $presupuesto,
         ])->render();
+
+        if ($presupuesto) {
+            $mpdf->SetWatermarkText('PRESUPUESTO', 0.1);
+            $mpdf->showWatermarkText = true;
+        }
 
         // Agregar primera copia
         $mpdf->WriteHTML($html1);
 
 
-        if ($order->tenant_id == 2) // si es bebida hago 2 copias
+        if ($order->tenant_id == 2 && !$presupuesto) // si es bebida hago 2 copias (el presupuesto lleva una sola)
         {
 
             $mpdf->WriteHTML('<div style="page-break-after: always;"></div>');
@@ -250,7 +329,7 @@ class OrderController extends Controller
             $mpdf->WriteHTML($html2);
         }
 
-        return $mpdf->Output($this->comandaFileName($order), \Mpdf\Output\Destination::STRING_RETURN);
+        return $mpdf->Output($presupuesto ? 'presupuesto.pdf' : $this->comandaFileName($order), \Mpdf\Output\Destination::STRING_RETURN);
     }
 
     public function generateCustomerDeliveryReport(Request $request)

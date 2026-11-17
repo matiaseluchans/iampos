@@ -117,6 +117,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     //reports
     Route::get('orders/remito/{id}', [App\Http\Controllers\OrderController::class, "generateRemito"]);
+    Route::post('orders-quote', [App\Http\Controllers\OrderController::class, "generateQuote"]);
     Route::get('orders/remito-comanda/{id}', [App\Http\Controllers\OrderController::class, "generateRemitoComanda"]);
     Route::get('orders-delivery', [App\Http\Controllers\OrderController::class, "generateDeliveryReport"]);
     Route::get('orders-customers-delivery', [App\Http\Controllers\OrderController::class, "generateCustomerDeliveryReport"]);

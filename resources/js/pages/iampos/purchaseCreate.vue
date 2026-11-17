@@ -237,6 +237,7 @@
                           />Productos a ingresar
                         </h5>
                         <VSpacer />
+                        <LastUpdated :timestamp="lastUpdatedAt" inline class="mr-3" />
                         <VBtn
                           color="info"
                           size="small"
@@ -673,6 +674,7 @@
 </template>
 
 <script>
+import autoRefreshMixin from "@/utils/autoRefreshMixin";
 import PaymentsRow from "@/components/PaymentsRow.vue";
 
 function emptyPurchase() {
@@ -697,6 +699,7 @@ function emptyItem() {
 }
 
 export default {
+  mixins: [autoRefreshMixin((vm) => vm.refreshCatalog(true))],
   components: { PaymentsRow },
 
   data() {
@@ -812,17 +815,18 @@ export default {
 
   methods: {
     // Recarga productos (stock/precios de compra) sin perder lo ya cargado en la compra
-    async refreshCatalog() {
+    async refreshCatalog(silent = false) {
       this.refreshingCatalog = true;
       try {
         const res = await this.$axios.get(this.$routes["products"], {
           params: { refresh: 1 },
         });
         this.products = (res.data.data || res.data).filter((p) => p.active !== 0);
-        this.showSnackbar("Productos actualizados", "success");
+        this.markUpdated();
+        if (silent !== true) this.showSnackbar("Productos actualizados", "success");
       } catch (error) {
         console.error("Error al actualizar:", error);
-        this.showSnackbar("Error al actualizar la información", "error");
+        if (silent !== true) this.showSnackbar("Error al actualizar la información", "error");
       } finally {
         this.refreshingCatalog = false;
       }
@@ -846,6 +850,7 @@ export default {
           (w) => w.active !== 0
         );
 
+        this.markUpdated();
         if (!this.purchase.warehouse_id && this.warehouses.length) {
           this.purchase.warehouse_id = this.warehouses[0].id;
         }

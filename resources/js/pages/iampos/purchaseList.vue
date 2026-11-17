@@ -1,5 +1,6 @@
 <template>
   <VCard title="Compras y Pagos a Proveedores">
+    <LastUpdated :timestamp="lastUpdatedAt" />
     <VCardText>
       <!-- Filtros -->
       <VRow dense>
@@ -474,6 +475,7 @@
 </template>
 
 <script>
+import autoRefreshMixin from "@/utils/autoRefreshMixin";
 import PaymentsRow from "@/components/PaymentsRow.vue";
 
 function toYmd(date) {
@@ -483,6 +485,7 @@ function toYmd(date) {
 }
 
 export default {
+  mixins: [autoRefreshMixin((vm) => vm.loadPurchases(), { watch: "purchases" })],
   components: { PaymentsRow },
 
   data() {
