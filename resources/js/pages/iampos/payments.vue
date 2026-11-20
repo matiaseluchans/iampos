@@ -6,7 +6,7 @@
         <div class="text-caption text-medium-emphasis d-flex align-center">
           <VIcon icon="ri-information-line" size="16" class="mr-1" />
           <span style="white-space: normal">
-            Resumen diario de pagos agrupados por día y método de pago
+            Ingresos de ventas y egresos de compras por día y método de pago
           </span>
         </div>
       </div>
@@ -34,7 +34,18 @@
                     modelLabel="Fecha de Pago"
                   />
                 </VCol>
-                <VCol cols="12" md="6" sm="12" class="pl-0 pt-1">
+                <VCol cols="12" md="3" sm="12" class="pl-0 pt-1">
+                  <VSelect
+                    v-model="origin"
+                    :items="originOptions"
+                    item-title="title"
+                    item-value="value"
+                    label="Origen"
+                    class="mt-0"
+                    density="compact"
+                  />
+                </VCol>
+                <VCol cols="12" md="3" sm="12" class="pl-0 pt-1">
                   <VAutocomplete
                     v-model="selectedPaymentMethod"
                     :items="paymentMethods"
@@ -101,9 +112,21 @@
           </div>
         </template>
 
-        <template #item.amount="{ item }">
-          <div class="text-right" :class="getColorAmount(item.amount)">
-            <strong>{{ formatCurrency(item.amount) }}</strong>
+        <template #item.income="{ item }">
+          <div class="text-right" :class="getColorAmount(item.income)">
+            {{ formatCurrency(item.income) }}
+          </div>
+        </template>
+
+        <template #item.expense="{ item }">
+          <div class="text-right" :class="getColorAmount(item.expense)">
+            {{ formatCurrency(item.expense) }}
+          </div>
+        </template>
+
+        <template #item.net="{ item }">
+          <div class="text-right" :class="getColorAmount(item.net)">
+            <strong>{{ formatCurrency(item.net) }}</strong>
           </div>
         </template>
 
@@ -121,7 +144,9 @@
             <tr class="bg-grey-lighten-4 font-weight-bold" style="background: #ccc">
               <td class="text-left"></td>
               <td class="text-left">Total General</td>
-              <td class="text-right">{{ formatCurrency(calculateTotalAmount()) }}</td>
+              <td class="text-right">{{ formatCurrency(totals.income) }}</td>
+              <td class="text-right">{{ formatCurrency(totals.expense) }}</td>
+              <td class="text-right">{{ formatCurrency(totals.net) }}</td>
               <td class="text-right"></td>
             </tr>
           </tfoot>
@@ -182,15 +207,37 @@
                   <VCol cols="6" sm="4">
                     <div class="d-flex flex-column">
                       <span class="text-caption text-medium-emphasis">
+                        <VIcon icon="ri-arrow-down-circle-line" size="14" class="mr-1" />
+                        Ingresos
+                      </span>
+                      <span class="font-weight-medium" :class="getColorAmount(selectedPayment.income)">
+                        {{ formatCurrency(selectedPayment.income) }}
+                      </span>
+                    </div>
+                  </VCol>
+                  <VCol cols="6" sm="4">
+                    <div class="d-flex flex-column">
+                      <span class="text-caption text-medium-emphasis">
+                        <VIcon icon="ri-arrow-up-circle-line" size="14" class="mr-1" />
+                        Egresos
+                      </span>
+                      <span class="font-weight-medium" :class="getColorAmount(selectedPayment.expense)">
+                        {{ formatCurrency(selectedPayment.expense) }}
+                      </span>
+                    </div>
+                  </VCol>
+                  <VCol cols="6" sm="4">
+                    <div class="d-flex flex-column">
+                      <span class="text-caption text-medium-emphasis">
                         <VIcon
                           icon="ri-money-dollar-circle-line"
                           size="14"
                           class="mr-1"
                         />
-                        Total
+                        Neto
                       </span>
-                      <span class="font-weight-medium " :class="getColorAmount(selectedPayment.amount)" >
-                        {{ formatCurrency(selectedPayment.amount) }}
+                      <span class="font-weight-medium" :class="getColorAmount(selectedPayment.net)">
+                        {{ formatCurrency(selectedPayment.net) }}
                       </span>
                     </div>
                   </VCol>
@@ -215,18 +262,28 @@
                 </div>
               </template>
 
-              <template #item.order_number="{ item }">
-                <span class="font-weight-medium">#{{ item.order_number }}</span>
+              <template #item.origin="{ item }">
+                <VChip
+                  size="small"
+                  :color="item.origin === 'purchase' ? 'error' : 'success'"
+                  variant="tonal"
+                >
+                  {{ item.origin === "purchase" ? "Compra" : "Venta" }}
+                </VChip>
               </template>
 
-              <template #item.customer="{ item }">
+              <template #item.reference_number="{ item }">
+                <span class="font-weight-medium">#{{ item.reference_number }}</span>
+              </template>
+
+              <template #item.counterparty="{ item }">
                 <div class="d-flex flex-column text-start">
                   <span
                     class="d-block font-weight-medium text-high-emphasis text-truncate"
                   >
-                    {{ item.customer_name }}
+                    {{ item.counterparty_name }}
                   </span>
-                  <small class="text-disabled">{{ item.customer_contact }}</small>
+                  <small class="text-disabled">{{ item.counterparty_contact }}</small>
                 </div>
               </template>
 
@@ -272,7 +329,9 @@ export default {
       headers: [
         { title: "Día", key: "date", align: "left", width: "120px" },
         { title: "Método de Pago", key: "payment_method", align: "left" },
-        { title: "Monto", key: "amount", align: "end" },
+        { title: "Ingresos", key: "income", align: "end" },
+        { title: "Egresos", key: "expense", align: "end" },
+        { title: "Neto", key: "net", align: "end" },
         {
           title: "Acciones",
           key: "actions",
@@ -285,8 +344,9 @@ export default {
       // Headers para el modal de detalle
       detailHeaders: [
         { title: "Fecha Pago", key: "payment_date", align: "left", width: "150px" },
-        { title: "ID Orden", key: "order_number", align: "left", width: "100px" },
-        { title: "Cliente", key: "customer", align: "left" },
+        { title: "Origen", key: "origin", align: "left", width: "100px" },
+        { title: "Referencia", key: "reference_number", align: "left", width: "120px" },
+        { title: "Cliente / Proveedor", key: "counterparty", align: "left" },
         { title: "Monto", key: "amount", align: "end" },
       ],
 
@@ -302,6 +362,13 @@ export default {
       selectedPayment: {},
       paymentMethods: [],
       selectedPaymentMethod: null,
+      origin: "all",
+      appliedOrigin: "all", // origen con el que se calculó el resumen que se está viendo
+      originOptions: [
+        { title: "Todos", value: "all" },
+        { title: "Ventas", value: "sales" },
+        { title: "Compras", value: "purchases" },
+      ],
 
       // Dialogs
       detailDialog: false,
@@ -336,6 +403,14 @@ export default {
     ...mapGetters({
       userIsAdmin: "isAdmin",
     }),
+    totals() {
+      const sum = (key) =>
+        (this.paymentsSummary.data || []).reduce(
+          (total, item) => total + (parseFloat(item[key]) || 0),
+          0
+        );
+      return { income: sum("income"), expense: sum("expense"), net: sum("net") };
+    },
   },
 
   async created() {
@@ -354,6 +429,7 @@ export default {
           start_date: this.dateRange?.start,
           end_date: this.dateRange?.end,
           payment_methods: this.selectedPaymentMethod,
+          origin: this.origin,
         };
 
         // Limpiar parámetros undefined
@@ -480,6 +556,7 @@ export default {
           start_date: this.dateRange?.start,
           end_date: this.dateRange?.end,
           payment_methods: this.selectedPaymentMethod,
+          origin: this.origin,
         };
 
         // Eliminar parámetros undefined
@@ -491,6 +568,7 @@ export default {
           params,
         });
 
+        this.appliedOrigin = params.origin || "all";
         this.paymentsSummary = {
           data: response.data.data,
           total: response.data.total,
@@ -514,6 +592,7 @@ export default {
         end: null,
       };
       this.selectedPaymentMethod = null;
+      this.origin = "all";
       this.pagination.page = 1;
 
       // Resetear el componente DateRangeField
@@ -535,6 +614,7 @@ export default {
         const params = {
           date: item.date,
           payment_method_id: item.payment_method_id,
+          origin: this.appliedOrigin,
         };
 
         const response = await this.$axios.get(this.$routes["paymentsDetail"], {
@@ -561,16 +641,6 @@ export default {
       this.pagination.sortBy = options.sortBy;
       this.pagination.sortDesc = options.sortDesc;
       this.fetchData();
-    },
-
-    calculateTotalAmount() {
-      if (!this.paymentsSummary.data) return 0;
-
-      return this.paymentsSummary.data
-        .reduce((total, item) => {
-          return total + (parseFloat(item.amount) || 0);
-        }, 0)
-        .toFixed(2);
     },
 
     // Utility Methods
@@ -606,13 +676,10 @@ export default {
     getColorAmount(amount){
 
  
-      if(Math.sign(amount) === 1)
-      {
-        return "text-success";
-      }
-      else{
-        return "text-error";
-      }
+      const value = parseFloat(amount) || 0;
+      if (value > 0) return "text-success";
+      if (value < 0) return "text-error";
+      return "";
     },
 
     getPaymentMethodColor(method) {

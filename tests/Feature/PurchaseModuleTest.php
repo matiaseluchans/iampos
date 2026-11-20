@@ -491,18 +491,89 @@ class PurchaseModuleTest extends TestCase
         $this->assertSame('B-0002-00000009', $fresh->supplier_document);
     }
 
-    public function test_edit_blocked_when_purchase_has_payments(): void
+    private function editItems(int $quantity, float $unitCost, array $overrides = []): array
+    {
+        return $this->purchasePayload(array_merge([
+            'items' => [['product_id' => $this->product->id, 'quantity' => $quantity, 'unit_cost' => $unitCost]],
+        ], $overrides));
+    }
+
+    public function test_edit_with_payments_recalculates_total_and_keeps_payments(): void
     {
         $purchase = $this->createPurchase()['purchase'];
         $this->postJson('/api/supplier-payments', $this->payload($purchase['id'], 100))->assertStatus(201);
 
-        $message = $this->putJson("/api/purchases/{$purchase['id']}", $this->purchasePayload([
-            'items' => [['product_id' => $this->product->id, 'quantity' => 1, 'unit_cost' => 1]],
-        ]))->assertStatus(422)->json('message');
+        $this->putJson("/api/purchases/{$purchase['id']}", $this->editItems(3, 100))->assertOk();
 
-        $this->assertStringContainsString('pagos', $message);
+        $fresh = Purchase::find($purchase['id']);
+        $this->assertEquals(300, $fresh->total_amount);
+        $this->assertEquals(100, $fresh->total_paid);
+        $this->assertSame('partial', $fresh->payment_status);
+        $this->assertSame(1, $fresh->payments()->count());
+        $this->assertEquals(13, $this->stockQuantity());
+    }
+
+    public function test_edit_total_equal_to_paid_marks_purchase_as_paid(): void
+    {
+        $purchase = $this->createPurchase()['purchase'];
+        $this->postJson('/api/supplier-payments', $this->payload($purchase['id'], 300))->assertStatus(201);
+
+        $this->putJson("/api/purchases/{$purchase['id']}", $this->editItems(3, 100))->assertOk();
+
+        $this->assertSame('paid', Purchase::find($purchase['id'])->payment_status);
+    }
+
+    public function test_edit_raising_total_turns_paid_purchase_into_partial(): void
+    {
+        $purchase = $this->createPurchase()['purchase'];
+        $this->postJson('/api/supplier-payments', $this->payload($purchase['id'], 600))->assertStatus(201);
+        $this->assertSame('paid', Purchase::find($purchase['id'])->payment_status);
+
+        $this->putJson("/api/purchases/{$purchase['id']}", $this->editItems(5, 200))->assertOk();
+
+        $fresh = Purchase::find($purchase['id']);
+        $this->assertEquals(1000, $fresh->total_amount);
+        $this->assertSame('partial', $fresh->payment_status);
+        $this->assertEquals(400, $fresh->balance);
+    }
+
+    public function test_edit_total_below_paid_is_rejected_and_changes_nothing(): void
+    {
+        $purchase = $this->createPurchase()['purchase'];
+        $this->postJson('/api/supplier-payments', $this->payload($purchase['id'], 500))->assertStatus(201);
+
+        $message = $this->putJson("/api/purchases/{$purchase['id']}", $this->editItems(3, 100))
+            ->assertStatus(422)->json('message');
+
+        $this->assertStringContainsString('no puede ser menor a lo ya pagado', $message);
         $this->assertEquals(15, $this->stockQuantity());
+        $fresh = Purchase::find($purchase['id']);
+        $this->assertEquals(600, $fresh->total_amount);
+        $this->assertSame(5.0, (float) $fresh->items()->first()->quantity);
+    }
+
+    public function test_edit_discount_that_drops_total_below_paid_is_rejected(): void
+    {
+        $purchase = $this->createPurchase()['purchase'];
+        $this->postJson('/api/supplier-payments', $this->payload($purchase['id'], 500))->assertStatus(201);
+
+        $this->putJson("/api/purchases/{$purchase['id']}", $this->purchasePayload(['discount_amount' => 200]))
+            ->assertStatus(422);
+
         $this->assertEquals(600, Purchase::find($purchase['id'])->total_amount);
+    }
+
+    public function test_voiding_payment_on_cancelled_purchase_is_rejected(): void
+    {
+        $purchase = $this->createPurchase()['purchase'];
+        $this->postJson('/api/supplier-payments', $this->payload($purchase['id'], 100))->assertStatus(201);
+        $paymentId = Purchase::find($purchase['id'])->payments()->first()->id;
+        Purchase::whereKey($purchase['id'])->update(['status' => Purchase::STATUS_CANCELLED]);
+
+        $message = $this->deleteJson("/api/supplier-payments/{$paymentId}")->assertStatus(422)->json('message');
+
+        $this->assertStringContainsString('anulada', $message);
+        $this->assertSame(1, Purchase::find($purchase['id'])->payments()->count());
     }
 
     public function test_can_edit_again_after_voiding_the_payment(): void

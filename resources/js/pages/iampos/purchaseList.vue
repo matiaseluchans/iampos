@@ -318,7 +318,7 @@
       <VCardActions class="px-4 pb-4">
         <VSpacer />
         <VBtn
-          v-if="canEdit(detail) && !(detail.payments || []).length"
+          v-if="canEdit(detail)"
           color="primary"
           variant="tonal"
           @click="editPurchase(detail)"
@@ -656,9 +656,9 @@ export default {
       this.detail = res.data.data || res.data;
     },
 
-    // ---- Edición: solo compras recibidas y sin pagos registrados
+    // ---- Edición: solo compras recibidas (con o sin pagos; el total no puede quedar bajo lo pagado)
     canEdit(item) {
-      return item.status === "received" && Number(item.total_paid || 0) === 0;
+      return item.status === "received";
     },
 
     editPurchase(item) {

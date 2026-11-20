@@ -163,7 +163,8 @@ class PurchaseRepository extends BaseRepository
 
     /**
      * Edita los ítems (productos, cantidades, costos), descuento, adicional y datos libres de una compra
-     * recibida y sin pagos. Proveedor, depósito y fecha no se modifican. El stock se ajusta por diferencia.
+     * recibida, tenga o no pagos. El nuevo total no puede quedar por debajo de lo ya pagado; el estado de pago
+     * se recalcula. Proveedor, depósito y fecha no se modifican. El stock se ajusta por diferencia.
      */
     public function update($request, $id)
     {
@@ -179,9 +180,6 @@ class PurchaseRepository extends BaseRepository
                 if ($purchase->status !== Purchase::STATUS_RECEIVED) {
                     throw new \DomainException('La compra está anulada y no se puede editar');
                 }
-                if ($purchase->payments()->lockForUpdate()->exists()) {
-                    throw new \DomainException('La compra tiene pagos registrados. Anulá los pagos antes de editarla');
-                }
 
                 $items = $this->validatedItems($form['items'] ?? []);
                 $this->assertProductsBelongToTenant($items, $user->tenant_id);
@@ -194,6 +192,15 @@ class PurchaseRepository extends BaseRepository
                 }
                 if ($discount > $subtotal) {
                     throw new \DomainException('El descuento no puede ser mayor al subtotal');
+                }
+
+                $newTotal = round($subtotal - $discount + $additional, 2);
+                $paid = round((float) $purchase->payments()->sum('amount'), 2);
+                if ($newTotal < $paid) {
+                    throw new \DomainException(
+                        'El total ($' . number_format($newTotal, 2, ',', '.') . ') no puede ser menor a lo ya pagado ($'
+                        . number_format($paid, 2, ',', '.') . '). Anulá o reducí pagos primero.'
+                    );
                 }
 
                 $oldItems = $purchase->items()->lockForUpdate()->get();
@@ -242,8 +249,9 @@ class PurchaseRepository extends BaseRepository
                 $purchase->subtotal = $subtotal;
                 $purchase->discount_amount = $discount;
                 $purchase->aditional = $additional;
-                $purchase->total_amount = round($subtotal - $discount + $additional, 2);
+                $purchase->total_amount = $newTotal;
                 $purchase->save();
+                $purchase->refreshPaymentStatus();
 
                 if (!empty($form['update_cost'])) {
                     foreach ($items as $item) {

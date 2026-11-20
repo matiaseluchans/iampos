@@ -100,10 +100,13 @@ class SupplierPaymentRepository extends BaseRepository
             $purchase = DB::transaction(function () use ($id) {
                 $payment = SupplierPayment::where('tenant_id', Auth::user()->tenant_id)->find($id);
                 if (!$payment) {
-                    throw new \DomainException('El pago no existe');
+                    throw new \DomainException('El pago no existe', 404);
                 }
 
                 $purchase = Purchase::where('id', $payment->purchase_id)->where('tenant_id', Auth::user()->tenant_id)->lockForUpdate()->first();
+                if ($purchase->status !== Purchase::STATUS_RECEIVED) {
+                    throw new \DomainException('No se pueden anular pagos de una compra anulada');
+                }
                 $payment->delete();
                 $purchase->refreshPaymentStatus();
 
@@ -112,7 +115,7 @@ class SupplierPaymentRepository extends BaseRepository
 
             return $this->successResponse($purchase->fresh());
         } catch (\DomainException $e) {
-            return $this->domainError($e->getMessage(), 404);
+            return $this->domainError($e->getMessage(), $e->getCode() ?: 422);
         } catch (\Exception $e) {
             report($e);
             return $this->errorResponse($e);

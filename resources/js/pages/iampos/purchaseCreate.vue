@@ -4,6 +4,9 @@
       Editando la compra #{{ editingNumber }}. Podés cambiar productos, cantidades, costos,
       descuento y adicional; el stock se ajusta por la diferencia. El proveedor, el depósito y
       la fecha no se pueden modificar.
+      <div v-if="alreadyPaid > 0" class="mt-1 font-weight-medium">
+        Ya se pagaron {{ formatCurrency(alreadyPaid) }}: el nuevo total no puede ser menor.
+      </div>
     </VAlert>
     <VRow>
       <!-- Proveedor y fechas -->
@@ -729,6 +732,7 @@ export default {
       newItem: emptyItem(),
       dueDateTouched: false,
       editingNumber: "",
+      alreadyPaid: 0,
 
       newSupplier: { name: "", tax_id: "", telephone: "", payment_term_days: 0 },
 
@@ -872,18 +876,14 @@ export default {
         const res = await this.$axios.get(`${this.$routes["purchases"]}/${this.editId}`);
         const p = res.data.data || res.data;
 
-        if (p.status !== "received" || (p.payments || []).length > 0) {
-          this.showSnackbar(
-            p.status !== "received"
-              ? "La compra está anulada y no se puede editar"
-              : "La compra tiene pagos registrados. Anulá los pagos antes de editarla",
-            "error"
-          );
+        if (p.status !== "received") {
+          this.showSnackbar("La compra está anulada y no se puede editar", "error");
           this.$router.push({ path: "/purchase-list" });
           return;
         }
 
         this.editingNumber = p.purchase_number;
+        this.alreadyPaid = Number(p.total_paid || 0);
         this.dueDateTouched = true;
         this.purchase = {
           supplier_id: p.supplier_id,
@@ -919,6 +919,14 @@ export default {
 
       const { valid } = await this.$refs.purchaseForm.validate();
       if (!valid) return;
+
+      if (this.alreadyPaid > Number(this.purchase.total_amount || 0)) {
+        this.showSnackbar(
+          `El total (${this.formatCurrency(this.purchase.total_amount)}) no puede ser menor a lo ya pagado (${this.formatCurrency(this.alreadyPaid)}). Anulá o reducí pagos primero.`,
+          "error"
+        );
+        return;
+      }
 
       this.creatingPurchase = true;
       Swal.alertGetInfo();

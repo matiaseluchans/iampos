@@ -11,6 +11,8 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class PaymentSummaryController extends Controller
 {
+    private const ORIGINS = ['all', 'sales', 'purchases'];
+
     protected $paymentService;
 
     public function __construct(PaymentService $paymentService)
@@ -19,49 +21,30 @@ class PaymentSummaryController extends Controller
     }
 
     /**
-     * Obtener resumen de pagos agrupados por día y método de pago
+     * Resumen de pagos por día y método: ingresos (ventas), egresos (compras) y neto.
+     * Parámetros: start_date, end_date, payment_methods[], origin (all|sales|purchases).
      */
     public function getSummary(Request $request)
     {
-
-        $filters = [
-            'payment_methods' => $request->input('payment_methods'),
-        ];
-
-        $query = $this->paymentService->getPaymentsSummaryQuery($filters);
-
-        // Aplicar filtros de fecha
-        $startDate = $request->input('start_date');
-        $endDate = $request->input('end_date');
-
-
-
-        if ($startDate && $endDate) {
-            // Usar where normal con Carbon para manejar el formato ISO
-            $query->where('payments.payment_date', '>=', Carbon::parse($startDate)->startOfDay())
-                ->where('payments.payment_date', '<=', Carbon::parse($endDate)->endOfDay());
-        } else if ($startDate) {
-            // Solo fecha inicial
-            $query->where('payments.payment_date', '>=', Carbon::parse($startDate)->startOfDay());
-        } else if ($endDate) {
-            // Solo fecha final
-            $query->where('payments.payment_date', '<=', Carbon::parse($endDate)->endOfDay());
-        } else {
-            // Por defecto últimos 30 días
-            $query->where('payments.payment_date', '>=', now()->subDays(30));
+        $origin = $request->input('origin', 'all');
+        if (!in_array($origin, self::ORIGINS, true)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'El origen debe ser all, sales o purchases'
+            ], 422);
         }
 
-        //var_dump($query->toSql(), $query->getBindings());
-
-        // Paginación
-        $perPage = $request->input('per_page', 10);
-        //$payments = $query->paginate($perPage);
-        $payments = $query->get();
+        $rows = $this->paymentService->getUnifiedSummary([
+            'payment_methods' => $request->input('payment_methods'),
+            'start_date' => $request->input('start_date'),
+            'end_date' => $request->input('end_date'),
+            'origin' => $origin,
+        ]);
 
         return response()->json([
             'success' => true,
-            'data' => $payments,
-            'total' => $payments->count(), // Total de registros
+            'data' => $rows,
+            'total' => $rows->count(), // Total de registros
         ]);
     }
 
@@ -73,6 +56,7 @@ class PaymentSummaryController extends Controller
         try {
             $date = $request->input('date');
             $paymentMethodId = $request->input('payment_method_id');
+            $origin = $request->input('origin', 'all');
 
             if (!$date || !$paymentMethodId) {
                 return response()->json([
@@ -80,8 +64,14 @@ class PaymentSummaryController extends Controller
                     'message' => 'Fecha y método de pago son requeridos'
                 ], 400);
             }
+            if (!in_array($origin, self::ORIGINS, true)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'El origen debe ser all, sales o purchases'
+                ], 422);
+            }
 
-            $details = $this->paymentService->getPaymentDetails($date, $paymentMethodId);
+            $details = $this->paymentService->getPaymentDetails($date, $paymentMethodId, $origin);
 
             return response()->json([
                 'success' => true,
@@ -128,7 +118,15 @@ class PaymentSummaryController extends Controller
 
             \Log::info('🔄 EXPORT EXCEL - Creando instancia de PaymentsSummaryExport');
 
-            $export = new PaymentsSummaryExport($startDate, $endDate, $paymentMethods, $this->paymentService);
+            $origin = $request->input('origin', 'all');
+            if (!in_array($origin, self::ORIGINS, true)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'El origen debe ser all, sales o purchases'
+                ], 422);
+            }
+
+            $export = new PaymentsSummaryExport($startDate, $endDate, $paymentMethods, $this->paymentService, $origin);
 
             \Log::info('✅ EXPORT EXCEL - Export creado exitosamente, procediendo a descarga');
 
