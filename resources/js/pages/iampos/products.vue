@@ -7,6 +7,7 @@
         :items="filteredDesserts"
         :search="search"
         class="text-no-wrap striped-table products-table"
+        fixed-header
       >
         <template v-slot:top>
           <VCard flat color="white">
@@ -404,18 +405,6 @@ export default {
     this.loadInitialData();
   },
 
-  mounted() {
-    // Capture: engancha el scroll sea cual sea el contenedor que scrollea (window o layout)
-    window.addEventListener("scroll", this.scheduleHeaderUpdate, true);
-    window.addEventListener("resize", this.scheduleHeaderUpdate);
-  },
-
-  beforeUnmount() {
-    window.removeEventListener("scroll", this.scheduleHeaderUpdate, true);
-    window.removeEventListener("resize", this.scheduleHeaderUpdate);
-    cancelAnimationFrame(this.headerRaf);
-  },
-
   watch: {
     dialog(val) {
       val || this.closeDialog();
@@ -423,20 +412,6 @@ export default {
   },
 
   methods: {
-    // Header "fijo" al scrollear la página: se desplaza el thead (translateY) en lugar de
-    // usar position: sticky, que obligaría a quitar el scroll horizontal de la tabla.
-    scheduleHeaderUpdate() {
-      cancelAnimationFrame(this.headerRaf);
-      this.headerRaf = requestAnimationFrame(this.updateHeaderOffset);
-    },
-    updateHeaderOffset() {
-      const table = this.$el?.querySelector?.(".products-table .v-table__wrapper > table");
-      if (!table) return;
-      const thead = table.tHead;
-      const maxOffset = Math.max(0, table.getBoundingClientRect().height - (thead?.offsetHeight || 0) * 2);
-      const offset = Math.min(Math.max(0, -table.getBoundingClientRect().top), maxOffset);
-      this.$el.style.setProperty("--products-header-offset", `${offset}px`);
-    },
     // Recarga productos (sin caché del servidor), stock y listas de precios
     async refreshData(silent = false) {
       this.refreshing = true;
@@ -800,11 +775,19 @@ export default {
 </script>
 
 <style scoped>
-/* La variable la calcula updateHeaderOffset() según el scroll vertical de la página */
-.products-table :deep(thead th) {
-  position: relative;
-  z-index: 2;
-  transform: translateY(var(--products-header-offset, 0px));
+/* Header fijo nativo: el wrapper scrollea (vertical y horizontal) y el thead queda
+   con position: sticky (fixed-header de Vuetify). Sin JS ni transform => sin trabas. */
+.products-table :deep(.v-table__wrapper) {
+  max-height: calc(100vh - 360px);
+  min-height: 320px;
+}
+
+.products-table :deep(.v-table__wrapper > table > thead > tr > th) {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  /* sombra sutil para separar el header del contenido al scrollear */
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.12);
 }
 
 /* Mismo gris del tema (--v-table-header-color) un poco más oscuro.
