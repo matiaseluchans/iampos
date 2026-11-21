@@ -74,6 +74,7 @@ class OrdersExport implements FromQuery, WithHeadings, WithMapping, WithStyles, 
             'Cliente Direccion',
             'Cliente Nombre',
             'Fecha',
+            'Hora',
             'Total',
             'Estado Pago',
             'Estado Envio',
@@ -97,7 +98,8 @@ class OrdersExport implements FromQuery, WithHeadings, WithMapping, WithStyles, 
                     $order->order_number,
                     $order->customer->address ?? 'N/A',
                     $order->customer->firstname ?? 'N/A',
-                    $order->created_at->format('Y-m-d H:i'),
+                    $order->created_at->format('Y-m-d'),
+                    $order->created_at->format('H:i'),
 
                     number_format($order->total_amount,  0, '.', ''),
 
@@ -118,7 +120,8 @@ class OrdersExport implements FromQuery, WithHeadings, WithMapping, WithStyles, 
                 $order->order_number,
                 $order->customer->address ?? 'N/A',
                 $order->customer->firstname ?? 'N/A',
-                $order->created_at->format('Y-m-d H:i'),
+                $order->created_at->format('Y-m-d'),
+                $order->created_at->format('H:i'),
 
                 number_format($order->total_amount, 0),
 
@@ -162,20 +165,20 @@ class OrdersExport implements FromQuery, WithHeadings, WithMapping, WithStyles, 
     {
         return [
             'A' => 10, // ID Orden
-            'B' => 25, // Cliente
-            'C' => 20, // Usuario
-            'D' => 15, // Fecha
-            'E' => 15, // Estado
-            'F' => 20, // Método de Pago
-            'G' => 12, // Subtotal
-            'H' => 12, // Impuestos
-            'I' => 12, // Descuento
-            'J' => 12, // Total
-            'K' => 30, // Producto
-            'L' => 10, // Cantidad
-            'M' => 15, // Precio Unitario
-            'N' => 15, // Subtotal Item
-            'O' => 30, // Notas
+            'B' => 25, // Cliente Direccion
+            'C' => 20, // Cliente Nombre
+            'D' => 12, // Fecha
+            'E' => 8,  // Hora
+            'F' => 12, // Total
+            'G' => 15, // Estado Pago
+            'H' => 15, // Estado Envio
+            'I' => 10, // Cantidad
+            'J' => 30, // Producto
+            'K' => 15, // Precio Unitario
+            'L' => 12, // Subtotal
+            'M' => 12,
+            'N' => 15,
+            'O' => 30,
         ];
     }
 
